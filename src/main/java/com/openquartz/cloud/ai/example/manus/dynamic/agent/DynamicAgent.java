@@ -167,7 +167,7 @@ public class DynamicAgent extends ReActAgent {
 
 			thinkActRecord.finishAction(llmCallResponse, "SUCCESS");
 			String toolcallName = toolCall.name();
-			AgentExecResult agentExecResult = null;
+			AgentExecResult agentExecResult;
 			// 如果是终止工具，则返回完成状态
 			// 否则返回运行状态
 			if (TerminateTool.name.equals(toolcallName)) {
@@ -212,8 +212,7 @@ public class DynamicAgent extends ReActAgent {
 				""";
 		nextStepPrompt = nextStepPrompt += this.nextStepPrompt;
 		PromptTemplate promptTemplate = new PromptTemplate(nextStepPrompt);
-		Message userMessage = promptTemplate.createMessage(getData());
-		return userMessage;
+        return promptTemplate.createMessage(getData());
 	}
 
 	@Override
