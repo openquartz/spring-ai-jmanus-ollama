@@ -30,7 +30,7 @@ public class TerminateTool implements ToolCallBiFunctionDef {
 
 	private static final Logger log = LoggerFactory.getLogger(TerminateTool.class);
 
-	private static String PARAMETERS = """
+	private static final String PARAMETERS = """
 			{
 			  "type" : "object",
 			  "properties" : {
@@ -61,8 +61,6 @@ public class TerminateTool implements ToolCallBiFunctionDef {
 			""";
 
 	public static OllamaApi.ChatRequest.Tool getToolDefinition() {
-//		OpenAiApi.FunctionTool.Function function = new OpenAiApi.FunctionTool.Function(description, name, PARAMETERS);
-//		return new OpenAiApi.FunctionTool(function);
 		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
 	}
 

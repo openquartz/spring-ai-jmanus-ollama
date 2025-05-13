@@ -57,7 +57,7 @@ public class McpService implements InitializingBean {
 	private final Map<String, McpServiceEntity> toolCallbackMap = new ConcurrentHashMap<>();
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		for (McpConfigEntity mcpConfigEntity : mcpConfigRepository.findAll()) {
 			try {
 				loadMcpServices(mcpConfigEntity);

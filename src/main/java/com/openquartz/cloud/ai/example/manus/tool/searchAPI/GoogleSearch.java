@@ -36,9 +36,9 @@ public class GoogleSearch implements ToolCallBiFunctionDef {
 
 	private static final Logger log = LoggerFactory.getLogger(GoogleSearch.class);
 
-	private SerpApiService service;
+	private final SerpApiService service;
 
-	private static String PARAMETERS = """
+	private static final String PARAMETERS = """
 			{
 			    "type": "object",
 			    "properties": {
@@ -65,9 +65,6 @@ public class GoogleSearch implements ToolCallBiFunctionDef {
 			""";
 
 	public static OllamaApi.ChatRequest.Tool getToolDefinition() {
-//		OpenAiApi.FunctionTool.Function function = new OpenAiApi.FunctionTool.Function(description, name, PARAMETERS);
-//		OpenAiApi.FunctionTool functionTool = new OpenAiApi.FunctionTool(function);
-//		return functionTool;
 		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
 	}
 

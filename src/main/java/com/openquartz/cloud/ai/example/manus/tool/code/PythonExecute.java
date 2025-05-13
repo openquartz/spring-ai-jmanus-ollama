@@ -65,9 +65,6 @@ public class PythonExecute implements ToolCallBiFunctionDef {
 			""";
 
 	public static OllamaApi.ChatRequest.Tool getToolDefinition() {
-//		OpenAiApi.FunctionTool.Function function = new OpenAiApi.FunctionTool.Function(description, name, PARAMETERS);
-//		OpenAiApi.FunctionTool functionTool = new OpenAiApi.FunctionTool(function);
-//		return functionTool;
 		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
 	}
 

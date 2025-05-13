@@ -92,7 +92,6 @@ public class PlanningTool implements Function<String, ToolExecuteResult> {
 	private static final String description = "Planning tool for managing tasks ";
 
 	public OllamaApi.ChatRequest.Tool getToolDefinition() {
-//		return new FunctionTool(new FunctionTool.Function(description, name, PARAMETERS));
 		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
 	}
 

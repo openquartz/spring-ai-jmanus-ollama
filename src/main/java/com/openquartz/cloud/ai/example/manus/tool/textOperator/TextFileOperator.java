@@ -15,22 +15,24 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.textOperator;
 
-import java.io.*;
-import java.nio.channels.FileChannel;
-import java.nio.file.*;
-import java.util.Map;
-import com.openquartz.cloud.ai.example.manus.tool.ToolCallBiFunctionDef;
-import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-
+import com.openquartz.cloud.ai.example.manus.tool.ToolCallBiFunctionDef;
+import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.model.ToolContext;
-//import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.tool.function.FunctionToolCallback;
+
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Map;
 
 public class TextFileOperator implements ToolCallBiFunctionDef {
 
@@ -107,12 +109,6 @@ public class TextFileOperator implements ToolCallBiFunctionDef {
 			""";
 
 	public OllamaApi.ChatRequest.Tool getToolDefinition() {
-//
-//		OpenAiApi.FunctionTool.Function function = new OpenAiApi.FunctionTool.Function(TOOL_DESCRIPTION, TOOL_NAME,
-//				PARAMETERS);
-//		OpenAiApi.FunctionTool functionTool = new OpenAiApi.FunctionTool(function);
-//		return functionTool;
-
 		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(TOOL_NAME, TOOL_DESCRIPTION, ModelOptionsUtils.jsonToMap(PARAMETERS)));
 	}
 
