@@ -15,10 +15,10 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.model.vo;
 
+import com.openquartz.cloud.ai.example.manus.agent.AgentState;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.openquartz.cloud.ai.example.manus.agent.AgentState;
 
 /**
  * 计划实体类，用于管理执行计划的相关信息

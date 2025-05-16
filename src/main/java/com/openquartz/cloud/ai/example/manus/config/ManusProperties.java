@@ -16,12 +16,11 @@
 
 package com.openquartz.cloud.ai.example.manus.config;
 
+import com.openquartz.cloud.ai.example.manus.config.entity.ConfigInputType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import com.openquartz.cloud.ai.example.manus.config.entity.ConfigInputType;
 
 @Component
 @ConfigurationProperties(prefix = "manus")

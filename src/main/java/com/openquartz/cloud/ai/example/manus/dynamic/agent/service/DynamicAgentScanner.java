@@ -15,9 +15,12 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.service;
 
-import java.util.Arrays;
-import java.util.Set;
-
+import com.openquartz.cloud.ai.example.manus.config.ConfigService;
+import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.annotation.DynamicAgentDefinition;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.repository.DynamicAgentRepository;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +29,8 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Service;
 
-import com.openquartz.cloud.ai.example.manus.config.ConfigService;
-import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.annotation.DynamicAgentDefinition;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.repository.DynamicAgentRepository;
-
-import jakarta.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.Set;
 
 @Service
 public class DynamicAgentScanner {
@@ -41,7 +39,7 @@ public class DynamicAgentScanner {
 
 	private final DynamicAgentRepository repository;
 
-	private final String basePackage = "com/openquartz/cloud/ai/example/manus";
+	private final String basePackage = "com.openquartz.cloud.ai.example.manus";
 
 	@Autowired
 	private ConfigService configService;

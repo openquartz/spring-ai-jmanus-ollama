@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cloud.ai.example.manus.dynamic.agent.startupAgent;
+package com.openquartz.cloud.ai.example.manus.dynamic.agent.startupAgent;
 
-import annotation.agent.dynamic.com.openquartz.cloud.ai.example.manus.DynamicAgentDefinition;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.annotation.DynamicAgentDefinition;
 
 @DynamicAgentDefinition(agentName = "DEFAULT_AGENT",
 		agentDescription = "A versatile default agent that can handle various user requests using file operations and shell commands. Perfect for general-purpose tasks that may involve file manipulation, system operations, or text processing.",

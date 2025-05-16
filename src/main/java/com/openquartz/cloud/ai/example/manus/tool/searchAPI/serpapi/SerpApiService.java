@@ -15,12 +15,6 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.searchAPI.serpapi;
 
-import static com.openquartz.cloud.ai.example.manus.tool.searchAPI.serpapi.SerpApiProperties.SERP_API_URL;
-import static com.openquartz.cloud.ai.example.manus.tool.searchAPI.serpapi.SerpApiProperties.USER_AGENT_VALUE;
-
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,12 +22,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.openquartz.cloud.ai.example.manus.tool.searchAPI.serpapi.SerpApiProperties.SERP_API_URL;
+import static com.openquartz.cloud.ai.example.manus.tool.searchAPI.serpapi.SerpApiProperties.USER_AGENT_VALUE;
 
 public class SerpApiService {
 

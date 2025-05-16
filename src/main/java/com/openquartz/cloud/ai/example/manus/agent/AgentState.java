@@ -17,10 +17,7 @@ package com.openquartz.cloud.ai.example.manus.agent;
 
 public enum AgentState {
 
-	NOT_STARTED("not_started"),
-	IN_PROGRESS("in_progress"),
-	COMPLETED("completed"),
-	BLOCKED("blocked"),
+	NOT_STARTED("not_started"), IN_PROGRESS("in_progress"), COMPLETED("completed"), BLOCKED("blocked"),
 	FAILED("failed");
 
 	private final String state;

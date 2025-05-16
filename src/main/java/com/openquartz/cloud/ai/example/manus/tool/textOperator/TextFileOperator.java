@@ -78,14 +78,6 @@ public class TextFileOperator implements ToolCallBiFunctionDef {
 			}
 			""";
 
-	private final Map<String,Object> PARAMTER_MAP = Map.of(
-
-
-
-	);
-
-
-
 	private final String TOOL_NAME = "text_file_operator";
 
 	private final String TOOL_DESCRIPTION = """

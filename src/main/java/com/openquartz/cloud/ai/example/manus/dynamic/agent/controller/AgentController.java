@@ -15,23 +15,14 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.model.Tool;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.AgentConfig;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.AgentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/agents")
@@ -47,7 +38,7 @@ public class AgentController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<AgentConfig> getAgentById(@PathVariable String id) {
+	public ResponseEntity<AgentConfig> getAgentById(@PathVariable("id") String id) {
 		return ResponseEntity.ok(agentService.getAgentById(id));
 	}
 
@@ -57,13 +48,14 @@ public class AgentController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<AgentConfig> updateAgent(@PathVariable String id, @RequestBody AgentConfig agentConfig) {
+	public ResponseEntity<AgentConfig> updateAgent(@PathVariable("id") String id,
+			@RequestBody AgentConfig agentConfig) {
 		agentConfig.setId(id);
 		return ResponseEntity.ok(agentService.updateAgent(agentConfig));
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteAgent(@PathVariable String id) {
+	public ResponseEntity<Void> deleteAgent(@PathVariable("id") String id) {
 		try {
 			agentService.deleteAgent(id);
 			return ResponseEntity.ok().build();

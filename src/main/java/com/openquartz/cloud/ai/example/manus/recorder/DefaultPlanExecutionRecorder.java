@@ -15,11 +15,10 @@
  */
 package com.openquartz.cloud.ai.example.manus.recorder;
 
-import org.springframework.stereotype.Component;
-
 import com.openquartz.cloud.ai.example.manus.recorder.entity.AgentExecutionRecord;
 import com.openquartz.cloud.ai.example.manus.recorder.entity.PlanExecutionRecord;
 import com.openquartz.cloud.ai.example.manus.recorder.entity.ThinkActRecord;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;

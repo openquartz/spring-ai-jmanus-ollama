@@ -15,18 +15,17 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.service;
 
-import java.util.List;
-
-import org.springframework.ai.model.tool.ToolCallingManager;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.repository.DynamicAgentRepository;
 import com.openquartz.cloud.ai.example.manus.llm.LlmService;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
+import org.springframework.ai.model.tool.ToolCallingManager;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class DynamicAgentLoader {

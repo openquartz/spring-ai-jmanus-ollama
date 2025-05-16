@@ -16,10 +16,9 @@
 
 package com.openquartz.cloud.ai.example.manus.config.startUp;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.openquartz.cloud.ai.example.manus.config.ConfigService;
+import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.DynamicAgentScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +26,9 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import com.openquartz.cloud.ai.example.manus.config.ConfigService;
-import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.DynamicAgentScanner;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class ConfigAppStartupListener implements ApplicationListener<ApplicationStartedEvent> {

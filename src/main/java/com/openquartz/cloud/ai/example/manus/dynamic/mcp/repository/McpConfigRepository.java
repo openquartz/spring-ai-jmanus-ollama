@@ -15,10 +15,9 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.mcp.repository;
 
+import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.po.McpConfigEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.po.McpConfigEntity;
 
 /**
  * McpConfig

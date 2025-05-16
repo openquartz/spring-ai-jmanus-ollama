@@ -15,15 +15,14 @@
  */
 package com.openquartz.cloud.ai.example.manus.config.repository;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 系统配置数据访问接口

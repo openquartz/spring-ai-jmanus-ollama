@@ -15,20 +15,19 @@
  */
 package com.openquartz.cloud.ai.example.manus.config.startUp;
 
-import java.util.Scanner;
-
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory;
 import com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanIdDispatcher;
 import com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+
+import java.util.Scanner;
 
 @Configuration
 public class QueryCommandRunner implements CommandLineRunner {

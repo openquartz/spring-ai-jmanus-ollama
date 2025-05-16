@@ -1,4 +1,4 @@
-// /*
+package com.openquartz.cloud.ai.example.manus.flow;// /*
 // * Copyright 2025 the original author or authors.
 // *
 // * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 // */
-// package com.alibaba.cloud.ai.example.manus.flow;
+// package com.openquartz.cloud.ai.example.manus.flow;
 
 // import java.util.Arrays;
 // import java.util.HashMap;

@@ -15,17 +15,15 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.model.vo;
 
-import com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator;
-
 /**
  * 执行上下文类，用于在计划的创建、执行和总结过程中传递和维护状态信息。 该类作为计划执行流程中的核心数据载体，在
- * {@link PlanningCoordinator}
+ * {@link com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator}
  * 的各个阶段之间传递。
  *
  * 主要职责： - 存储计划ID和计划实体信息 - 保存用户原始请求 - 维护计划执行状态 - 存储执行结果摘要 - 控制是否需要生成执行总结
  *
- * @see ExecutionPlan
- * @see PlanningCoordinator
+ * @see com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan
+ * @see com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator
  */
 public class ExecutionContext {
 

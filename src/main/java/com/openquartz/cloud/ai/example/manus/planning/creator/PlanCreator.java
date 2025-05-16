@@ -29,7 +29,6 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 负责创建执行计划的类
@@ -82,7 +81,7 @@ public class PlanCreator {
 				.advisors(memoryAdvisor -> memoryAdvisor.param("chat_memory_conversation_id", planId)
 					.param("chat_memory_retrieve_size", 100))
 				.call();
-			String outputText = Objects.requireNonNull(response.chatResponse()).getResult().getOutput().getText();
+			String outputText = response.chatResponse().getResult().getOutput().getText();
 			// 检查计划是否创建成功
 			if (planId.equals(planningTool.getCurrentPlanId())) {
 				currentPlan = planningTool.getCurrentPlan();

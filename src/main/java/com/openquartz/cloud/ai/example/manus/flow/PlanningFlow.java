@@ -1,4 +1,4 @@
-// /*
+package com.openquartz.cloud.ai.example.manus.flow;// /*
 // * Copyright 2025 the original author or authors.
 // *
 // * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +13,19 @@
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 // */
-// package com.alibaba.cloud.ai.example.manus.flow;
+// package com.openquartz.cloud.ai.example.manus.flow;
 
-// import com.alibaba.cloud.ai.example.manus.llm.LlmService;
-// import com.alibaba.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
+// import com.openquartz.cloud.ai.example.manus.llm.LlmService;
+// import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 // import com.alibaba.fastjson.JSON;
 
-// import com.alibaba.cloud.ai.example.manus.agent.BaseAgent;
-// import com.alibaba.cloud.ai.example.manus.config.startUp.ManusConfiguration;
+// import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
+// import com.openquartz.cloud.ai.example.manus.config.startUp.ManusConfiguration;
 // import
-// com.alibaba.cloud.ai.example.manus.config.startUp.ManusConfiguration.ToolCallBackContext;
-// import com.alibaba.cloud.ai.example.manus.recorder.entity.PlanExecutionRecord;
-// import com.alibaba.cloud.ai.example.manus.tool.PlanningTool;
-// import com.alibaba.cloud.ai.example.manus.tool.code.ToolExecuteResult;
+// com.openquartz.cloud.ai.example.manus.config.startUp.ManusConfiguration.ToolCallBackContext;
+// import com.openquartz.cloud.ai.example.manus.recorder.entity.PlanExecutionRecord;
+// import com.openquartz.cloud.ai.example.manus.tool.PlanningTool;
+// import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 
 // import org.slf4j.Logger;
 // import org.slf4j.LoggerFactory;

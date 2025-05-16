@@ -19,7 +19,6 @@ import com.openquartz.cloud.ai.example.manus.tool.ToolCallBiFunctionDef;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;

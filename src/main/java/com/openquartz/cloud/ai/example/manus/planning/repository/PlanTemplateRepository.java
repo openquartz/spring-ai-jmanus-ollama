@@ -15,12 +15,11 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.repository;
 
-import java.util.Optional;
-
+import com.openquartz.cloud.ai.example.manus.planning.model.po.PlanTemplate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.openquartz.cloud.ai.example.manus.planning.model.po.PlanTemplate;
+import java.util.Optional;
 
 /**
  * 计划模板数据访问接口

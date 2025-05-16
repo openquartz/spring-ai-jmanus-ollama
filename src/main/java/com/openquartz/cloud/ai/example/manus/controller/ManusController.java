@@ -21,7 +21,6 @@ import com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordi
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import com.openquartz.cloud.ai.example.manus.recorder.entity.PlanExecutionRecord;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,9 +93,8 @@ public class ManusController {
 	 * @param planId 计划ID
 	 * @return 执行记录的 JSON 表示
 	 */
-	@CrossOrigin(origins = {"http://localhost:18080"}, methods = RequestMethod.POST)
 	@GetMapping("/details/{planId}")
-	public ResponseEntity<String> getExecutionDetails(@PathVariable("planId") String planId) {
+	public synchronized ResponseEntity<String> getExecutionDetails(@PathVariable("planId") String planId) {
 		PlanExecutionRecord planRecord = planExecutionRecorder.getExecutionRecord(planId);
 
 		if (planRecord == null) {
@@ -111,7 +109,6 @@ public class ManusController {
 	 * @param planId 计划ID
 	 * @return 删除操作的结果
 	 */
-	@CrossOrigin(origins = {"http://localhost:18080"}, methods = RequestMethod.POST)
 	@DeleteMapping("/details/{planId}")
 	public ResponseEntity<Map<String, String>> removeExecutionDetails(@PathVariable("planId") String planId) {
 		PlanExecutionRecord planRecord = planExecutionRecorder.getExecutionRecord(planId);

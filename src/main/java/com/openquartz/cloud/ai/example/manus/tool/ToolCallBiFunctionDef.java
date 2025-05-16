@@ -15,10 +15,10 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool;
 
-import java.util.function.BiFunction;
-
-import org.springframework.ai.chat.model.ToolContext;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
+import org.springframework.ai.chat.model.ToolContext;
+
+import java.util.function.BiFunction;
 
 /**
  * Tool 定义的接口，提供统一的工具定义方法

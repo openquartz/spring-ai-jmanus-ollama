@@ -15,10 +15,9 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.repository;
 
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
 
 @Repository
 public interface DynamicAgentRepository extends JpaRepository<DynamicAgentEntity, Long> {

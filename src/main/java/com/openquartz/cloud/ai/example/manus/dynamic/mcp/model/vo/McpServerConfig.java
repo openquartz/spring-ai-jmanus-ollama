@@ -15,13 +15,13 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 内部服务器配置类

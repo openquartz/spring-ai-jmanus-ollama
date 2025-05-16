@@ -16,10 +16,7 @@
 
 package com.openquartz.cloud.ai.example.manus.config.startUp;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
-
+import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +25,9 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
 
 @Component
 public class AppStartupListener implements ApplicationListener<ApplicationReadyEvent> {

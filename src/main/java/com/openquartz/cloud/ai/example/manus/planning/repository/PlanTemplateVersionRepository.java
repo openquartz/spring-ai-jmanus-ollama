@@ -15,14 +15,13 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.repository;
 
-import java.util.List;
-
+import com.openquartz.cloud.ai.example.manus.planning.model.po.PlanTemplateVersion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.openquartz.cloud.ai.example.manus.planning.model.po.PlanTemplateVersion;
+import java.util.List;
 
 /**
  * 计划模板版本数据访问接口

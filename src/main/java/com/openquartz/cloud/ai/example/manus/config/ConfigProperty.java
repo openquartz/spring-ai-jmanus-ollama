@@ -16,12 +16,12 @@
 
 package com.openquartz.cloud.ai.example.manus.config;
 
+import com.openquartz.cloud.ai.example.manus.config.entity.ConfigInputType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.openquartz.cloud.ai.example.manus.config.entity.ConfigInputType;
 
 /**
  * 配置属性注解，支持三级配置结构：group.subgroup.key

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cloud.ai.example.manus.dynamic.agent.startupAgent;
+package com.openquartz.cloud.ai.example.manus.dynamic.agent.startupAgent;
 
-import annotation.agent.dynamic.com.openquartz.cloud.ai.example.manus.DynamicAgentDefinition;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.annotation.DynamicAgentDefinition;
 
 @DynamicAgentDefinition(agentName = "TEXT_FILE_AGENT",
 		agentDescription = "A text file manipulation agent that can create, read, write, and append content to various text-based files. Suitable for both temporary and persistent record keeping. Supports multiple file types including markdown, html, source code, and configuration files.",

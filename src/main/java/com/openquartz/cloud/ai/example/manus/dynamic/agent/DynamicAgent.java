@@ -16,16 +16,17 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.openquartz.cloud.ai.example.manus.agent.AgentState;
+import com.openquartz.cloud.ai.example.manus.agent.ReActAgent;
+import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
+import com.openquartz.cloud.ai.example.manus.llm.LlmService;
+import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory.ToolCallBackContext;
+import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
+import com.openquartz.cloud.ai.example.manus.recorder.entity.AgentExecutionRecord;
+import com.openquartz.cloud.ai.example.manus.recorder.entity.ThinkActRecord;
+import com.openquartz.cloud.ai.example.manus.tool.TerminateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 import org.springframework.ai.chat.messages.AssistantMessage.ToolCall;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
@@ -39,15 +40,14 @@ import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.model.tool.ToolExecutionResult;
 import org.springframework.ai.tool.ToolCallback;
 
-import com.openquartz.cloud.ai.example.manus.agent.AgentState;
-import com.openquartz.cloud.ai.example.manus.agent.ReActAgent;
-import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
-import com.openquartz.cloud.ai.example.manus.llm.LlmService;
-import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory.ToolCallBackContext;
-import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
-import com.openquartz.cloud.ai.example.manus.recorder.entity.AgentExecutionRecord;
-import com.openquartz.cloud.ai.example.manus.recorder.entity.ThinkActRecord;
-import com.openquartz.cloud.ai.example.manus.tool.TerminateTool;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
+import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 
 public class DynamicAgent extends ReActAgent {
 
@@ -113,7 +113,7 @@ public class DynamicAgent extends ReActAgent {
 				.prompt(userPrompt)
 				.advisors(memoryAdvisor -> memoryAdvisor.param(CHAT_MEMORY_CONVERSATION_ID_KEY, getPlanId())
 					.param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
-				.tools(getToolCallList())
+				.toolCallbacks(getToolCallList())
 				.call()
 				.chatResponse();
 
@@ -167,7 +167,7 @@ public class DynamicAgent extends ReActAgent {
 
 			thinkActRecord.finishAction(llmCallResponse, "SUCCESS");
 			String toolcallName = toolCall.name();
-			AgentExecResult agentExecResult;
+			AgentExecResult agentExecResult = null;
 			// 如果是终止工具，则返回完成状态
 			// 否则返回运行状态
 			if (TerminateTool.name.equals(toolcallName)) {
@@ -212,7 +212,8 @@ public class DynamicAgent extends ReActAgent {
 				""";
 		nextStepPrompt = nextStepPrompt += this.nextStepPrompt;
 		PromptTemplate promptTemplate = new PromptTemplate(nextStepPrompt);
-        return promptTemplate.createMessage(getData());
+		Message userMessage = promptTemplate.createMessage(getData());
+		return userMessage;
 	}
 
 	@Override

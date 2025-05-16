@@ -15,11 +15,11 @@
  */
 package com.openquartz.cloud.ai.example.manus.agent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.llm.LlmService;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ReAct（Reasoning + Acting）模式的智能体基类 实现了思考(Reasoning)和行动(Acting)交替执行的智能体模式
@@ -68,9 +68,10 @@ public abstract class ReActAgent extends BaseAgent {
 
 		boolean shouldAct = think();
 		if (!shouldAct) {
+			AgentExecResult result = new AgentExecResult("Thinking complete - no action needed",
+					AgentState.IN_PROGRESS);
 
-            return new AgentExecResult("Thinking complete - no action needed",
-                    AgentState.IN_PROGRESS);
+			return result;
 		}
 		return act();
 	}

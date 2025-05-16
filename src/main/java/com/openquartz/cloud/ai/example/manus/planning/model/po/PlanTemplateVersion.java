@@ -15,14 +15,9 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.model.po;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
 /**
  * 计划模板版本实体类，用于存储计划模板的各个版本

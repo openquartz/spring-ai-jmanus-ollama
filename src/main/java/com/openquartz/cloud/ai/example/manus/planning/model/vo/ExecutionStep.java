@@ -71,12 +71,14 @@ public class ExecutionStep {
 		else {
 			agentState = AgentState.NOT_STARTED.toString();
 		}
+		StringBuilder sb = new StringBuilder();
+		sb.append(stepIndex);
+		sb.append(". ");
+		sb.append("[").append(agentState).append("]");
+		sb.append(" ");
+		sb.append(stepRequirement);
 
-        return stepIndex +
-                ". " +
-                "[" + agentState + "]" +
-                " " +
-                stepRequirement;
+		return sb.toString();
 	}
 
 	/**

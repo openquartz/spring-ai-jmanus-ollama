@@ -17,11 +17,10 @@ package com.openquartz.cloud.ai.example.manus.flow;
 
 import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
+import org.springframework.ai.tool.ToolCallback;
 
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.ai.tool.ToolCallback;
 
 public abstract class BaseFlow {
 

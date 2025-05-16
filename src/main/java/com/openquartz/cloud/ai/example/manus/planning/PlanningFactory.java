@@ -18,6 +18,7 @@ package com.openquartz.cloud.ai.example.manus.planning;
 
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.AgentService;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.DynamicAgentLoader;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo.McpServiceEntity;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo.McpTool;
@@ -59,7 +60,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.AgentService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -135,7 +135,9 @@ public class PlanningFactory {
 		PlanExecutor planExecutor = new PlanExecutor(agentEntities, recorder, agentService);
 		PlanFinalizer planFinalizer = new PlanFinalizer(llmService, recorder);
 
-        return new PlanningCoordinator(planCreator, planExecutor, planFinalizer);
+		PlanningCoordinator planningCoordinator = new PlanningCoordinator(planCreator, planExecutor, planFinalizer);
+
+		return planningCoordinator;
 	}
 
 	public static class ToolCallBackContext {
@@ -171,7 +173,7 @@ public class PlanningFactory {
 		toolDefinitions.add(new TextFileOperator(CodeUtils.WORKING_DIR, textFileService));
 		toolDefinitions.add(new GoogleSearch());
 		toolDefinitions.add(new PythonExecute());
-		List<McpServiceEntity> functionCallbacks = mcpService.getFunctionCallbacks();
+		List<McpServiceEntity> functionCallbacks = mcpService.getFunctionCallbacks(planId);
 		for (McpServiceEntity toolCallback : functionCallbacks) {
 			String serviceGroup = toolCallback.getServiceGroup();
 			ToolCallback[] tCallbacks = toolCallback.getAsyncMcpToolCallbackProvider().getToolCallbacks();

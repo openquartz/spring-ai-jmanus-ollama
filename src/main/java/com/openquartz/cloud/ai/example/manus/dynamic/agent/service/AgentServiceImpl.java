@@ -15,18 +15,6 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import com.openquartz.cloud.ai.example.manus.tool.TerminateTool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.ai.model.tool.ToolCallingManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
 import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent;
@@ -38,6 +26,16 @@ import com.openquartz.cloud.ai.example.manus.llm.LlmService;
 import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory;
 import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory.ToolCallBackContext;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ai.model.tool.ToolCallingManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AgentServiceImpl implements AgentService {
@@ -92,8 +90,9 @@ public class AgentServiceImpl implements AgentService {
 			// 检查是否已存在同名Agent
 			DynamicAgentEntity existingAgent = repository.findByAgentName(config.getName());
 			if (existingAgent != null) {
-				log.info("发现同名Agent: {}，返回已存在的Agent", config.getName());
-				return mapToAgentConfig(existingAgent);
+				log.info("发现同名Agent: {}，更新Agent", config.getName());
+				config.setId(existingAgent.getId().toString());
+				return updateAgent(config);
 			}
 
 			DynamicAgentEntity entity = new DynamicAgentEntity();
@@ -178,10 +177,10 @@ public class AgentServiceImpl implements AgentService {
 			toolSet.addAll(availableTools);
 		}
 		// 2. 添加 TerminateTool（如不存在）
-		if (!toolSet.contains(TerminateTool.name)) {
+		if (!toolSet.contains(com.openquartz.cloud.ai.example.manus.tool.TerminateTool.name)) {
 			log.info("为Agent[{}]添加必要的工具: {}", config.getName(),
-					TerminateTool.name);
-			toolSet.add(TerminateTool.name);
+					com.openquartz.cloud.ai.example.manus.tool.TerminateTool.name);
+			toolSet.add(com.openquartz.cloud.ai.example.manus.tool.TerminateTool.name);
 		}
 		// 3. 转为 List 并设置
 		entity.setAvailableToolKeys(new java.util.ArrayList<>(toolSet));

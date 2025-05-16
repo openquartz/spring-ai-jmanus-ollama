@@ -16,21 +16,18 @@
 package com.openquartz.cloud.ai.example.manus.tool;
 
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.alibaba.cloud.ai.parser.tika.TikaDocumentParser;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.ai.chat.model.ToolContext;
-import org.springframework.ai.document.Document;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.tool.function.FunctionToolCallback;
@@ -45,7 +42,7 @@ public class DocLoaderTool implements ToolCallBiFunctionDef {
 			    "properties": {
 			        "file_type": {
 			            "type": "string",
-			            "description": "(required) File type, such as pdf, docx, xlsx, csv, etc.."
+			            "description": "(required) File type, only support pdf file."
 			        },
 			        "file_path": {
 			            "type": "string",
@@ -95,20 +92,22 @@ public class DocLoaderTool implements ToolCallBiFunctionDef {
 			this.lastFilePath = filePath;
 			this.lastFileType = fileType;
 
-			TikaDocumentParser parser = new TikaDocumentParser();
-			List<Document> documentList = parser.parse(new FileInputStream(filePath));
-			List<String> documentContents = documentList.stream()
-				.map(document -> document.getFormattedContent())
-				.collect(Collectors.toList());
-
-			String documentContentStr = String.join("\n", documentContents);
-			if (StringUtils.isEmpty(documentContentStr)) {
-				this.lastOperationResult = "No content found";
-				return new ToolExecuteResult("No Related information");
+			if (!"pdf".equalsIgnoreCase(fileType)) {
+				return new ToolExecuteResult("Unsupported file type: " + fileType);
 			}
-			else {
-				this.lastOperationResult = "Success";
-				return new ToolExecuteResult("Related information: " + documentContentStr);
+
+			try (PDDocument document = PDDocument.load(new File(filePath))) {
+				PDFTextStripper pdfStripper = new PDFTextStripper();
+				String documentContentStr = pdfStripper.getText(document);
+
+				if (StringUtils.isEmpty(documentContentStr)) {
+					this.lastOperationResult = "No content found";
+					return new ToolExecuteResult("No Related information");
+				}
+				else {
+					this.lastOperationResult = "Success";
+					return new ToolExecuteResult("Related information: " + documentContentStr);
+				}
 			}
 		}
 		catch (Throwable e) {

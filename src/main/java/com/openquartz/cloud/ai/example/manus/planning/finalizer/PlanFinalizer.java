@@ -15,9 +15,10 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.finalizer;
 
-import java.util.List;
-import java.util.Map;
-
+import com.openquartz.cloud.ai.example.manus.llm.LlmService;
+import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
+import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan;
+import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.messages.Message;
@@ -26,10 +27,8 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 
-import com.openquartz.cloud.ai.example.manus.llm.LlmService;
-import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
-import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan;
-import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 负责生成计划执行总结的类

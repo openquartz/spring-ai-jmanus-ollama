@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cloud.ai.example.manus.dynamic.agent.startupAgent;
+package com.openquartz.cloud.ai.example.manus.dynamic.agent.startupAgent;
 
-import annotation.agent.dynamic.com.openquartz.cloud.ai.example.manus.DynamicAgentDefinition;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.annotation.DynamicAgentDefinition;
 
 @DynamicAgentDefinition(agentName = "BROWSER_AGENT",
 		agentDescription = "A browser agent that can control a browser to accomplish tasks",

@@ -16,17 +16,15 @@
 
 package com.openquartz.cloud.ai.example.manus.tool.code;
 
+import cn.hutool.core.util.ByteUtil;
+import com.google.common.net.InetAddresses;
+import org.apache.commons.lang3.StringUtils;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.google.common.net.InetAddresses;
-
-import cn.hutool.core.util.ByteUtil;
 
 public class LogIdGenerator {
 

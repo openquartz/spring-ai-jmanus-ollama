@@ -15,10 +15,10 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.service;
 
-import java.util.List;
-
 import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.model.Tool;
+
+import java.util.List;
 
 public interface AgentService {
 

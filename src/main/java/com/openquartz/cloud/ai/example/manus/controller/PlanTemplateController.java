@@ -15,25 +15,6 @@
  */
 package com.openquartz.cloud.ai.example.manus.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory;
 import com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanIdDispatcher;
 import com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator;
@@ -42,6 +23,18 @@ import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan;
 import com.openquartz.cloud.ai.example.manus.planning.service.PlanTemplateService;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 计划模板控制器，处理计划模板页面的API请求
@@ -153,8 +146,9 @@ public class PlanTemplateController {
 	 * @return 结果状态
 	 */
 	@GetMapping("/execute/{planTemplateId}")
-	public ResponseEntity<Map<String, Object>> executePlanByTemplateIdGet(@PathVariable String planTemplateId,
-			@RequestParam(required = false) Map<String, String> allParams) {
+	public ResponseEntity<Map<String, Object>> executePlanByTemplateIdGet(
+			@PathVariable("planTemplateId") String planTemplateId,
+			@RequestParam(required = false, name = "allParams") Map<String, String> allParams) {
 		if (planTemplateId == null || planTemplateId.trim().isEmpty()) {
 			return ResponseEntity.badRequest().body(Map.of("error", "计划模板ID不能为空"));
 		}

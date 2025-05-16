@@ -34,3 +34,5 @@ build/
 
 logs/
 h2-data/
+
+/extensions/
