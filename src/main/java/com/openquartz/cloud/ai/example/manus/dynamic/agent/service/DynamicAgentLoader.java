@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DynamicAgentLoader {
@@ -49,15 +50,14 @@ public class DynamicAgentLoader {
 		this.toolCallingManager = toolCallingManager;
 	}
 
-	public DynamicAgent loadAgent(String agentName) {
+	public DynamicAgent loadAgent(String agentName, Map<String, Object> initialAgentSetting) {
 		DynamicAgentEntity entity = repository.findByAgentName(agentName);
 		if (entity == null) {
 			throw new IllegalArgumentException("Agent not found: " + agentName);
 		}
 
 		return new DynamicAgent(llmService, recorder, properties, entity.getAgentName(), entity.getAgentDescription(),
-				entity.getSystemPrompt(), entity.getNextStepPrompt(), entity.getAvailableToolKeys(),
-				toolCallingManager);
+				entity.getNextStepPrompt(), entity.getAvailableToolKeys(), toolCallingManager, initialAgentSetting);
 	}
 
 	public List<DynamicAgentEntity> getAllAgents() {

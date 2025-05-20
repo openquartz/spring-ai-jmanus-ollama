@@ -19,6 +19,7 @@ import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.model.Tool;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AgentService {
 
@@ -40,6 +41,6 @@ public interface AgentService {
 	 * @param planId 计划ID，用于标识代理所属的计划
 	 * @return 创建的BaseAgent对象
 	 */
-	BaseAgent createDynamicBaseAgent(String name, String planId);
+	BaseAgent createDynamicBaseAgent(String name, String planId, Map<String, Object> initialAgentSetting);
 
 }

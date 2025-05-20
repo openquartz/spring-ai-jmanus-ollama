@@ -21,6 +21,8 @@ import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * ReAct（Reasoning + Acting）模式的智能体基类 实现了思考(Reasoning)和行动(Acting)交替执行的智能体模式
  */
@@ -35,8 +37,8 @@ public abstract class ReActAgent extends BaseAgent {
 	 * @param manusProperties Manus配置属性
 	 */
 	public ReActAgent(LlmService llmService, PlanExecutionRecorder planExecutionRecorder,
-			ManusProperties manusProperties) {
-		super(llmService, planExecutionRecorder, manusProperties);
+			ManusProperties manusProperties, Map<String, Object> initialAgentSetting) {
+		super(llmService, planExecutionRecorder, manusProperties, initialAgentSetting);
 	}
 
 	/**

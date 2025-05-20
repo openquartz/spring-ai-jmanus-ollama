@@ -17,7 +17,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set JAR_NAME=spring-ai-jmanus-ollama-0.0.9.jar
+set JAR_NAME=spring-ai-alibaba-jmanus-0.0.9.jar
 set LOG_DIR=logs
 set JAVA_OPTS=-Xms256m -Xmx512m
 
