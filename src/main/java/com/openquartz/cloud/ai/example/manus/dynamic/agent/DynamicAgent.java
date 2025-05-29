@@ -25,12 +25,14 @@ import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import com.openquartz.cloud.ai.example.manus.recorder.entity.AgentExecutionRecord;
 import com.openquartz.cloud.ai.example.manus.recorder.entity.ThinkActRecord;
 import com.openquartz.cloud.ai.example.manus.tool.TerminateTool;
+import io.micrometer.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage.ToolCall;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -48,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
+import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 
 public class DynamicAgent extends ReActAgent {
 
@@ -134,7 +136,7 @@ public class DynamicAgent extends ReActAgent {
 			List<ToolCallback> callbacks = getToolCallList();
 			ChatClient chatClient = llmService.getAgentChatClient();
 			response = chatClient.prompt(userPrompt)
-				.advisors(memoryAdvisor -> memoryAdvisor.param(CHAT_MEMORY_CONVERSATION_ID_KEY, getPlanId()))
+				.advisors(memoryAdvisor -> memoryAdvisor.param(CONVERSATION_ID, getPlanId()))
 				.toolCallbacks(callbacks)
 				.call()
 				.chatResponse();
@@ -221,7 +223,9 @@ public class DynamicAgent extends ReActAgent {
 
 	@Override
 	protected Message getNextStepWithEnvMessage() {
-
+		if (StringUtils.isBlank(this.nextStepPrompt)) {
+			return new UserMessage("");
+		}
 		PromptTemplate promptTemplate = new PromptTemplate(this.nextStepPrompt);
 		Message userMessage = promptTemplate.createMessage(getMergedData());
 		return userMessage;
