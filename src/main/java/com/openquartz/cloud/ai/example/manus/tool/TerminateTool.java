@@ -16,10 +16,8 @@
 package com.openquartz.cloud.ai.example.manus.tool;
 
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.ollama.api.OllamaApi;
@@ -30,7 +28,7 @@ public class TerminateTool implements ToolCallBiFunctionDef {
 
 	private static final Logger log = LoggerFactory.getLogger(TerminateTool.class);
 
-	private static final String PARAMETERS = """
+	private static String PARAMETERS = """
 			{
 			  "type" : "object",
 			  "properties" : {

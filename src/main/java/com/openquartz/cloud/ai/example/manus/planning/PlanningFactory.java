@@ -30,14 +30,10 @@ import com.openquartz.cloud.ai.example.manus.planning.creator.PlanCreator;
 import com.openquartz.cloud.ai.example.manus.planning.executor.PlanExecutor;
 import com.openquartz.cloud.ai.example.manus.planning.finalizer.PlanFinalizer;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
-import com.openquartz.cloud.ai.example.manus.tool.DocLoaderTool;
-import com.openquartz.cloud.ai.example.manus.tool.PlanningTool;
-import com.openquartz.cloud.ai.example.manus.tool.TerminateTool;
-import com.openquartz.cloud.ai.example.manus.tool.ToolCallBiFunctionDef;
+import com.openquartz.cloud.ai.example.manus.tool.*;
 import com.openquartz.cloud.ai.example.manus.tool.bash.Bash;
 import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
 import com.openquartz.cloud.ai.example.manus.tool.browser.ChromeDriverService;
-import com.openquartz.cloud.ai.example.manus.tool.code.CodeUtils;
 import com.openquartz.cloud.ai.example.manus.tool.code.PythonExecute;
 import com.openquartz.cloud.ai.example.manus.tool.searchAPI.GoogleSearch;
 import com.openquartz.cloud.ai.example.manus.tool.textOperator.TextFileOperator;
@@ -64,7 +60,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -88,8 +83,6 @@ public class PlanningFactory {
 
 	private final McpService mcpService;
 
-	private ConcurrentHashMap<String, PlanningCoordinator> flowMap = new ConcurrentHashMap<>();
-
 	@Autowired
 	@Lazy
 	private LlmService llmService;
@@ -112,17 +105,6 @@ public class PlanningFactory {
 		this.textFileService = textFileService;
 		this.mcpService = mcpService;
 	}
-
-	// public PlanningCoordinator getOrCreatePlanningFlow(String planId) {
-	// PlanningCoordinator flow = flowMap.computeIfAbsent(planId, key -> {
-	// return createPlanningCoordinator(planId);
-	// });
-	// return flow;
-	// }
-
-	// public boolean removePlanningFlow(String planId) {
-	// return flowMap.remove(planId) != null;
-	// }
 
 	public PlanningCoordinator createPlanningCoordinator(String planId) {
 
@@ -168,11 +150,12 @@ public class PlanningFactory {
 		// 添加所有工具定义
 		toolDefinitions.add(BrowserUseTool.getInstance(chromeDriverService));
 		toolDefinitions.add(new TerminateTool(planId));
-		toolDefinitions.add(new Bash(CodeUtils.WORKING_DIR));
+		toolDefinitions.add(new Bash(manusProperties));
 		toolDefinitions.add(new DocLoaderTool());
-		toolDefinitions.add(new TextFileOperator(CodeUtils.WORKING_DIR, textFileService));
+		toolDefinitions.add(new TextFileOperator(textFileService));
 		toolDefinitions.add(new GoogleSearch());
 		toolDefinitions.add(new PythonExecute());
+		toolDefinitions.add(new FormInputTool());
 		List<McpServiceEntity> functionCallbacks = mcpService.getFunctionCallbacks(planId);
 		for (McpServiceEntity toolCallback : functionCallbacks) {
 			String serviceGroup = toolCallback.getServiceGroup();

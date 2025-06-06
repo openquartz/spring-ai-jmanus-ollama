@@ -16,21 +16,20 @@
 package com.openquartz.cloud.ai.example.manus.tool;
 
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Map;
-
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.tool.function.FunctionToolCallback;
+
+import java.io.File;
+import java.util.Map;
 
 public class DocLoaderTool implements ToolCallBiFunctionDef {
 
@@ -82,11 +81,14 @@ public class DocLoaderTool implements ToolCallBiFunctionDef {
 
 	private String lastFileType = "";
 
+	private static final ObjectMapper objectMapper = new ObjectMapper();
+
 	public ToolExecuteResult run(String toolInput) {
 		log.info("DocLoaderTool toolInput:{}", toolInput);
 		try {
-			Map<String, Object> toolInputMap = JSON.parseObject(toolInput, new TypeReference<Map<String, Object>>() {
-			});
+			Map<String, Object> toolInputMap = objectMapper.readValue(toolInput,
+					new TypeReference<Map<String, Object>>() {
+					});
 			String fileType = (String) toolInputMap.get("file_type");
 			String filePath = (String) toolInputMap.get("file_path");
 			this.lastFilePath = filePath;
@@ -146,11 +148,9 @@ public class DocLoaderTool implements ToolCallBiFunctionDef {
 		return run(t);
 	}
 
-	private String planId;
-
 	@Override
 	public void setPlanId(String planId) {
-		this.planId = planId;
+		// Implementation for setting planId if required in the future.
 	}
 
 	@Override

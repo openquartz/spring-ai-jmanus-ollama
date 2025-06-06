@@ -15,25 +15,29 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.bash;
 
+import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.tool.ToolCallBiFunctionDef;
+import com.openquartz.cloud.ai.example.manus.tool.code.CodeUtils;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.tool.function.FunctionToolCallback;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class Bash implements ToolCallBiFunctionDef {
 
 	private static final Logger log = LoggerFactory.getLogger(Bash.class);
+
+	private ManusProperties manusProperties;
 
 	/**
 	 * bash执行工作目录
@@ -72,26 +76,30 @@ public class Bash implements ToolCallBiFunctionDef {
 		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
 	}
 
-	public FunctionToolCallback getFunctionToolCallback(String workingDirectoryPath) {
-		return FunctionToolCallback.builder(name, new Bash(workingDirectoryPath))
+	public FunctionToolCallback getFunctionToolCallback() {
+		return FunctionToolCallback.builder(name, new Bash(manusProperties))
 			.description(description)
 			.inputSchema(PARAMETERS)
 			.inputType(String.class)
 			.build();
 	}
 
-	public Bash(String workingDirectoryPath) {
-		this.workingDirectoryPath = workingDirectoryPath;
+	public Bash(ManusProperties manusProperties) {
+		this.manusProperties = manusProperties;
+		String baseDir = manusProperties.getBaseDir();
+		this.workingDirectoryPath = CodeUtils.getWorkingDirectory(baseDir);
 	}
 
 	private String lastCommand = "";
 
 	private String lastResult = "";
 
-	public ToolExecuteResult run(String toolInput) {
+	private static final ObjectMapper objectMapper = new ObjectMapper();
+
+	public ToolExecuteResult run(String toolInput) throws JsonProcessingException {
 		log.info("Bash toolInput:{}", toolInput);
 		log.info("Current operating system: {}", osName);
-		Map<String, Object> toolInputMap = JSON.parseObject(toolInput, new TypeReference<Map<String, Object>>() {
+		Map<String, Object> toolInputMap = objectMapper.readValue(toolInput, new TypeReference<Map<String, Object>>() {
 		});
 		String command = (String) toolInputMap.get("command");
 		this.lastCommand = command;
@@ -104,7 +112,7 @@ public class Bash implements ToolCallBiFunctionDef {
 		log.info("Using shell executor for OS: {}", osName);
 		List<String> result = executor.execute(commandList, workingDirectoryPath);
 		this.lastResult = String.join("\n", result);
-		return new ToolExecuteResult(JSON.toJSONString(result));
+		return new ToolExecuteResult(objectMapper.writeValueAsString(result));
 	}
 
 	@Override
@@ -134,19 +142,18 @@ public class Bash implements ToolCallBiFunctionDef {
 
 	@Override
 	public ToolExecuteResult apply(String s, ToolContext toolContext) {
-		return run(s);
+		try {
+			return run(s);
+		}
+		catch (JsonProcessingException e) {
+			log.error("Error processing JSON", e);
+			return new ToolExecuteResult("Error processing JSON: " + e.getMessage());
+		}
 	}
 
 	@Override
 	public String getServiceGroup() {
 		return "default-service-group";
-	}
-
-	private String planId;
-
-	@Override
-	public void setPlanId(String planId) {
-		this.planId = planId;
 	}
 
 	@Override
@@ -169,6 +176,12 @@ public class Bash implements ToolCallBiFunctionDef {
 	@Override
 	public void cleanup(String planId) {
 		log.info("Cleaned up resources for plan: {}", planId);
+	}
+
+	// Implement the setPlanId method to satisfy the interface
+	@Override
+	public void setPlanId(String planId) {
+		// No operation needed as planId is no longer used
 	}
 
 }
