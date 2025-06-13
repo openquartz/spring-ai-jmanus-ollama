@@ -21,6 +21,8 @@ import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -29,6 +31,8 @@ import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 
 /**
  * 负责生成计划执行总结的类
@@ -88,11 +92,12 @@ public class PlanFinalizer {
 
 			Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
 
-			ChatResponse response = llmService.getPlanningChatClient()
-				.prompt(prompt)
-
-				.call()
-				.chatResponse();
+			ChatClient.ChatClientRequestSpec requestSpec = llmService.getPlanningChatClient().prompt(prompt);
+			if (context.isUseMemory()) {
+				requestSpec.advisors(memoryAdvisor -> memoryAdvisor.param(CONVERSATION_ID, context.getPlanId()));
+				requestSpec.advisors(MessageChatMemoryAdvisor.builder(llmService.getConversationMemory()).build());
+			}
+			ChatResponse response = requestSpec.call().chatResponse();
 
 			String summary = response.getResult().getOutput().getText();
 			context.setResultSummary(summary);

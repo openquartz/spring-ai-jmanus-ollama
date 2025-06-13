@@ -49,7 +49,7 @@ public class AppStartupListener implements ApplicationListener<ApplicationReadyE
 			return;
 		}
 
-		String url = "http://localhost:" + serverPort + "/";
+		String url = "http://localhost:" + serverPort + "/ui/index.html";
 		logger.info("应用已启动，正在尝试打开浏览器访问: {}", url);
 
 		// 首先尝试使用Desktop API

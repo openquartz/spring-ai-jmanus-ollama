@@ -49,8 +49,9 @@ import java.util.*;
  * <ul>
  * <li>{@link #getName()} - Returns the agent's name</li>
  * <li>{@link #getDescription()} - Returns the agent's description</li>
- * <li>{@link #addThinkPrompt(List)} - Implements the thinking chain logic</li>
- * <li>{@link #getNextStepMessage()} - Provides the next step's prompt template</li>
+ * <li>{@link #getThinkMessage()} - Implements the thinking chain logic</li>
+ * <li>{@link #getNextStepWithEnvMessage()} - Provides the next step's prompt
+ * template</li>
  * <li>{@link #step()} - Implements the core logic for each execution step</li>
  * </ul>
  *
@@ -110,10 +111,9 @@ public abstract class BaseAgent {
 	 * 返回添加的系统提示消息对象
 	 *
 	 * 子类实现参考： 1. ReActAgent: 实现基础的思考-行动循环提示 2. ToolCallAgent: 添加工具选择和执行相关的提示
-	 * @param messages 当前的消息列表，用于构建上下文
 	 * @return 添加的系统提示消息对象
 	 */
-	protected Message addThinkPrompt(List<Message> messages) {
+	protected Message getThinkMessage() {
 		// 获取操作系统信息
 		String osName = System.getProperty("os.name");
 		String osVersion = System.getProperty("os.version");
@@ -163,8 +163,6 @@ public abstract class BaseAgent {
 		SystemPromptTemplate promptTemplate = new SystemPromptTemplate(stepPrompt);
 
 		Message systemMessage = promptTemplate.createMessage(getInitSettingData());
-
-		messages.add(systemMessage);
 		return systemMessage;
 	}
 
