@@ -22,6 +22,7 @@ import com.openquartz.cloud.ai.example.manus.llm.LlmService;
 import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory.ToolCallBackContext;
 import com.openquartz.cloud.ai.example.manus.planning.executor.PlanExecutor;
 import com.openquartz.cloud.ai.example.manus.planning.service.UserInputService;
+import com.openquartz.cloud.ai.example.manus.prompt.PromptLoader;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import com.openquartz.cloud.ai.example.manus.recorder.entity.AgentExecutionRecord;
 import com.openquartz.cloud.ai.example.manus.recorder.entity.ThinkActRecord;
@@ -98,8 +99,8 @@ public class DynamicAgent extends ReActAgent {
 	public DynamicAgent(LlmService llmService, PlanExecutionRecorder planExecutionRecorder,
 			ManusProperties manusProperties, String name, String description, String nextStepPrompt,
 			List<String> availableToolKeys, ToolCallingManager toolCallingManager,
-			Map<String, Object> initialAgentSetting, UserInputService userInputService) {
-		super(llmService, planExecutionRecorder, manusProperties, initialAgentSetting);
+			Map<String, Object> initialAgentSetting, UserInputService userInputService, PromptLoader promptLoader) {
+		super(llmService, planExecutionRecorder, manusProperties, initialAgentSetting, promptLoader);
 		this.agentName = name;
 		this.agentDescription = description;
 		this.nextStepPrompt = nextStepPrompt;
@@ -122,6 +123,7 @@ public class DynamicAgent extends ReActAgent {
 		}
 		catch (Exception e) {
 			log.error(String.format("🚨 Oops! The %s's thinking process hit a snag: %s", getName(), e.getMessage()), e);
+			log.info("Exception occurred", e);
 			thinkActRecord.recordError(e.getMessage());
 			return false;
 		}
@@ -254,7 +256,7 @@ public class DynamicAgent extends ReActAgent {
 		catch (Exception e) {
 
 			log.error(e.getMessage());
-
+			log.info("Exception occurred", e);
 			thinkActRecord.recordError(e.getMessage());
 			userInputService.removeFormInputTool(getPlanId()); // Clean up on error
 			processMemory(toolExecutionResult); // Process memory even on error
@@ -268,7 +270,7 @@ public class DynamicAgent extends ReActAgent {
 			String userInput = userMessage.getText();
 
 			if (!StringUtils.isBlank(userInput)) {
-				// 将用户输入添加到内存中
+				// Add user input to memory
 
 				llmService.getAgentMemory().add(getPlanId(), userMessage);
 
@@ -343,14 +345,7 @@ public class DynamicAgent extends ReActAgent {
 	 * @return User message for current step environment data
 	 */
 	private Message currentStepEnvMessage() {
-		String envPrompt = """
-
-				当前步骤的环境信息是:
-				{current_step_env_data}
-
-				""";
-		PromptTemplate promptTemplate = new PromptTemplate(envPrompt);
-		Message stepEnvMessage = promptTemplate.createMessage(getMergedData());
+		Message stepEnvMessage = promptLoader.createUserMessage("agent/current-step-env.txt", getMergedData());
 		// mark as current step env data
 		stepEnvMessage.getMetadata().put(CURRENT_STEP_ENV_DATA_KEY, Boolean.TRUE);
 		return stepEnvMessage;
@@ -402,7 +397,7 @@ public class DynamicAgent extends ReActAgent {
 		if (context != null) {
 			return context.getFunctionInstance().getCurrentToolStateString();
 		}
-		// 如果没有找到对应的工具回调上下文，返回空字符串
+		// If corresponding tool callback context is not found, return empty string
 		return "";
 	}
 
@@ -413,12 +408,12 @@ public class DynamicAgent extends ReActAgent {
 		Map<String, Object> oldMap = getEnvData();
 		toolEnvDataMap.putAll(oldMap);
 
-		// 用新数据覆盖旧数据
+		// Overwrite old data with new data
 		for (String toolKey : availableToolKeys) {
 			String envData = collectEnvData(toolKey);
 			toolEnvDataMap.put(toolKey, envData);
 		}
-		log.debug("收集到的工具环境数据: {}", toolEnvDataMap);
+		log.debug("Collected tool environment data: {}", toolEnvDataMap);
 
 		setEnvData(toolEnvDataMap);
 	}
@@ -431,7 +426,7 @@ public class DynamicAgent extends ReActAgent {
 			if (value == null || value.toString().isEmpty()) {
 				continue; // Skip tools with no data
 			}
-			envDataStringBuilder.append(toolKey).append(" 的上下文信息：\n");
+			envDataStringBuilder.append(toolKey).append(" context information:\n");
 			envDataStringBuilder.append("    ").append(value.toString()).append("\n");
 		}
 

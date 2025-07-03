@@ -21,12 +21,34 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.ollama.api.OllamaApi;
-import org.springframework.ai.tool.function.FunctionToolCallback;
-import org.springframework.ai.tool.metadata.ToolMetadata;
 
-public class TerminateTool implements ToolCallBiFunctionDef {
+public class TerminateTool implements ToolCallBiFunctionDef<TerminateTool.TerminateInput> {
 
 	private static final Logger log = LoggerFactory.getLogger(TerminateTool.class);
+
+	/**
+	 * Internal input class for defining termination tool input parameters
+	 */
+	public static class TerminateInput {
+
+		private String message;
+
+		public TerminateInput() {
+		}
+
+		public TerminateInput(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+	}
 
 	private static String PARAMETERS = """
 			{
@@ -34,7 +56,7 @@ public class TerminateTool implements ToolCallBiFunctionDef {
 			  "properties" : {
 			    "message" : {
 			      "type" : "string",
-			      "description" : "终结当前步骤的信息，你需要在这个终结信息里尽可能多的包含所有相关的事实和数据，详细描述执行结果和状态，包含所有收集到的相关事实和数据，关键发现和观察。这个终结信息将作为当前步骤的最终输出，并且应该足够全面，以便为后续步骤或其他代理提供完整的上下文与关键事实。"
+			      "description" : "终结当前步骤的信息，你需要在这个终结信息里尽可能多的包含所有相关的事实和数据，详细描述执行结果和状态，包含所有收集到的相关事实和数据，关键发现和观察。这个终结信息将作为当前步骤的最终输出，并且应该足够全面，以便为后续步骤或其他代理提供完整的上下文与关键事实。无需输出浏览器可交互元素索引，因为索引会根据页面的变化而变化。"
 			    }
 			  },
 			  "required" : [ "message" ]
@@ -60,15 +82,6 @@ public class TerminateTool implements ToolCallBiFunctionDef {
 
 	public static OllamaApi.ChatRequest.Tool getToolDefinition() {
 		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
-	}
-
-	public static FunctionToolCallback getFunctionToolCallback(String planId) {
-		return FunctionToolCallback.builder(name, new TerminateTool(planId))
-			.description(description)
-			.inputSchema(PARAMETERS)
-			.inputType(String.class)
-			.toolMetadata(ToolMetadata.builder().returnDirect(true).build())
-			.build();
 	}
 
 	private String planId;
@@ -97,18 +110,19 @@ public class TerminateTool implements ToolCallBiFunctionDef {
 		this.planId = planId;
 	}
 
-	public ToolExecuteResult run(String toolInput) {
-		log.info("Terminate toolInput: {}", toolInput);
-		this.lastTerminationMessage = toolInput;
+	public ToolExecuteResult run(TerminateInput input) {
+		String message = input.getMessage();
+		log.info("Terminate message: {}", message);
+		this.lastTerminationMessage = message;
 		this.isTerminated = true;
 		this.terminationTimestamp = java.time.LocalDateTime.now().toString();
 
-		return new ToolExecuteResult(toolInput);
+		return new ToolExecuteResult(message);
 	}
 
 	@Override
-	public ToolExecuteResult apply(String s, ToolContext toolContext) {
-		return run(s);
+	public ToolExecuteResult apply(TerminateInput input, ToolContext toolContext) {
+		return run(input);
 	}
 
 	@Override
@@ -127,8 +141,8 @@ public class TerminateTool implements ToolCallBiFunctionDef {
 	}
 
 	@Override
-	public Class<?> getInputType() {
-		return String.class;
+	public Class<TerminateInput> getInputType() {
+		return TerminateInput.class;
 	}
 
 	@Override

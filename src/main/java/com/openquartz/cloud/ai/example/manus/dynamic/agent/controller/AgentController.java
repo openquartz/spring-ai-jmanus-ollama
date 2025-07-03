@@ -26,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/agents")
-@CrossOrigin(origins = "*") // 添加跨域支持
+@CrossOrigin(origins = "*") // Add cross-origin support
 public class AgentController {
 
 	@Autowired

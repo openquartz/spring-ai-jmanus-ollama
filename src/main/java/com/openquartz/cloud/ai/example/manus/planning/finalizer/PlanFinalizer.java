@@ -18,6 +18,7 @@ package com.openquartz.cloud.ai.example.manus.planning.finalizer;
 import com.openquartz.cloud.ai.example.manus.llm.LlmService;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan;
+import com.openquartz.cloud.ai.example.manus.prompt.PromptLoader;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,6 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ import java.util.Map;
 import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 
 /**
- * 负责生成计划执行总结的类
+ * The class responsible for generating the execution summary of the plan
  */
 public class PlanFinalizer {
 
@@ -45,14 +44,18 @@ public class PlanFinalizer {
 
 	protected final PlanExecutionRecorder recorder;
 
-	public PlanFinalizer(LlmService llmService, PlanExecutionRecorder recorder) {
+	private final PromptLoader promptLoader;
+
+	public PlanFinalizer(LlmService llmService, PlanExecutionRecorder recorder, PromptLoader promptLoader) {
 		this.llmService = llmService;
 		this.recorder = recorder;
+		this.promptLoader = promptLoader;
 	}
 
 	/**
-	 * 生成计划执行总结
-	 * @param context 执行上下文，包含用户请求和执行的过程信息
+	 * Generate the execution summary of the plan
+	 * @param context execution context, containing the user request and the execution
+	 * process information
 	 */
 	public void generateSummary(ExecutionContext context) {
 		if (context == null || context.getPlan() == null) {
@@ -70,25 +73,11 @@ public class PlanFinalizer {
 		try {
 			String userRequest = context.getUserRequest();
 
-			SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate("""
-					您是 jmanus，一个能够回应用户请求的AI助手，你需要根据这个分步骤的执行计划的执行结果，来回应用户的请求。
+			Message systemMessage = promptLoader.createSystemMessage("planning/plan-finalizer.txt",
+					Map.of("executionDetail", executionDetail));
 
-					分步骤计划的执行详情：
-					{executionDetail}
-
-					请根据执行详情里面的信息，来回应用户的请求。
-
-					""");
-
-			Message systemMessage = systemPromptTemplate.createMessage(Map.of("executionDetail", executionDetail));
-
-			String userRequestTemplate = """
-					当前的用户请求是:
-					{userRequest}
-					""";
-
-			PromptTemplate userMessageTemplate = new PromptTemplate(userRequestTemplate);
-			Message userMessage = userMessageTemplate.createMessage(Map.of("userRequest", userRequest));
+			Message userMessage = promptLoader.createUserMessage("planning/user-request.txt",
+					Map.of("userRequest", userRequest));
 
 			Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
 

@@ -21,6 +21,7 @@ import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEn
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.repository.DynamicAgentRepository;
 import com.openquartz.cloud.ai.example.manus.llm.LlmService;
 import com.openquartz.cloud.ai.example.manus.planning.service.UserInputService;
+import com.openquartz.cloud.ai.example.manus.prompt.PromptLoader;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.context.annotation.Lazy;
@@ -44,15 +45,18 @@ public class DynamicAgentLoader {
 
 	private final UserInputService userInputService;
 
+	private final PromptLoader promptLoader;
+
 	public DynamicAgentLoader(DynamicAgentRepository repository, @Lazy LlmService llmService,
 			PlanExecutionRecorder recorder, ManusProperties properties, @Lazy ToolCallingManager toolCallingManager,
-			UserInputService userInputService) {
+			UserInputService userInputService, PromptLoader promptLoader) {
 		this.repository = repository;
 		this.llmService = llmService;
 		this.recorder = recorder;
 		this.properties = properties;
 		this.toolCallingManager = toolCallingManager;
 		this.userInputService = userInputService;
+		this.promptLoader = promptLoader;
 	}
 
 	public DynamicAgent loadAgent(String agentName, Map<String, Object> initialAgentSetting) {
@@ -63,7 +67,7 @@ public class DynamicAgentLoader {
 
 		return new DynamicAgent(llmService, recorder, properties, entity.getAgentName(), entity.getAgentDescription(),
 				entity.getNextStepPrompt(), entity.getAvailableToolKeys(), toolCallingManager, initialAgentSetting,
-				userInputService);
+				userInputService, promptLoader);
 	}
 
 	public List<DynamicAgentEntity> getAllAgents() {
