@@ -16,6 +16,7 @@
 package com.openquartz.cloud.ai.example.manus.tool.textOperator;
 
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
+import com.openquartz.cloud.ai.example.manus.tool.innerStorage.SmartContentSavingService;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,9 @@ public class TextFileService implements ApplicationRunner {
 	@Autowired
 	private ManusProperties manusProperties;
 
+	@Autowired
+	private SmartContentSavingService innerStorageService;
+
 	/**
 	 * Set of supported text file extensions
 	 */
@@ -65,6 +69,10 @@ public class TextFileService implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) {
 		log.info("TextFileService initialized");
+	}
+
+	public SmartContentSavingService getInnerStorageService() {
+		return innerStorageService;
 	}
 
 	private Object getFileLock(String planId) {

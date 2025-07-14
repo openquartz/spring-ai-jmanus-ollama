@@ -19,9 +19,9 @@ import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.repository.DynamicAgentRepository;
+import com.openquartz.cloud.ai.example.manus.dynamic.prompt.service.PromptService;
 import com.openquartz.cloud.ai.example.manus.llm.LlmService;
 import com.openquartz.cloud.ai.example.manus.planning.service.UserInputService;
-import com.openquartz.cloud.ai.example.manus.prompt.PromptLoader;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.context.annotation.Lazy;
@@ -45,18 +45,18 @@ public class DynamicAgentLoader {
 
 	private final UserInputService userInputService;
 
-	private final PromptLoader promptLoader;
+	private final PromptService promptService;
 
 	public DynamicAgentLoader(DynamicAgentRepository repository, @Lazy LlmService llmService,
 			PlanExecutionRecorder recorder, ManusProperties properties, @Lazy ToolCallingManager toolCallingManager,
-			UserInputService userInputService, PromptLoader promptLoader) {
+			UserInputService userInputService, PromptService promptService) {
 		this.repository = repository;
 		this.llmService = llmService;
 		this.recorder = recorder;
 		this.properties = properties;
 		this.toolCallingManager = toolCallingManager;
 		this.userInputService = userInputService;
-		this.promptLoader = promptLoader;
+		this.promptService = promptService;
 	}
 
 	public DynamicAgent loadAgent(String agentName, Map<String, Object> initialAgentSetting) {
@@ -67,7 +67,7 @@ public class DynamicAgentLoader {
 
 		return new DynamicAgent(llmService, recorder, properties, entity.getAgentName(), entity.getAgentDescription(),
 				entity.getNextStepPrompt(), entity.getAvailableToolKeys(), toolCallingManager, initialAgentSetting,
-				userInputService, promptLoader);
+				userInputService, promptService, entity.getModel());
 	}
 
 	public List<DynamicAgentEntity> getAllAgents() {

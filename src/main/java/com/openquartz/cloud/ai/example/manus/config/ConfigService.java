@@ -28,11 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class ConfigService {
@@ -61,6 +59,36 @@ public class ConfigService {
 	}
 
 	private void initializeConfig(Object bean) {
+		// Collect all valid config paths from the bean
+		Set<String> validConfigPaths = Arrays.stream(bean.getClass().getDeclaredFields())
+			.filter(field -> field.isAnnotationPresent(ConfigProperty.class))
+			.map(field -> field.getAnnotation(ConfigProperty.class).path())
+			.collect(Collectors.toSet());
+
+		// Remove obsolete configurations that are no longer defined in ManusProperties
+		if (bean instanceof ManusProperties) {
+			log.info("Cleaning up obsolete configurations not defined in ManusProperties...");
+			List<ConfigEntity> allConfigs = configRepository.findAll();
+			List<ConfigEntity> obsoleteConfigs = allConfigs.stream()
+				.filter(config -> !validConfigPaths.contains(config.getConfigPath()))
+				.collect(Collectors.toList());
+
+			if (!obsoleteConfigs.isEmpty()) {
+				log.info("Found {} obsolete configurations to remove:", obsoleteConfigs.size());
+				obsoleteConfigs.forEach(config -> {
+					log.info("  - Removing obsolete config: {} ({})", config.getConfigPath(), config.getDescription());
+					configRepository.delete(config);
+					// Remove from cache as well
+					configCache.remove(config.getConfigPath());
+				});
+				log.info("✅ Obsolete configuration cleanup completed");
+			}
+			else {
+				log.info("✅ No obsolete configurations found");
+			}
+		}
+
+		// Initialize/update configurations defined in the bean
 		Arrays.stream(bean.getClass().getDeclaredFields())
 			.filter(field -> field.isAnnotationPresent(ConfigProperty.class))
 			.forEach(field -> {

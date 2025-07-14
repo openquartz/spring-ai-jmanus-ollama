@@ -15,19 +15,18 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.code;
 
-import com.openquartz.cloud.ai.example.manus.tool.ToolCallBiFunctionDef;
+import com.openquartz.cloud.ai.example.manus.tool.AbstractBaseTool;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.ollama.api.OllamaApi;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class PythonExecute implements ToolCallBiFunctionDef<PythonExecute.PythonInput> {
+public class PythonExecute extends AbstractBaseTool<PythonExecute.PythonInput> {
 
 	private static final Logger log = LoggerFactory.getLogger(PythonExecute.class);
 
@@ -209,15 +208,6 @@ public class PythonExecute implements ToolCallBiFunctionDef<PythonExecute.Python
 	}
 
 	@Override
-	public boolean isReturnDirect() {
-		return false;
-	}
-
-	@Override
-	public ToolExecuteResult apply(PythonInput input, ToolContext toolContext) {
-		return run(input);
-	}
-
 	public ToolExecuteResult run(PythonInput input) {
 		String code = input.getCode();
 		log.info("PythonExecute code: {}", code);
@@ -256,12 +246,6 @@ public class PythonExecute implements ToolCallBiFunctionDef<PythonExecute.Python
 	@Override
 	public void cleanup(String planId) {
 		// do nothing
-	}
-
-	// Implement the setPlanId method to satisfy the interface
-	@Override
-	public void setPlanId(String planId) {
-		// No operation needed as planId is no longer used
 	}
 
 	@Override
