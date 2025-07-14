@@ -44,66 +44,66 @@ public class AppStartupListener implements ApplicationListener<ApplicationReadyE
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
 		// Only execute when configuration allows auto-opening browser
-		if (!manusProperties.getOpenBrowserAuto()) {
-			logger.info("Auto-open browser feature is disabled");
-			return;
-		}
+//		if (!manusProperties.getOpenBrowserAuto()) {
+//			logger.info("Auto-open browser feature is disabled");
+//			return;
+//		}
 
-		String url = "http://localhost:" + serverPort + "/ui/index.html";
-		logger.info("Application started, attempting to open browser to access: {}", url);
-
-		// First try using Desktop API
-		try {
-			if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-				Desktop.getDesktop().browse(new URI(url));
-				logger.info("Successfully opened browser via Desktop API");
-				return;
-			}
-		}
-		catch (Exception e) {
-			logger.warn("Failed to open browser using Desktop API, trying Runtime command execution", e);
-		}
-
-		// If Desktop API fails, try using Runtime command execution
-		String os = System.getProperty("os.name").toLowerCase();
-		Runtime rt = Runtime.getRuntime();
-		try {
-			if (os.contains("mac")) {
-				// macOS specific command
-				rt.exec(new String[] { "open", url });
-				logger.info("Successfully opened browser via macOS open command");
-			}
-			else if (os.contains("win")) {
-				// Windows specific command
-				rt.exec(new String[] { "cmd", "/c", "start", url });
-				logger.info("Successfully opened browser via Windows command");
-			}
-			else if (os.contains("nix") || os.contains("nux")) {
-				// Linux specific command, try several common browser opening methods
-				String[] browsers = { "google-chrome", "firefox", "mozilla", "epiphany", "konqueror", "netscape",
-						"opera", "links", "lynx" };
-
-				StringBuilder cmd = new StringBuilder();
-				for (int i = 0; i < browsers.length; i++) {
-					if (i == 0) {
-						cmd.append(String.format("%s \"%s\"", browsers[i], url));
-					}
-					else {
-						cmd.append(String.format(" || %s \"%s\"", browsers[i], url));
-					}
-				}
-
-				rt.exec(new String[] { "sh", "-c", cmd.toString() });
-				logger.info("Attempted to open browser via Linux command");
-			}
-			else {
-				logger.warn("Unknown operating system, cannot auto-open browser, please manually access: {}", url);
-			}
-		}
-		catch (IOException e) {
-			logger.error("Failed to open browser via Runtime command execution", e);
-			logger.info("Please manually access in browser: {}", url);
-		}
+//		String url = "http://localhost:" + serverPort + "/ui/index.html";
+//		logger.info("Application started, attempting to open browser to access: {}", url);
+//
+//		// First try using Desktop API
+//		try {
+//			if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+//				Desktop.getDesktop().browse(new URI(url));
+//				logger.info("Successfully opened browser via Desktop API");
+//				return;
+//			}
+//		}
+//		catch (Exception e) {
+//			logger.warn("Failed to open browser using Desktop API, trying Runtime command execution", e);
+//		}
+//
+//		// If Desktop API fails, try using Runtime command execution
+//		String os = System.getProperty("os.name").toLowerCase();
+//		Runtime rt = Runtime.getRuntime();
+//		try {
+//			if (os.contains("mac")) {
+//				// macOS specific command
+//				rt.exec(new String[] { "open", url });
+//				logger.info("Successfully opened browser via macOS open command");
+//			}
+//			else if (os.contains("win")) {
+//				// Windows specific command
+//				rt.exec(new String[] { "cmd", "/c", "start", url });
+//				logger.info("Successfully opened browser via Windows command");
+//			}
+//			else if (os.contains("nix") || os.contains("nux")) {
+//				// Linux specific command, try several common browser opening methods
+//				String[] browsers = { "google-chrome", "firefox", "mozilla", "epiphany", "konqueror", "netscape",
+//						"opera", "links", "lynx" };
+//
+//				StringBuilder cmd = new StringBuilder();
+//				for (int i = 0; i < browsers.length; i++) {
+//					if (i == 0) {
+//						cmd.append(String.format("%s \"%s\"", browsers[i], url));
+//					}
+//					else {
+//						cmd.append(String.format(" || %s \"%s\"", browsers[i], url));
+//					}
+//				}
+//
+//				rt.exec(new String[] { "sh", "-c", cmd.toString() });
+//				logger.info("Attempted to open browser via Linux command");
+//			}
+//			else {
+//				logger.warn("Unknown operating system, cannot auto-open browser, please manually access: {}", url);
+//			}
+//		}
+//		catch (IOException e) {
+//			logger.error("Failed to open browser via Runtime command execution", e);
+//			logger.info("Please manually access in browser: {}", url);
+//		}
 	}
 
 }

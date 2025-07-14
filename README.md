@@ -8,3 +8,9 @@
 
 基于Ollama实现. 源码来自 [spring-ai-alibaba-jmanus](https://github.com/alibaba/spring-ai-alibaba/tree/main/spring-ai-alibaba-jmanus) 项目.
 
+### 启动指南：
+
+1、启动spring boot 服务
+
+2、启动ui-vue3下的前端服务 [启动指南](./ui-vue3/README-zh.md)
+
