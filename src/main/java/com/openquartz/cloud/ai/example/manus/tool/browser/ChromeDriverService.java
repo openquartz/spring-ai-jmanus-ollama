@@ -15,20 +15,6 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.browser;
 
-import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
-import com.openquartz.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
-import com.openquartz.cloud.ai.example.manus.tool.innerStorage.SmartContentSavingService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Playwright;
-import jakarta.annotation.PreDestroy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -36,9 +22,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
+import com.openquartz.cloud.ai.example.manus.config.IManusProperties;
+import com.openquartz.cloud.ai.example.manus.tool.innerStorage.SmartContentSavingService;
+import com.openquartz.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
+
+import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
 @Service
 @Primary
-public class ChromeDriverService {
+public class ChromeDriverService implements IChromeDriverService {
 
 	private static final Logger log = LoggerFactory.getLogger(ChromeDriverService.class);
 
@@ -253,11 +256,11 @@ public class ChromeDriverService {
 		cleanupAllPlaywrightProcesses();
 	}
 
-	public void setManusProperties(ManusProperties manusProperties) {
-		this.manusProperties = manusProperties;
+	public void setManusProperties(IManusProperties manusProperties) {
+		this.manusProperties = (ManusProperties) manusProperties;
 	}
 
-	public ManusProperties getManusProperties() {
+	public IManusProperties getManusProperties() {
 		return manusProperties;
 	}
 

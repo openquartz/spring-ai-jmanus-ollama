@@ -42,3 +42,6 @@ logging:
     root: INFO
     # ai 框架 使用 debug。可以查看模型调用日志提示词等
     org.springframework.ai: DEBUG
+
+namespace:
+  value: default

@@ -15,22 +15,20 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.innerStorage;
 
+import java.io.IOException;
+import java.nio.file.*;
+
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-
 /**
  * 内部文件存储服务，用于MapReduce流程中存储中间数据
  */
 @Service
-public class SmartContentSavingService {
+public class SmartContentSavingService implements ISmartContentSavingService {
 
 	private static final Logger log = LoggerFactory.getLogger(SmartContentSavingService.class);
 
@@ -88,13 +86,24 @@ public class SmartContentSavingService {
 			return new SmartProcessResult(null, content);
 		}
 
-		// Use configured threshold from ManusProperties
+		// Check if infinite context is enabled
+		boolean infiniteContextEnabled = isInfiniteContextEnabled();
+
+		if (!infiniteContextEnabled) {
+			// When infinite context is disabled, return content directly without any
+			// processing
+			log.info("Infinite context disabled for plan {}, returning content directly without smart processing",
+					planId);
+			return new SmartProcessResult(null, content);
+		}
+
+		// Use configured threshold from ManusProperties when infinite context is enabled
 		int threshold = manusProperties.getInfiniteContextTaskContextSize();
 
-		log.info("Processing content for plan {}: content length = {}, threshold = {}", planId, content.length(),
-				threshold);
+		log.info("Processing content for plan {}: content length = {}, threshold = {}, infinite context enabled",
+				planId, content.length(), threshold);
 
-		// 如果内容未超过阈值，直接返回
+		// If content is within threshold, return directly
 		if (content.length() <= threshold) {
 			log.info("Content length {} is within threshold {}, returning original content", content.length(),
 					threshold);
@@ -176,6 +185,18 @@ public class SmartContentSavingService {
 		summary.append("在后续的调用中，必需要使用 inner_storage_content_tool 工具的 getContent 来获取相关信息,\n");
 		summary.append("该方法可以从内容中总结出需要的关键信息。\n\n");
 		return summary.toString();
+	}
+
+	/**
+	 * Check if infinite context is enabled
+	 * @return true if infinite context is enabled, false otherwise
+	 */
+	private boolean isInfiniteContextEnabled() {
+		if (manusProperties != null) {
+			Boolean enabled = manusProperties.getInfiniteContextEnabled();
+			return enabled != null ? enabled : false;
+		}
+		return false;
 	}
 
 }

@@ -15,8 +15,8 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool;
 
-import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 import org.springframework.ai.chat.model.ToolContext;
+import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 
 /**
  * Abstract base class for tools providing common functionality All concrete tool

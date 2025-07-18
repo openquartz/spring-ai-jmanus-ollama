@@ -15,14 +15,15 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.mcp.service;
 
-import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo.McpState;
-import org.springframework.stereotype.Service;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.stereotype.Service;
+
+import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo.McpState;
+
 @Service
-public class McpStateHolderService {
+public class McpStateHolderService implements IMcpStateHolderService {
 
 	private Map<String, McpState> mcpStateMap = new ConcurrentHashMap<>();
 

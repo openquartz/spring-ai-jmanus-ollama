@@ -49,6 +49,8 @@ public class PlanningTool extends AbstractBaseTool<PlanningTool.PlanningInput> i
 
 		private List<String> steps;
 
+		private String terminateColumns;
+
 		public PlanningInput() {
 		}
 
@@ -57,6 +59,7 @@ public class PlanningTool extends AbstractBaseTool<PlanningTool.PlanningInput> i
 			this.planId = planId;
 			this.title = title;
 			this.steps = steps;
+			this.terminateColumns = null;
 		}
 
 		public String getCommand() {
@@ -91,6 +94,14 @@ public class PlanningTool extends AbstractBaseTool<PlanningTool.PlanningInput> i
 			this.steps = steps;
 		}
 
+		public String getTerminateColumns() {
+			return terminateColumns;
+		}
+
+		public void setTerminateColumns(String terminateColumns) {
+			this.terminateColumns = terminateColumns;
+		}
+
 	}
 
 	public String getCurrentPlanId() {
@@ -123,6 +134,11 @@ public class PlanningTool extends AbstractBaseTool<PlanningTool.PlanningInput> i
 			                "type": "string"
 			            }
 			        }
+			        ,
+					"terminateColumns": {
+						"description": "Terminate structure output columns for all steps (optional, will be applied to every step)",
+						"type": "string"
+					}
 			    },
 			    "required": [
 			    	"command",
@@ -159,7 +175,7 @@ public class PlanningTool extends AbstractBaseTool<PlanningTool.PlanningInput> i
 		List<String> steps = input.getSteps();
 
 		return switch (command) {
-			case "create" -> createPlan(planId, title, steps);
+			case "create" -> createPlan(planId, title, steps, input.getTerminateColumns());
 			// case "update" -> updatePlan(planId, title, steps);
 			// case "get" -> getPlan(planId);
 			// case "mark_step" -> markStep(planId, stepIndex, stepStatus, stepNotes);
@@ -183,7 +199,7 @@ public class PlanningTool extends AbstractBaseTool<PlanningTool.PlanningInput> i
 		return executionStep;
 	}
 
-	public ToolExecuteResult createPlan(String planId, String title, List<String> steps) {
+	public ToolExecuteResult createPlan(String planId, String title, List<String> steps, String terminateColumns) {
 		if (title == null || steps == null || steps.isEmpty()) {
 			log.info("Missing required parameters when creating plan: planId={}, title={}, steps={}", planId, title,
 					steps);
@@ -191,10 +207,15 @@ public class PlanningTool extends AbstractBaseTool<PlanningTool.PlanningInput> i
 		}
 
 		ExecutionPlan plan = new ExecutionPlan(planId, planId, title);
-		// Use the new createExecutionStep method to create and add steps
+
 		int index = 0;
 		for (String step : steps) {
-			plan.addStep(createExecutionStep(step, index++));
+			ExecutionStep execStep = createExecutionStep(step, index);
+			if (terminateColumns != null && !terminateColumns.isEmpty()) {
+				execStep.setTerminateColumns(terminateColumns);
+			}
+			plan.addStep(execStep);
+			index++;
 		}
 
 		this.currentPlan = plan;

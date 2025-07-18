@@ -15,9 +15,10 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.browser.actions;
 
+import com.microsoft.playwright.Page;
+
 import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.microsoft.playwright.Page;
 
 public class ScreenShotAction extends BrowserAction {
 

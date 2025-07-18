@@ -87,7 +87,7 @@ public class TerminateTool extends AbstractBaseTool<Map<String, Object>> impleme
 				}
 				""";
 
-		return String.format(template, columnsExample, dataExample);
+		return String.format(template, columnsExample.toString(), dataExample.toString());
 	}
 
 	private static String generateParametersJson(List<String> columns) {
@@ -128,7 +128,7 @@ public class TerminateTool extends AbstractBaseTool<Map<String, Object>> impleme
 				}
 				""";
 
-		return String.format(template, defaultColumnsBuilder);
+		return String.format(template, defaultColumnsBuilder.toString());
 	}
 
 	@Override

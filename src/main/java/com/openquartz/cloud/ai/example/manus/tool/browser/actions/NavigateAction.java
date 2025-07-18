@@ -15,11 +15,12 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.browser.actions;
 
-import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
-import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Page.WaitForLoadStateOptions;
 import com.microsoft.playwright.options.LoadState;
+
+import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
+import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 
 public class NavigateAction extends BrowserAction {
 

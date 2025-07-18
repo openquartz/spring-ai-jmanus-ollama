@@ -28,7 +28,7 @@ import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LlmService {
+public class LlmService implements ILlmService {
 
 	private static final Logger log = LoggerFactory.getLogger(LlmService.class);
 

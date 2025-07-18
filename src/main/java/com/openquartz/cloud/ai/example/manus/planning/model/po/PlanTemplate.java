@@ -15,12 +15,14 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.model.po;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
-import java.time.LocalDateTime;
 
 /**
  * The entity class for the plan template, used to store the basic information of the plan
@@ -31,7 +33,11 @@ import java.time.LocalDateTime;
 public class PlanTemplate {
 
 	@Id
-	@Column(name = "plan_template_id", length = 50)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
+	private Long id;
+
+	@Column(name = "plan_template_id", length = 50, unique = true, nullable = false)
 	private String planTemplateId;
 
 	@Column(name = "title", length = 255)
@@ -59,6 +65,14 @@ public class PlanTemplate {
 	}
 
 	// Getters and setters
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public String getPlanTemplateId() {
 		return planTemplateId;
 	}

@@ -17,9 +17,10 @@ package com.openquartz.cloud.ai.example.manus.tool.browser.actions;
 
 // import java.util.List; // Already imported by BrowserAction or not needed directly
 
+import com.microsoft.playwright.Page;
+
 import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.microsoft.playwright.Page;
 
 public class MoveToAndClickAction extends BrowserAction {
 

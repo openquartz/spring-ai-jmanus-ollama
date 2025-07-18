@@ -15,10 +15,10 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.entity;
 
+import java.util.List;
+
 import com.openquartz.cloud.ai.example.manus.dynamic.model.entity.DynamicModelEntity;
 import jakarta.persistence.*;
-
-import java.util.List;
 
 @Entity
 @Table(name = "dynamic_agents")
@@ -52,6 +52,9 @@ public class DynamicAgentEntity {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "model_id")
 	private DynamicModelEntity model;
+
+	@Column(nullable = true)
+	private String namespace;
 
 	// Getters and Setters
 	public Long getId() {
@@ -128,6 +131,14 @@ public class DynamicAgentEntity {
 
 	public void setModel(DynamicModelEntity model) {
 		this.model = model;
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
 	}
 
 }

@@ -15,15 +15,17 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.service;
 
-import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.model.Tool;
-
 import java.util.List;
 import java.util.Map;
+
+import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.model.Tool;
 
 public interface AgentService {
 
 	List<AgentConfig> getAllAgents();
+
+	List<AgentConfig> getAllAgentsByNamespace(String namespace);
 
 	AgentConfig getAgentById(String id);
 

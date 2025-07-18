@@ -13,11 +13,11 @@ package com.openquartz.cloud.ai.example.manus.planning.factory;// /*
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 // */
-// package com.openquartz.cloud.ai.example.manus.planning.factory;
+// package com.alibaba.cloud.ai.example.manus.planning.factory;
 
-// import com.openquartz.cloud.ai.example.manus.planning.model.vo.PlanType;
-// import com.openquartz.cloud.ai.example.manus.tool.PlanningTool;
-// import com.openquartz.cloud.ai.example.manus.tool.MapReducePlanningTool;
+// import com.alibaba.cloud.ai.example.manus.planning.model.vo.PlanType;
+// import com.alibaba.cloud.ai.example.manus.tool.PlanningTool;
+// import com.alibaba.cloud.ai.example.manus.tool.MapReducePlanningTool;
 // import org.springframework.ai.tool.function.FunctionToolCallback;
 // import org.springframework.ai.openai.api.OpenAiApi.FunctionTool;
 

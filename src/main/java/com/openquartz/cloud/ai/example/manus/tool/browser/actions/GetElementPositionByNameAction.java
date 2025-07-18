@@ -15,16 +15,17 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.browser.actions;
 
-import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
-import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.playwright.Frame;
-import com.microsoft.playwright.Page;
-
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Frame;
+
+import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
+import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 
 public class GetElementPositionByNameAction extends BrowserAction {
 

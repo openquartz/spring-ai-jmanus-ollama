@@ -17,6 +17,10 @@
 package com.openquartz.cloud.ai.example.manus.recorder.entity;
 
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.UserInputWaitState;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -63,9 +67,13 @@ public class PlanExecutionRecord {
 	private String userRequest;
 
 	// Timestamp when execution started
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime startTime;
 
 	// Timestamp when execution ended
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime endTime;
 
 	// List of plan steps

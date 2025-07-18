@@ -15,19 +15,25 @@
  */
 package com.openquartz.cloud.ai.example.manus.config;
 
-import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
 
 @RestController
 @RequestMapping("/api/config")
 public class ConfigController {
 
 	@Autowired
-	private ConfigService configService;
+	private IConfigService configService;
 
 	@GetMapping("/group/{groupName}")
 	public ResponseEntity<List<ConfigEntity>> getConfigsByGroup(@PathVariable("groupName") String groupName) {

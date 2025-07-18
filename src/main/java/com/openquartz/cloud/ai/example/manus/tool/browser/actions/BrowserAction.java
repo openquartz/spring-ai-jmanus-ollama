@@ -15,6 +15,16 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.browser.actions;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.openquartz.cloud.ai.example.manus.tool.browser.InteractiveElementRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
 import com.openquartz.cloud.ai.example.manus.tool.browser.DriverWrapper;
 import com.openquartz.cloud.ai.example.manus.tool.browser.InteractiveElement;
@@ -23,13 +33,6 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.TimeoutError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class BrowserAction {
 
@@ -96,6 +99,18 @@ public abstract class BrowserAction {
 	protected Page getCurrentPage() {
 		DriverWrapper driverWrapper = getDriverWrapper();
 		return driverWrapper.getCurrentPage();
+	}
+
+	/**
+	 * Retrieve the interaction elements of the specified index
+	 * @param index element index
+	 * @return InteractiveElement
+	 */
+	protected InteractiveElement getInteractiveElement(int index) {
+		DriverWrapper driverWrapper = getDriverWrapper();
+		InteractiveElementRegistry interactiveElementRegistry = driverWrapper.getInteractiveElementRegistry();
+		Optional<InteractiveElement> elementOpt = interactiveElementRegistry.getElementById(index);
+		return elementOpt.orElse(null);
 	}
 
 	/**

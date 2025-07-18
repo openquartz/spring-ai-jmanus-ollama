@@ -18,7 +18,6 @@ package com.openquartz.cloud.ai.example.manus.tool.browser.actions;
 import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
 import com.openquartz.cloud.ai.example.manus.tool.browser.InteractiveElement;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.microsoft.playwright.Page;
 
 public class KeyEnterAction extends BrowserAction {
 
@@ -32,17 +31,10 @@ public class KeyEnterAction extends BrowserAction {
 		if (index == null) {
 			return new ToolExecuteResult("Index is required for 'key_enter' action");
 		}
-
-		Page page = getCurrentPage();
-		// Get the registry
-		var driverWrapper = getDriverWrapper();
-		var registry = driverWrapper.getInteractiveElementRegistry();
-		// Get the target element
-		var elementOpt = registry.getElementById(index);
-		if (elementOpt.isEmpty()) {
+		InteractiveElement enterElement = getInteractiveElement(index);
+		if (enterElement == null) {
 			return new ToolExecuteResult("Element with index " + index + " not found");
 		}
-		InteractiveElement enterElement = elementOpt.get();
 		// Execute the enter operation
 		try {
 			enterElement.getLocator().press("Enter");

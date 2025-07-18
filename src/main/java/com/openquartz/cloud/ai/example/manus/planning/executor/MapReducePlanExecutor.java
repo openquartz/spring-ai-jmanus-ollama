@@ -1,9 +1,9 @@
 /*
- * Copyright 2025 timport com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
-import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionStep;
-import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan;
-import com.openquartz.cloud.ai.example.manus.planning.model.vo.PlanInterface;
-import com.openquartz.cloud.ai.example.manus.planning.model.vo.mapreduce.MapReduceExecutionPlan;riginal author or authors.
+ * Copyright 2025 timport com.alibaba.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
+import com.alibaba.cloud.ai.example.manus.planning.model.vo.ExecutionStep;
+import com.alibaba.cloud.ai.example.manus.planning.model.vo.ExecutionPlan;
+import com.alibaba.cloud.ai.example.manus.planning.model.vo.PlanInterface;
+import com.alibaba.cloud.ai.example.manus.planning.model.vo.mapreduce.MapReduceExecutionPlan;riginal author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,25 +24,20 @@ import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.AgentService;
-import com.openquartz.cloud.ai.example.manus.llm.LlmService;
-import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory.ToolCallBackContext;
+import com.openquartz.cloud.ai.example.manus.llm.ILlmService;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
-import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionStep;
+import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.PlanInterface;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.mapreduce.ExecutionNode;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.mapreduce.MapReduceExecutionPlan;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.mapreduce.MapReduceNode;
 import com.openquartz.cloud.ai.example.manus.planning.model.vo.mapreduce.SequentialNode;
+import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory.ToolCallBackContext;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
 import com.openquartz.cloud.ai.example.manus.tool.ToolCallBiFunctionDef;
 import com.openquartz.cloud.ai.example.manus.tool.mapreduce.MapReduceTool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +45,12 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 负责执行 MapReduce 模式计划的执行器 支持并行执行 Map 阶段和串行执行 Reduce 阶段
@@ -89,7 +90,7 @@ public class MapReducePlanExecutor extends AbstractPlanExecutor {
 	private final ExecutorService executorService;
 
 	public MapReducePlanExecutor(List<DynamicAgentEntity> agents, PlanExecutionRecorder recorder,
-			AgentService agentService, LlmService llmService, ManusProperties manusProperties) {
+			AgentService agentService, ILlmService llmService, ManusProperties manusProperties) {
 		super(agents, recorder, agentService, llmService, manusProperties);
 
 		// Get thread pool size from configuration

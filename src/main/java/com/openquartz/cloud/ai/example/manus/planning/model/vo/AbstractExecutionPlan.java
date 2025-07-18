@@ -15,9 +15,8 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.model.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 执行计划抽象基类 包含所有执行计划类型的共同属性和基本实现
@@ -92,7 +91,6 @@ public abstract class AbstractExecutionPlan implements PlanInterface {
 		this.rootPlanId = planId;
 	}
 
-	@JsonIgnore
 	public String getPlanId() {
 		return rootPlanId;
 	}

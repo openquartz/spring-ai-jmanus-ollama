@@ -13,15 +13,15 @@ package com.openquartz.cloud.ai.example.manus.tool.innerStorage;// /*
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 // */
-// package com.openquartz.cloud.ai.example.manus.tool.innerStorage;
+// package com.alibaba.cloud.ai.example.manus.tool.innerStorage;
 
 // import java.io.IOException;
 // import java.nio.file.*;
 // import java.util.List;
 
-// import com.openquartz.cloud.ai.example.manus.tool.AbstractBaseTool;
-// import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-// import com.openquartz.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
+// import com.alibaba.cloud.ai.example.manus.tool.AbstractBaseTool;
+// import com.alibaba.cloud.ai.example.manus.tool.code.ToolExecuteResult;
+// import com.alibaba.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
 
 // import org.slf4j.Logger;
 // import org.slf4j.LoggerFactory;

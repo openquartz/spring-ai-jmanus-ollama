@@ -15,14 +15,23 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.model.Tool;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.AgentConfig;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.AgentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/agents")
@@ -35,6 +44,11 @@ public class AgentController {
 	@GetMapping
 	public ResponseEntity<List<AgentConfig>> getAllAgents() {
 		return ResponseEntity.ok(agentService.getAllAgents());
+	}
+
+	@GetMapping("/namespace/{namespace}")
+	public ResponseEntity<List<AgentConfig>> getAgentsByNamespace(@PathVariable("namespace") String namespace) {
+		return ResponseEntity.ok(agentService.getAllAgentsByNamespace(namespace));
 	}
 
 	@GetMapping("/{id}")

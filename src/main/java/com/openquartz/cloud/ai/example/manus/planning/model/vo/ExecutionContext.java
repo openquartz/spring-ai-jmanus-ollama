@@ -15,6 +15,8 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.model.vo;
 
+import com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,14 +24,14 @@ import java.util.Map;
  * Execution context class for passing and maintaining state information during the
  * creation, execution, and summarization of plans. This class serves as the core data
  * carrier in the plan execution process, passing between various stages of
- * {@link com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator}.
+ * {@link PlanningCoordinator}.
  *
  * Main responsibilities: - Store plan ID and plan entity information - Save user original
  * request - Maintain plan execution status - Store execution result summary - Control
  * whether execution summary generation is needed
  *
- * @see com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionPlan
- * @see com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator
+ * @see ExecutionPlan
+ * @see PlanningCoordinator
  */
 public class ExecutionContext {
 

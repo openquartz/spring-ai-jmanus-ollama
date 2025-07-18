@@ -15,18 +15,16 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.service;
 
-import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.ToolCallbackProvider;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.model.Tool;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.repository.DynamicAgentRepository;
-import com.openquartz.cloud.ai.example.manus.dynamic.mcp.service.McpService;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.openquartz.cloud.ai.example.manus.dynamic.mcp.service.IMcpService;
 import com.openquartz.cloud.ai.example.manus.dynamic.model.entity.DynamicModelEntity;
 import com.openquartz.cloud.ai.example.manus.dynamic.model.model.vo.ModelConfig;
-import com.openquartz.cloud.ai.example.manus.llm.LlmService;
-import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory;
-import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory.ToolCallBackContext;
+import com.openquartz.cloud.ai.example.manus.tool.TerminateTool;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +33,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.openquartz.cloud.ai.example.manus.agent.BaseAgent;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.ToolCallbackProvider;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.model.Tool;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.repository.DynamicAgentRepository;
+import com.openquartz.cloud.ai.example.manus.planning.IPlanningFactory;
+import com.openquartz.cloud.ai.example.manus.planning.PlanningFactory.ToolCallBackContext;
+import com.openquartz.cloud.ai.example.manus.llm.ILlmService;
 
 @Service
 public class AgentServiceImpl implements AgentService {
@@ -52,25 +54,25 @@ public class AgentServiceImpl implements AgentService {
 
 	private static final Logger log = LoggerFactory.getLogger(AgentServiceImpl.class);
 
-	private final DynamicAgentLoader dynamicAgentLoader;
+	private final IDynamicAgentLoader dynamicAgentLoader;
 
 	private final DynamicAgentRepository repository;
 
-	private final PlanningFactory planningFactory;
+	private final IPlanningFactory planningFactory;
 
-	private final McpService mcpService;
+	private final IMcpService mcpService;
 
 	@Autowired
 	@Lazy
-	private LlmService llmService;
+	private ILlmService llmService;
 
 	@Autowired
 	@Lazy
 	private ToolCallingManager toolCallingManager;
 
 	@Autowired
-	public AgentServiceImpl(@Lazy DynamicAgentLoader dynamicAgentLoader, DynamicAgentRepository repository,
-			@Lazy PlanningFactory planningFactory, @Lazy McpService mcpService) {
+	public AgentServiceImpl(@Lazy IDynamicAgentLoader dynamicAgentLoader, DynamicAgentRepository repository,
+			@Lazy IPlanningFactory planningFactory, @Lazy IMcpService mcpService) {
 		this.dynamicAgentLoader = dynamicAgentLoader;
 		this.repository = repository;
 		this.planningFactory = planningFactory;
@@ -80,6 +82,18 @@ public class AgentServiceImpl implements AgentService {
 	@Override
 	public List<AgentConfig> getAllAgents() {
 		return repository.findAll().stream().map(this::mapToAgentConfig).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<AgentConfig> getAllAgentsByNamespace(String namespace) {
+		List<DynamicAgentEntity> entities;
+		if ("default".equalsIgnoreCase(namespace)) {
+			entities = repository.findAll();
+		}
+		else {
+			entities = repository.findAllByNamespace(namespace);
+		}
+		return entities.stream().map(this::mapToAgentConfig).collect(Collectors.toList());
 	}
 
 	@Override
@@ -201,10 +215,10 @@ public class AgentServiceImpl implements AgentService {
 			toolSet.addAll(availableTools);
 		}
 		// 2. Add TerminateTool (if not exists)
-		if (!toolSet.contains(com.openquartz.cloud.ai.example.manus.tool.TerminateTool.name)) {
+		if (!toolSet.contains(TerminateTool.name)) {
 			log.info("Adding necessary tool for Agent[{}]: {}", config.getName(),
-					com.openquartz.cloud.ai.example.manus.tool.TerminateTool.name);
-			toolSet.add(com.openquartz.cloud.ai.example.manus.tool.TerminateTool.name);
+					TerminateTool.name);
+			toolSet.add(TerminateTool.name);
 		}
 		// 3. Convert to List and set
 		entity.setAvailableToolKeys(new java.util.ArrayList<>(toolSet));
@@ -213,6 +227,9 @@ public class AgentServiceImpl implements AgentService {
 		if (model != null) {
 			entity.setModel(new DynamicModelEntity(model.getId()));
 		}
+
+		// 4. Set the user-selected namespace
+		entity.setNamespace(config.getNamespace());
 	}
 
 	private DynamicAgentEntity mergePrompts(DynamicAgentEntity entity, String agentName) {

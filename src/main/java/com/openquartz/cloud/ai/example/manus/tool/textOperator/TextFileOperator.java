@@ -15,23 +15,25 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.textOperator;
 
+import java.nio.channels.FileChannel;
+import java.util.Map;
+
 import com.openquartz.cloud.ai.example.manus.tool.AbstractBaseTool;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.openquartz.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
 import com.openquartz.cloud.ai.example.manus.tool.innerStorage.SmartContentSavingService;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.openquartz.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.ollama.api.OllamaApi;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Map;
 
 public class TextFileOperator extends AbstractBaseTool<TextFileOperator.TextFileInput> {
 

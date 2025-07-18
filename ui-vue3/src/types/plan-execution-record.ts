@@ -25,7 +25,7 @@
  */
 
 /**
- * Maps to Java: com.openquartz.cloud.ai.example.manus.recorder.entity.ThinkActRecord
+ * Maps to Java: com.alibaba.cloud.ai.example.manus.recorder.entity.ThinkActRecord
  * 
  * Records the thinking and action process of an agent in a single execution step.
  */
@@ -74,13 +74,35 @@ export interface ThinkActRecord {
   
   /** Tool parameters used for action (serialized, if applicable) */
   toolParameters?: string
+
+  /** Tool call information */
+  actToolInfoList?: ActToolInfo[]
   
   /** Sub-plan execution record for tool calls that create new execution plans */
   subPlanExecutionRecord?: PlanExecutionRecord
 }
 
 /**
- * Maps to Java: com.openquartz.cloud.ai.example.manus.recorder.entity.AgentExecutionRecord
+ * Maps to Java: com.alibaba.cloud.ai.example.manus.recorder.entity.ThinkActRecord.ActToolInfo
+ */
+export interface ActToolInfo {
+
+  /** Name of the tool */
+  name?: string
+
+  /** Description of the tool */
+  parameters?: string
+
+  /** Result of tool call */
+  result?: string
+
+  /** ID of the tool */
+  id?: string
+
+}
+
+/**
+ * Maps to Java: com.alibaba.cloud.ai.example.manus.recorder.entity.AgentExecutionRecord
  * 
  * Agent execution record class for tracking and recording detailed information about
  * BaseAgent execution process.
@@ -113,11 +135,6 @@ export interface AgentExecutionRecord {
   /** Execution status (IDLE, RUNNING, FINISHED) */
   status?: string
   
-  /** Whether execution is completed */
-  isCompleted?: boolean
-  
-  /** Whether stuck */
-  isStuck?: boolean
   
   /** Record list of think-act steps, existing as sub-steps */
   thinkActSteps?: ThinkActRecord[]
@@ -137,7 +154,7 @@ export interface AgentExecutionRecord {
 }
 
 /**
- * Maps to Java: com.openquartz.cloud.ai.example.manus.planning.model.vo.UserInputWaitState
+ * Maps to Java: com.alibaba.cloud.ai.example.manus.planning.model.vo.UserInputWaitState
  * 
  * User input wait state for handling user interaction during plan execution.
  */
@@ -176,7 +193,7 @@ export interface FormInput {
 }
 
 /**
- * Maps to Java: com.openquartz.cloud.ai.example.manus.recorder.entity.PlanExecutionRecord
+ * Maps to Java: com.alibaba.cloud.ai.example.manus.recorder.entity.PlanExecutionRecord
  * 
  * Plan execution record class for tracking and recording detailed information about
  * PlanningFlow execution process.

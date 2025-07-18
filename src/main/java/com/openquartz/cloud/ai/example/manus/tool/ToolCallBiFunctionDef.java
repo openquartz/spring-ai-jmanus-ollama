@@ -15,10 +15,10 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool;
 
-import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import org.springframework.ai.chat.model.ToolContext;
-
 import java.util.function.BiFunction;
+
+import org.springframework.ai.chat.model.ToolContext;
+import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 
 /**
  * Interface for tool definitions, providing unified tool definition methods

@@ -15,11 +15,15 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.mapreduce;
 
-import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
+
 import com.openquartz.cloud.ai.example.manus.tool.AbstractBaseTool;
 import com.openquartz.cloud.ai.example.manus.tool.TerminableTool;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 import com.openquartz.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
+import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +36,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Data split tool for MapReduce workflow data preparation phase Responsible for
@@ -691,8 +692,7 @@ public class MapReduceTool extends AbstractBaseTool<MapReduceTool.MapReduceInput
 			// Determine output directory - store to
 			// inner_storage/{rootPlanId}/{currentPlanId}/tasks directory
 			// This creates a hierarchical structure where sub-plan data is stored under
-			// the
-			// root plan
+			// the root plan
 			Path rootPlanDir = getPlanDirectory(rootPlanId);
 			Path currentPlanDir = rootPlanDir.resolve(currentPlanId);
 			Path tasksPath = currentPlanDir.resolve(TASKS_DIRECTORY_NAME);
@@ -700,23 +700,16 @@ public class MapReduceTool extends AbstractBaseTool<MapReduceTool.MapReduceInput
 
 			List<String> allTaskDirs = new ArrayList<>();
 
-			// Check if infinite context is enabled for enhanced processing
-			boolean infiniteContextEnabled = isInfiniteContextEnabled();
-			if (infiniteContextEnabled) {
-				log.info("Infinite context enabled for plan: {}, context size: {}", currentPlanId,
-						getInfiniteContextTaskContextSize());
-			}
-
 			if (isFile && isTextFile(path.toString())) {
-				// Process single file - always use infinite context task context size
+				// Process single file - use infinite context task context size
 				int splitSize = getInfiniteContextTaskContextSize();
 				SplitResult result = splitSingleFileToTasks(path, null, splitSize, tasksPath, null);
 				allTaskDirs.addAll(result.taskDirs);
 
 			}
 			else if (isDirectory) {
-				// Process all text files in directory - always use infinite context task
-				// context size
+				// Process all text files in directory - use infinite context task context
+				// size
 				int splitSize = getInfiniteContextTaskContextSize();
 				List<Path> textFiles = Files.list(path)
 					.filter(Files::isRegularFile)
@@ -1262,18 +1255,6 @@ public class MapReduceTool extends AbstractBaseTool<MapReduceTool.MapReduceInput
 		// For now, use default timeout until the configuration is added to
 		// ManusProperties
 		return 300; // Default timeout is 5 minutes
-	}
-
-	/**
-	 * Check if infinite context is enabled
-	 * @return true if infinite context is enabled, false otherwise
-	 */
-	private boolean isInfiniteContextEnabled() {
-		if (manusProperties != null) {
-			Boolean enabled = manusProperties.getInfiniteContextEnabled();
-			return enabled != null ? enabled : false;
-		}
-		return false;
 	}
 
 	/**

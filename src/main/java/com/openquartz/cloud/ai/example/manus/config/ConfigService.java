@@ -15,25 +15,31 @@
  */
 package com.openquartz.cloud.ai.example.manus.config;
 
-import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
-import com.openquartz.cloud.ai.example.manus.config.repository.ConfigRepository;
-import jakarta.annotation.PostConstruct;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import com.openquartz.cloud.ai.example.manus.config.entity.ConfigEntity;
+import com.openquartz.cloud.ai.example.manus.config.repository.ConfigRepository;
 
 @Service
-public class ConfigService {
+public class ConfigService implements IConfigService, ApplicationListener<ContextRefreshedEvent> {
 
 	private static final Logger log = LoggerFactory.getLogger(ConfigService.class);
 
@@ -48,8 +54,17 @@ public class ConfigService {
 
 	private final Map<String, ConfigCacheEntry<String>> configCache = new ConcurrentHashMap<>();
 
-	@PostConstruct
-	public void init() {
+	private boolean initialized = false;
+
+	@Override
+	public void onApplicationEvent(ContextRefreshedEvent event) {
+		if (!initialized) {
+			initialized = true;
+			init();
+		}
+	}
+
+	private void init() {
 		// Only get beans with @ConfigurationProperties annotation
 		Map<String, Object> configBeans = applicationContext.getBeansWithAnnotation(ConfigurationProperties.class);
 		log.info("Found {} configuration beans", configBeans.size());

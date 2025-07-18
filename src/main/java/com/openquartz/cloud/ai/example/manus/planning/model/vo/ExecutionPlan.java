@@ -15,11 +15,11 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.model.vo;
 
-import com.openquartz.cloud.ai.example.manus.agent.AgentState;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.openquartz.cloud.ai.example.manus.agent.AgentState;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Plan entity class for managing execution plan related information

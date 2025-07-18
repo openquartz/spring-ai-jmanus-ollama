@@ -15,11 +15,10 @@
  */
 package com.openquartz.cloud.ai.example.manus.planning.model.vo;
 
-import com.openquartz.cloud.ai.example.manus.planning.model.vo.mapreduce.MapReduceExecutionPlan;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import java.util.List;
+import com.openquartz.cloud.ai.example.manus.planning.model.vo.mapreduce.MapReduceExecutionPlan;
 
 /**
  * 执行计划通用接口，定义了所有执行计划类型共同的基本操作。 General interface for execution plans, defines the basic
@@ -162,6 +161,10 @@ public interface PlanInterface {
 	 * @return 计划状态字符串 / The plan execution state string
 	 */
 	String getPlanExecutionStateStringFormat(boolean onlyCompletedAndFirstInProgress);
+
+	public void setPlanId(String planId);
+
+	public String getPlanId();
 
 	/**
 	 * 更新所有步骤的索引，从0开始递增。 Update the indices of all steps, starting from 0.

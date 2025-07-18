@@ -15,13 +15,11 @@
  */
 package com.openquartz.cloud.ai.example.manus.tool.browser.actions;
 
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
 import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
 import com.openquartz.cloud.ai.example.manus.tool.browser.InteractiveElement;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
-import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Page;
-
-import java.util.List;
 
 public class InputTextAction extends BrowserAction {
 
@@ -41,31 +39,23 @@ public class InputTextAction extends BrowserAction {
 
 		// Get interactive elements (InteractiveElement), supports all frames (including
 		// iframe)
-		List<InteractiveElement> interactiveElements = getInteractiveElements(page); // Already
-																						// supports
-																						// recursion
-																						// frame
-		if (index < 0 || index >= interactiveElements.size()) {
+		// Already supports recursion frame
+		InteractiveElement inputElement = getInteractiveElement(index);
+		if (inputElement == null) {
 			return new ToolExecuteResult("Element with index " + index + " not found");
 		}
-
-		InteractiveElement inputElement = interactiveElements.get(index);
-
 		String tagName = inputElement.getTagName();
 		if (!"input".equals(tagName) && !"textarea".equals(tagName)) {
 			return new ToolExecuteResult("Element at index " + index + " is not an input element");
 		}
-
 		// Get element locator
 		Locator elementLocator = inputElement.getLocator();
 		// 3. Try fill
 		try {
 			elementLocator.fill(""); // Clear first
 			// Set character input delay to 100ms, adjustable as needed
-			Locator.PressSequentiallyOptions options = new Locator.PressSequentiallyOptions()
-				.setDelay(100);
+			Locator.PressSequentiallyOptions options = new Locator.PressSequentiallyOptions().setDelay(100);
 			elementLocator.pressSequentially(text, options);
-
 		}
 		catch (Exception e) {
 			// 4. If fill fails, try pressSequentially
