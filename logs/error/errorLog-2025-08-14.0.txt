@@ -221,3 +221,9 @@ Call log:
 	at com.microsoft.playwright.impl.Connection.processOneMessage(Connection.java:214)
 	at com.microsoft.playwright.impl.ChannelOwner.runUntil(ChannelOwner.java:136)
 	... 34 common frames omitted
+2025-08-14 23:34:19:671 [ForkJoinPool.commonPool-worker-10] ERROR c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 337) -No ToolCallback found for tool name: get_all_text
+2025-08-14 23:34:28:886 [ForkJoinPool.commonPool-worker-10] ERROR c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 337) -No ToolCallback found for tool name: get_all_text
+2025-08-14 23:34:45:564 [ForkJoinPool.commonPool-worker-10] ERROR c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 337) -No ToolCallback found for tool name: get_text
+2025-08-14 23:34:57:902 [ForkJoinPool.commonPool-worker-10] ERROR c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 337) -No ToolCallback found for tool name: get_all_text
+2025-08-14 23:35:11:288 [ForkJoinPool.commonPool-worker-10] ERROR c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 337) -No ToolCallback found for tool name: get_all_text
+2025-08-14 23:35:23:416 [ForkJoinPool.commonPool-worker-10] ERROR c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 337) -No ToolCallback found for tool name: get_all_text

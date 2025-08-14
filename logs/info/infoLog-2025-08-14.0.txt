@@ -770,3 +770,354 @@ DATABASE DATASOURCE SUMMARY
 2025-08-14 23:28:41:667 [Thread-2] INFO  c.o.c.a.e.manus.tool.browser.ChromeDriverService(ChromeDriverService.java 145) -JVM shutting down - cleaning up Playwright processes
 2025-08-14 23:28:41:667 [Thread-2] INFO  c.o.c.a.e.manus.tool.browser.ChromeDriverService(ChromeDriverService.java 190) -Successfully cleaned up all Playwright processes	
 2025-08-14 23:28:41:668 [SpringApplicationShutdownHook] INFO  o.s.boot.web.embedded.tomcat.GracefulShutdown(GracefulShutdown.java 54) -Commencing graceful shutdown. Waiting for active requests to complete
+2025-08-14 23:32:51:963 [main] INFO  c.o.c.a.e.manus.OpenManusSpringBootApplication(StartupInfoLogger.java 53) -Starting OpenManusSpringBootApplication using Java 21.0.7 with PID 64552 (/Users/jackxu/Documents/Code/github.com/openquartz/spring-ai-jmanus-ollama/target/classes started by jackxu in /Users/jackxu/Documents/Code/github.com/openquartz/spring-ai-jmanus-ollama)
+2025-08-14 23:32:51:964 [main] INFO  c.o.c.a.e.manus.OpenManusSpringBootApplication(SpringApplication.java 658) -The following 1 profile is active: "h2"
+2025-08-14 23:32:52:234 [main] INFO  o.s.d.r.config.RepositoryConfigurationDelegate(RepositoryConfigurationDelegate.java 143) -Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-14 23:32:52:305 [main] INFO  o.s.d.r.config.RepositoryConfigurationDelegate(RepositoryConfigurationDelegate.java 211) -Finished Spring Data repository scanning in 64 ms. Found 11 JPA repository interfaces.
+2025-08-14 23:32:52:499 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer(TomcatWebServer.java 111) -Tomcat initialized with port 18080 (http)
+2025-08-14 23:32:52:504 [main] INFO  org.apache.coyote.http11.Http11NioProtocol(DirectJDKLog.java 168) -Initializing ProtocolHandler ["http-nio-18080"]
+2025-08-14 23:32:52:505 [main] INFO  org.apache.catalina.core.StandardService(DirectJDKLog.java 168) -Starting service [Tomcat]
+2025-08-14 23:32:52:505 [main] INFO  org.apache.catalina.core.StandardEngine(DirectJDKLog.java 168) -Starting Servlet engine: [Apache Tomcat/10.1.40]
+2025-08-14 23:32:52:521 [main] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/](DirectJDKLog.java 168) -Initializing Spring embedded WebApplicationContext
+2025-08-14 23:32:52:521 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext(ServletWebServerApplicationContext.java 301) -Root WebApplicationContext: initialization completed in 544 ms
+2025-08-14 23:32:52:578 [main] INFO  org.hibernate.jpa.internal.util.LogHelper(LogHelper.java 31) -HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-14 23:32:52:605 [main] INFO  org.hibernate.Version(Version.java 44) -HHH000412: Hibernate ORM core version 6.6.13.Final
+2025-08-14 23:32:52:619 [main] INFO  o.hibernate.cache.internal.RegionFactoryInitiator(RegionFactoryInitiator.java 50) -HHH000026: Second-level cache disabled
+2025-08-14 23:32:52:731 [main] INFO  o.s.o.j.persistenceunit.SpringPersistenceUnitInfo(SpringPersistenceUnitInfo.java 87) -No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-14 23:32:52:745 [main] INFO  com.zaxxer.hikari.HikariDataSource(HikariDataSource.java 109) -Spring-AI-Alibaba-JManus-h2-Pool - Starting...
+2025-08-14 23:32:52:854 [main] INFO  com.zaxxer.hikari.pool.HikariPool(HikariPool.java 554) -Spring-AI-Alibaba-JManus-h2-Pool - Added connection conn0: url=jdbc:h2:file:./h2-data/openmanus_db user=SA
+2025-08-14 23:32:52:855 [main] INFO  com.zaxxer.hikari.HikariDataSource(HikariDataSource.java 122) -Spring-AI-Alibaba-JManus-h2-Pool - Start completed.
+2025-08-14 23:32:52:873 [main] INFO  org.hibernate.orm.connections.pooling(JdbcEnvironmentInitiator.java 157) -HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (Spring-AI-Alibaba-JManus-h2-Pool)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-08-14 23:32:52:959 [main] INFO  c.o.cloud.ai.example.manus.config.JacksonConfig(JacksonConfig.java 65) -Successfully registered JavaTimeModule to org.springframework.ai.model.ModelOptionsUtils.OBJECT_MAPPER
+2025-08-14 23:32:52:959 [main] INFO  c.o.cloud.ai.example.manus.config.JacksonConfig(JacksonConfig.java 65) -Successfully registered JavaTimeModule to org.springframework.ai.util.json.JsonParser.OBJECT_MAPPER
+2025-08-14 23:32:52:960 [main] INFO  c.o.cloud.ai.example.manus.config.JacksonConfig(JacksonConfig.java 38) -Created ObjectMapper with JavaTimeModule registered
+2025-08-14 23:32:53:289 [main] INFO  o.h.e.t.jta.platform.internal.JtaPlatformInitiator(JtaPlatformInitiator.java 59) -HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-14 23:32:53:310 [main] INFO  o.s.orm.jpa.LocalContainerEntityManagerFactoryBean(AbstractEntityManagerFactoryBean.java 447) -Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-14 23:32:53:464 [main] INFO  o.s.data.jpa.repository.query.QueryEnhancerFactory(QueryEnhancerFactory.java 49) -Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-08-14 23:32:53:743 [main] INFO  c.openquartz.cloud.ai.example.manus.llm.LlmService(LlmService.java 107) -Checking and init ChatClient instance...
+2025-08-14 23:32:53:750 [main] INFO  c.openquartz.cloud.ai.example.manus.llm.LlmService(LlmService.java 118) -Find default model: gpt-oss:20b
+2025-08-14 23:32:53:760 [main] INFO  c.o.c.a.e.m.dynamic.mcp.service.McpCacheManager(McpCacheManager.java 274) -MCP service loader configuration changed, updating thread pool
+2025-08-14 23:32:53:761 [main] INFO  c.o.c.a.e.m.dynamic.mcp.service.McpCacheManager(McpCacheManager.java 288) -Updated MCP service loader thread pool with max 10 concurrent connections
+2025-08-14 23:32:53:761 [main] INFO  c.o.c.a.e.m.dynamic.mcp.service.McpCacheManager(McpCacheManager.java 203) -Initializing MCP cache manager with double buffer mechanism
+2025-08-14 23:32:53:762 [main] INFO  c.o.c.a.e.m.dynamic.mcp.service.McpCacheManager(McpCacheManager.java 344) -No MCP server configurations found
+2025-08-14 23:32:53:762 [main] INFO  c.o.c.a.e.m.dynamic.mcp.service.McpCacheManager(McpCacheManager.java 214) -Initial cache loaded successfully with 0 services
+2025-08-14 23:32:53:762 [main] INFO  c.o.c.a.e.m.dynamic.mcp.service.McpCacheManager(McpCacheManager.java 236) -Scheduled cache update task started, interval: 10 minutes
+2025-08-14 23:32:53:902 [main] INFO  c.openquartz.cloud.ai.example.manus.llm.LlmService(LlmService.java 244) -Build or update dynamic chat client for model: gpt-oss:20b
+2025-08-14 23:32:53:902 [main] INFO  c.openquartz.cloud.ai.example.manus.llm.LlmService(LlmService.java 123) -ChatClient init success
+2025-08-14 23:32:53:973 [main] INFO  c.o.cloud.ai.example.manus.config.PlaywrightConfig(PlaywrightConfig.java 60) -PLAYWRIGHT_BROWSERS_PATH not set, using default browser path
+2025-08-14 23:32:53:976 [main] INFO  c.o.c.a.e.m.d.m.service.ModelDataInitialization(ModelDataInitialization.java 101) -Default model already exists: gpt-oss:20b, skipping environment variable model creation
+2025-08-14 23:32:54:154 [main] INFO  org.apache.coyote.http11.Http11NioProtocol(DirectJDKLog.java 168) -Starting ProtocolHandler ["http-nio-18080"]
+2025-08-14 23:32:54:157 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer(TomcatWebServer.java 243) -Tomcat started on port 18080 (http) with context path '/'
+2025-08-14 23:32:54:163 [main] INFO  c.o.cloud.ai.example.manus.config.ConfigService(ConfigService.java 70) -Found 29 configuration beans
+2025-08-14 23:32:54:163 [main] INFO  c.o.cloud.ai.example.manus.config.ConfigService(ConfigService.java 85) -Cleaning up obsolete configurations not defined in ManusProperties...
+2025-08-14 23:32:54:168 [main] INFO  c.o.cloud.ai.example.manus.config.ConfigService(ConfigService.java 102) -✅ No obsolete configurations found
+2025-08-14 23:32:54:177 [main] INFO  c.o.c.a.e.manus.OpenManusSpringBootApplication(StartupInfoLogger.java 59) -Started OpenManusSpringBootApplication in 2.399 seconds (process running for 2.663)
+2025-08-14 23:32:54:178 [main] INFO  c.o.c.a.e.m.t.database.DatabaseUseStartupListener(DatabaseUseStartupListener.java 48) -Starting to initialize database configurations...
+2025-08-14 23:32:54:179 [main] INFO  c.o.c.a.e.manus.tool.database.DataSourceService(DataSourceService.java 62) -Added datasource 'amanus' with url: jdbc:mysql://127.0.0.1:3306/amanus?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8 and type: mysql
+2025-08-14 23:32:54:179 [main] INFO  c.o.c.a.e.m.t.database.DatabaseUseStartupListener(DatabaseUseStartupListener.java 100) -Initialized datasource 'amanus' (type: mysql)
+2025-08-14 23:32:54:179 [main] INFO  c.o.c.a.e.manus.tool.database.DataSourceService(DataSourceService.java 62) -Added datasource 'testdb' with url: jdbc:h2:file:./h2-data/testdb;MODE=MYSQL;DATABASE_TO_LOWER=TRUE and type: h2
+2025-08-14 23:32:54:179 [main] INFO  c.o.c.a.e.m.t.database.DatabaseUseStartupListener(DatabaseUseStartupListener.java 100) -Initialized datasource 'testdb' (type: h2)
+2025-08-14 23:32:54:179 [main] INFO  c.o.c.a.e.m.t.database.DatabaseUseStartupListener(DatabaseUseStartupListener.java 68) -Database configurations initialized with 2 datasources
+2025-08-14 23:32:54:179 [main] INFO  c.o.c.a.e.m.t.database.DatabaseUseStartupListener(DatabaseUseStartupListener.java 150) -
+====================================================================================================
+DATABASE DATASOURCE SUMMARY
+====================================================================================================
+│ Datasource: amanus       │ Type: mysql    │ Status: ✓ INSTANTIATED │ URL: jdbc:mysql://127.0.0.1:3306/amanus?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8 │
+│ Datasource: testdb       │ Type: h2       │ Status: ✓ INSTANTIATED │ URL: jdbc:h2:file:./h2-data/testdb;MODE=MYSQL;DATABASE_TO_LOWER=TRUE │
+----------------------------------------------------------------------------------------------------
+│ SUMMARY: Total=2, Instantiated=2, Disabled=0, Failed=0 │
+====================================================================================================
+
+
+2025-08-14 23:32:54:181 [main] INFO  c.o.c.a.e.m.c.startUp.ConfigAppStartupListener(ConfigAppStartupListener.java 60) -Configuration system initialized with 17 total configs
+2025-08-14 23:32:54:181 [main] INFO  c.o.c.a.e.m.c.startUp.ConfigAppStartupListener(ConfigAppStartupListener.java 61) -Group 'manus': 17 configs
+2025-08-14 23:32:54:181 [main] INFO  c.o.c.a.e.m.c.startUp.ConfigAppStartupListener(ConfigAppStartupListener.java 68) -0 configs are using custom values
+2025-08-14 23:32:54:181 [main] INFO  c.o.c.a.e.m.c.startUp.ConfigAppStartupListener(ConfigAppStartupListener.java 78) -Starting to initialize dynamic agents...
+2025-08-14 23:32:54:183 [main] INFO  c.o.c.a.e.m.d.agent.service.DynamicAgentScanner(DynamicAgentScanner.java 93) -Checking for deprecated @DynamicAgentDefinition annotation usage...
+2025-08-14 23:32:54:197 [main] INFO  c.o.c.a.e.m.d.agent.service.DynamicAgentScanner(DynamicAgentScanner.java 174) -✅ No deprecated @DynamicAgentDefinition annotations found. System can start normally.
+2025-08-14 23:32:54:197 [main] INFO  c.o.c.a.e.m.d.agent.service.DynamicAgentScanner(DynamicAgentScanner.java 75) -✅ Force override from YAML enabled - Starting to scan and override agents from YAML configuration files...
+2025-08-14 23:32:54:197 [main] INFO  c.o.c.a.e.m.d.agent.service.DynamicAgentScanner(DynamicAgentScanner.java 181) -🔍 Starting to scan YAML agent configuration files...
+2025-08-14 23:32:54:199 [main] INFO  c.o.c.a.e.m.d.a.s.StartupAgentConfigLoader(StartupAgentConfigLoader.java 208) -Scanned 0 startup agents: []
+2025-08-14 23:32:54:199 [main] INFO  c.o.c.a.e.m.d.agent.service.DynamicAgentScanner(DynamicAgentScanner.java 212) -✅ YAML agent configuration scanning completed - Total: 0, Created: 0, Overridden: 0
+2025-08-14 23:32:54:199 [main] INFO  c.o.c.a.e.m.d.agent.service.DynamicAgentScanner(DynamicAgentScanner.java 81) -✅ Dynamic agent override from YAML files completed
+2025-08-14 23:32:54:199 [main] INFO  c.o.c.a.e.m.c.startUp.ConfigAppStartupListener(ConfigAppStartupListener.java 80) -Dynamic agents initialization completed
+2025-08-14 23:32:54:202 [main] INFO  c.o.c.a.e.m.d.cron.scheduler.DynamicCronTaskLoader(DynamicCronTaskLoader.java 92) -Loaded 0 enabled scheduled tasks
+2025-08-14 23:32:54:202 [main] INFO  c.o.c.a.e.m.d.cron.scheduler.DynamicCronTaskLoader(DynamicCronTaskLoader.java 51) -Scheduled task loading completed
+2025-08-14 23:32:54:213 [main] INFO  c.o.c.a.e.m.tool.jsxGenerator.JsxGeneratorService(JsxGeneratorService.java 69) -JsxGeneratorService initialized
+2025-08-14 23:32:54:213 [main] INFO  c.o.c.a.e.m.tool.jsxGenerator.JsxGeneratorService(JsxGeneratorService.java 442) -Registered template: counter-button
+2025-08-14 23:32:54:213 [main] INFO  c.o.c.a.e.m.tool.jsxGenerator.JsxGeneratorService(JsxGeneratorService.java 442) -Registered template: data-form
+2025-08-14 23:32:54:213 [main] INFO  c.o.c.a.e.m.tool.jsxGenerator.JsxGeneratorService(JsxGeneratorService.java 203) -Default templates initialized: [counter-button, data-form]
+2025-08-14 23:32:54:213 [main] INFO  c.o.c.a.e.manus.tool.textOperator.TextFileService(TextFileService.java 76) -TextFileService initialized
+2025-08-14 23:32:54:223 [main] INFO  c.o.c.a.e.m.d.n.s.NamespaceDataInitialization(NamespaceDataInitialization.java 52) -1 namespaces already exist, skipping default namespace initialization
+2025-08-14 23:32:54:225 [main] INFO  c.o.c.a.e.manus.config.startUp.AppStartupListener(AppStartupListener.java 54) -Application started, attempting to open browser to access: http://localhost:18080/ui/index.html
+2025-08-14 23:32:54:244 [main] INFO  c.o.c.a.e.manus.config.startUp.AppStartupListener(AppStartupListener.java 75) -Successfully opened browser via macOS open command
+2025-08-14 23:32:54:441 [http-nio-18080-exec-1] INFO  o.a.c.core.ContainerBase.[Tomcat].[localhost].[/](DirectJDKLog.java 168) -Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-08-14 23:32:54:441 [http-nio-18080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet(FrameworkServlet.java 532) -Initializing Servlet 'dispatcherServlet'
+2025-08-14 23:32:54:441 [http-nio-18080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet(FrameworkServlet.java 554) -Completed initialization in 0 ms
+2025-08-14 23:33:00:886 [http-nio-18080-exec-5] INFO  c.o.c.a.e.m.planning.service.PlanTemplateService(PlanTemplateService.java 178) -Saved version 0 of plan planTemplate-1753622676988
+2025-08-14 23:33:00:887 [http-nio-18080-exec-5] INFO  c.o.c.a.e.m.planning.service.PlanTemplateService(PlanTemplateService.java 86) -Saved plan template planTemplate-1753622676988 and its first version
+2025-08-14 23:33:00:887 [http-nio-18080-exec-5] INFO  c.o.c.a.e.m.p.controller.PlanTemplateController(PlanTemplateController.java 248) -New plan created: planTemplate-1753622676988
+2025-08-14 23:33:01:243 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.a.e.m.p.coordinator.PlanningCoordinator(PlanningCoordinator.java 126) -Executing existing plan for planId: plan-1755185581228
+2025-08-14 23:33:01:244 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.a.e.m.p.executor.factory.PlanExecutorFactory(PlanExecutorFactory.java 93) -Creating executor for plan type: simple (planId: plan-1755185581228)
+2025-08-14 23:33:01:248 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.a.e.m.p.coordinator.PlanningCoordinator(PlanningCoordinator.java 136) -Selected executor: PlanExecutor for existing plan type: simple (planId: plan-1755185581228)
+2025-08-14 23:33:01:249 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.a.e.m.r.RepositoryPlanExecutionRecorder(RepositoryPlanExecutionRecorder.java 509) -Creating root plan with ID: plan-1755185581228
+2025-08-14 23:33:01:274 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.a.e.m.dynamic.agent.service.AgentServiceImpl(AgentServiceImpl.java 302) -Create new BaseAgent: TEXT_FILE_AGENT, planId: plan-1755185581228
+2025-08-14 23:33:01:284 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: browser_use
+2025-08-14 23:33:01:284 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: database_use
+2025-08-14 23:33:01:284 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: terminate
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: bash
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: doc_loader
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: text_file_operator
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: inner_storage_content_tool
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: file_merge_tool
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: form_input
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: data_split_tool
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: map_output_tool
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: reduce_operation_tool
+2025-08-14 23:33:01:285 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: mapreduce_finalize_tool
+2025-08-14 23:33:01:286 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: cron_tool
+2025-08-14 23:33:01:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 1/20
+2025-08-14 23:33:25:350 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 248) -🔄 Agent TEXT_FILE_AGENT thinking - Progress[24001ms]: 1 responses received, 0 characters, 0 tool calls. Preview: '(empty)'
+2025-08-14 23:33:36:273 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 248) -🔄 Agent TEXT_FILE_AGENT thinking - Progress[34924ms]: 158 responses received, 0 characters, 1 tool calls. Preview: '(empty)'
+2025-08-14 23:33:36:284 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[34935ms]: 158 responses processed, 0 characters, 1 tool calls, 1412 prompt tokens, 313 completion tokens, 1725 total tokens. Preview: '(empty)'
+2025-08-14 23:33:36:289 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:33:36:289 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:33:36:289 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [text_file_operator]
+2025-08-14 23:33:36:298 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.a.e.manus.tool.textOperator.TextFileOperator(TextFileOperator.java 211) -TextFileOperator input: action=null, filePath=novel.md
+2025-08-14 23:33:36:301 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 368) -🔧 Tool TEXT_FILE_AGENT's executing result: {"output":"Error: action parameter is required"}
+2025-08-14 23:33:36:301 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 299) -🔧 Tool TEXT_FILE_AGENT's executing result: {"output":"Error: action parameter is required"}
+2025-08-14 23:33:36:306 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: in_progress
+2025-08-14 23:33:36:306 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 2/20
+2025-08-14 23:33:48:147 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 248) -🔄 Agent TEXT_FILE_AGENT thinking - Progress[11837ms]: 115 responses received, 0 characters, 1 tool calls. Preview: '(empty)'
+2025-08-14 23:33:48:148 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[11838ms]: 115 responses processed, 0 characters, 1 tool calls, 1582 prompt tokens, 270 completion tokens, 1852 total tokens. Preview: '(empty)'
+2025-08-14 23:33:48:149 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:33:48:149 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:33:48:150 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [text_file_operator]
+2025-08-14 23:33:48:160 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.a.e.manus.tool.textOperator.TextFileOperator(TextFileOperator.java 211) -TextFileOperator input: action=null, filePath=novel.md
+2025-08-14 23:33:48:161 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 368) -🔧 Tool TEXT_FILE_AGENT's executing result: {"output":"Error: action parameter is required"}
+2025-08-14 23:33:48:162 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 299) -🔧 Tool TEXT_FILE_AGENT's executing result: {"output":"Error: action parameter is required"}
+2025-08-14 23:33:48:167 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: in_progress
+2025-08-14 23:33:48:167 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 3/20
+2025-08-14 23:33:58:188 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 248) -🔄 Agent TEXT_FILE_AGENT thinking - Progress[10017ms]: 213 responses received, 0 characters, 0 tool calls. Preview: '(empty)'
+2025-08-14 23:34:04:053 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[15882ms]: 223 responses processed, 0 characters, 1 tool calls, 1752 prompt tokens, 378 completion tokens, 2130 total tokens. Preview: '(empty)'
+2025-08-14 23:34:04:055 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:34:04:055 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:34:04:056 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [text_file_operator]
+2025-08-14 23:34:04:066 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.a.e.manus.tool.textOperator.TextFileOperator(TextFileOperator.java 211) -TextFileOperator input: action=append, filePath=novel.md
+2025-08-14 23:34:04:086 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 368) -🔧 Tool TEXT_FILE_AGENT's executing result: {"output":"Content appended and saved successfully"}
+2025-08-14 23:34:04:086 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 299) -🔧 Tool TEXT_FILE_AGENT's executing result: {"output":"Content appended and saved successfully"}
+2025-08-14 23:34:04:091 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: in_progress
+2025-08-14 23:34:04:091 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 4/20
+2025-08-14 23:34:11:261 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[7166ms]: 39 responses processed, 0 characters, 1 tool calls, 1928 prompt tokens, 131 completion tokens, 2059 total tokens. Preview: '(empty)'
+2025-08-14 23:34:11:263 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:34:11:264 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:34:11:264 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [terminate]
+2025-08-14 23:34:11:281 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.tool.TerminateTool(TerminateTool.java 124) -Terminate with input: {fileList=[{description=Markdown file containing the novel's main title and ten chapter headings as level‑2 headings., name=novel.md}], folderList=[], message=已完成小说提纲的创建。文件 novel.md 已生成，包含大标题《人工智能逐步击败人类》以及十个子章节标题。}
+2025-08-14 23:34:11:283 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 368) -🔧 Tool TEXT_FILE_AGENT's executing result: {"output":"Message: 已完成小说提纲的创建。文件 novel.md 已生成，包含大标题《人工智能逐步击败人类》以及十个子章节标题。\nFiles:\n  - Name: null\n    Description: null\nFolders:\n"}
+2025-08-14 23:34:11:283 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 299) -🔧 Tool TEXT_FILE_AGENT's executing result: {"output":"Message: 已完成小说提纲的创建。文件 novel.md 已生成，包含大标题《人工智能逐步击败人类》以及十个子章节标题。\nFiles:\n  - Name: null\n    Description: null\nFolders:\n"}
+2025-08-14 23:34:11:283 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 318) -TerminableTool can terminate for planId: plan-1755185581228
+2025-08-14 23:34:11:289 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: completed
+2025-08-14 23:34:11:301 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.a.e.m.dynamic.agent.service.AgentServiceImpl(AgentServiceImpl.java 302) -Create new BaseAgent: TEXT_FILE_AGENT, planId: plan-1755185581228
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: browser_use
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: database_use
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: terminate
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: bash
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: doc_loader
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: text_file_operator
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: inner_storage_content_tool
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: file_merge_tool
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: form_input
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: data_split_tool
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: map_output_tool
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: reduce_operation_tool
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: mapreduce_finalize_tool
+2025-08-14 23:34:11:304 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.planning.PlanningFactory(PlanningFactory.java 302) -Registering tool: cron_tool
+2025-08-14 23:34:11:310 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 1/20
+2025-08-14 23:34:19:660 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[8346ms]: 81 responses processed, 0 characters, 1 tool calls, 1577 prompt tokens, 108 completion tokens, 1685 total tokens. Preview: '(empty)'
+2025-08-14 23:34:19:662 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:34:19:662 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:34:19:662 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [get_all_text]
+2025-08-14 23:34:19:671 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 338) -Exception occurred
+java.lang.IllegalStateException: No ToolCallback found for tool name: get_all_text
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCall(DefaultToolCallingManager.java:202)
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCalls(DefaultToolCallingManager.java:137)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:216)
+	at jdk.proxy2/jdk.proxy2.$Proxy162.executeToolCalls(Unknown Source)
+	at com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent.act(DynamicAgent.java:282)
+	at com.openquartz.cloud.ai.example.manus.agent.ReActAgent.step(ReActAgent.java:86)
+	at com.openquartz.cloud.ai.example.manus.agent.BaseAgent.run(BaseAgent.java:217)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.AbstractPlanExecutor.executeStep(AbstractPlanExecutor.java:112)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.PlanExecutor.executeAllSteps(PlanExecutor.java:64)
+	at com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator.executeExistingPlan(PlanningCoordinator.java:138)
+	at com.openquartz.cloud.ai.example.manus.planning.service.PlanTemplateService.lambda$executePlanByTemplateIdInternal$0(PlanTemplateService.java:399)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.exec(CompletableFuture.java:1796)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)
+2025-08-14 23:34:19:676 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: failed
+2025-08-14 23:34:19:676 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 2/20
+2025-08-14 23:34:28:878 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[9199ms]: 246 responses processed, 0 characters, 1 tool calls, 1577 prompt tokens, 272 completion tokens, 1849 total tokens. Preview: '(empty)'
+2025-08-14 23:34:28:879 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:34:28:879 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:34:28:879 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [get_all_text]
+2025-08-14 23:34:28:886 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 338) -Exception occurred
+java.lang.IllegalStateException: No ToolCallback found for tool name: get_all_text
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCall(DefaultToolCallingManager.java:202)
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCalls(DefaultToolCallingManager.java:137)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:216)
+	at jdk.proxy2/jdk.proxy2.$Proxy162.executeToolCalls(Unknown Source)
+	at com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent.act(DynamicAgent.java:282)
+	at com.openquartz.cloud.ai.example.manus.agent.ReActAgent.step(ReActAgent.java:86)
+	at com.openquartz.cloud.ai.example.manus.agent.BaseAgent.run(BaseAgent.java:217)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.AbstractPlanExecutor.executeStep(AbstractPlanExecutor.java:112)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.PlanExecutor.executeAllSteps(PlanExecutor.java:64)
+	at com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator.executeExistingPlan(PlanningCoordinator.java:138)
+	at com.openquartz.cloud.ai.example.manus.planning.service.PlanTemplateService.lambda$executePlanByTemplateIdInternal$0(PlanTemplateService.java:399)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.exec(CompletableFuture.java:1796)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)
+2025-08-14 23:34:28:891 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: failed
+2025-08-14 23:34:28:891 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 3/20
+2025-08-14 23:34:38:913 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 248) -🔄 Agent TEXT_FILE_AGENT thinking - Progress[10020ms]: 295 responses received, 0 characters, 0 tool calls. Preview: '(empty)'
+2025-08-14 23:34:45:552 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[16659ms]: 458 responses processed, 0 characters, 1 tool calls, 1577 prompt tokens, 493 completion tokens, 2070 total tokens. Preview: '(empty)'
+2025-08-14 23:34:45:553 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:34:45:554 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:34:45:554 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [get_text]
+2025-08-14 23:34:45:564 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 338) -Exception occurred
+java.lang.IllegalStateException: No ToolCallback found for tool name: get_text
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCall(DefaultToolCallingManager.java:202)
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCalls(DefaultToolCallingManager.java:137)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:216)
+	at jdk.proxy2/jdk.proxy2.$Proxy162.executeToolCalls(Unknown Source)
+	at com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent.act(DynamicAgent.java:282)
+	at com.openquartz.cloud.ai.example.manus.agent.ReActAgent.step(ReActAgent.java:86)
+	at com.openquartz.cloud.ai.example.manus.agent.BaseAgent.run(BaseAgent.java:217)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.AbstractPlanExecutor.executeStep(AbstractPlanExecutor.java:112)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.PlanExecutor.executeAllSteps(PlanExecutor.java:64)
+	at com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator.executeExistingPlan(PlanningCoordinator.java:138)
+	at com.openquartz.cloud.ai.example.manus.planning.service.PlanTemplateService.lambda$executePlanByTemplateIdInternal$0(PlanTemplateService.java:399)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.exec(CompletableFuture.java:1796)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)
+2025-08-14 23:34:45:568 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: failed
+2025-08-14 23:34:45:568 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 4/20
+2025-08-14 23:34:55:599 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 248) -🔄 Agent TEXT_FILE_AGENT thinking - Progress[10029ms]: 295 responses received, 0 characters, 0 tool calls. Preview: '(empty)'
+2025-08-14 23:34:57:880 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[12310ms]: 339 responses processed, 0 characters, 1 tool calls, 1577 prompt tokens, 365 completion tokens, 1942 total tokens. Preview: '(empty)'
+2025-08-14 23:34:57:881 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:34:57:881 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:34:57:881 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [get_all_text]
+2025-08-14 23:34:57:902 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 338) -Exception occurred
+java.lang.IllegalStateException: No ToolCallback found for tool name: get_all_text
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCall(DefaultToolCallingManager.java:202)
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCalls(DefaultToolCallingManager.java:137)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:216)
+	at jdk.proxy2/jdk.proxy2.$Proxy162.executeToolCalls(Unknown Source)
+	at com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent.act(DynamicAgent.java:282)
+	at com.openquartz.cloud.ai.example.manus.agent.ReActAgent.step(ReActAgent.java:86)
+	at com.openquartz.cloud.ai.example.manus.agent.BaseAgent.run(BaseAgent.java:217)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.AbstractPlanExecutor.executeStep(AbstractPlanExecutor.java:112)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.PlanExecutor.executeAllSteps(PlanExecutor.java:64)
+	at com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator.executeExistingPlan(PlanningCoordinator.java:138)
+	at com.openquartz.cloud.ai.example.manus.planning.service.PlanTemplateService.lambda$executePlanByTemplateIdInternal$0(PlanTemplateService.java:399)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.exec(CompletableFuture.java:1796)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)
+2025-08-14 23:34:57:906 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: failed
+2025-08-14 23:34:57:906 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 5/20
+2025-08-14 23:35:07:914 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 248) -🔄 Agent TEXT_FILE_AGENT thinking - Progress[10006ms]: 294 responses received, 0 characters, 0 tool calls. Preview: '(empty)'
+2025-08-14 23:35:11:277 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[13369ms]: 362 responses processed, 0 characters, 1 tool calls, 1577 prompt tokens, 389 completion tokens, 1966 total tokens. Preview: '(empty)'
+2025-08-14 23:35:11:278 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:35:11:278 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:35:11:278 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [get_all_text]
+2025-08-14 23:35:11:289 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 338) -Exception occurred
+java.lang.IllegalStateException: No ToolCallback found for tool name: get_all_text
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCall(DefaultToolCallingManager.java:202)
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCalls(DefaultToolCallingManager.java:137)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:216)
+	at jdk.proxy2/jdk.proxy2.$Proxy162.executeToolCalls(Unknown Source)
+	at com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent.act(DynamicAgent.java:282)
+	at com.openquartz.cloud.ai.example.manus.agent.ReActAgent.step(ReActAgent.java:86)
+	at com.openquartz.cloud.ai.example.manus.agent.BaseAgent.run(BaseAgent.java:217)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.AbstractPlanExecutor.executeStep(AbstractPlanExecutor.java:112)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.PlanExecutor.executeAllSteps(PlanExecutor.java:64)
+	at com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator.executeExistingPlan(PlanningCoordinator.java:138)
+	at com.openquartz.cloud.ai.example.manus.planning.service.PlanTemplateService.lambda$executePlanByTemplateIdInternal$0(PlanTemplateService.java:399)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.exec(CompletableFuture.java:1796)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)
+2025-08-14 23:35:11:294 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: failed
+2025-08-14 23:35:11:294 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 6/20
+2025-08-14 23:35:21:308 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 248) -🔄 Agent TEXT_FILE_AGENT thinking - Progress[10010ms]: 277 responses received, 0 characters, 0 tool calls. Preview: '(empty)'
+2025-08-14 23:35:23:399 [boundedElastic-1] INFO  c.o.c.a.example.manus.llm.StreamingResponseHandler(StreamingResponseHandler.java 258) -✅ Agent TEXT_FILE_AGENT thinking - Completed[12101ms]: 312 responses processed, 0 characters, 1 tool calls, 1577 prompt tokens, 339 completion tokens, 1916 total tokens. Preview: '(empty)'
+2025-08-14 23:35:23:400 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 207) -✨ TEXT_FILE_AGENT's thoughts: 
+2025-08-14 23:35:23:401 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 208) -🛠️ TEXT_FILE_AGENT selected 1 tools to use
+2025-08-14 23:35:23:401 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 211) -🧰 Tools being prepared: [get_all_text]
+2025-08-14 23:35:23:416 [ForkJoinPool.commonPool-worker-10] INFO  c.o.c.ai.example.manus.dynamic.agent.DynamicAgent(DynamicAgent.java 338) -Exception occurred
+java.lang.IllegalStateException: No ToolCallback found for tool name: get_all_text
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCall(DefaultToolCallingManager.java:202)
+	at org.springframework.ai.model.tool.DefaultToolCallingManager.executeToolCalls(DefaultToolCallingManager.java:137)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:216)
+	at jdk.proxy2/jdk.proxy2.$Proxy162.executeToolCalls(Unknown Source)
+	at com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent.act(DynamicAgent.java:282)
+	at com.openquartz.cloud.ai.example.manus.agent.ReActAgent.step(ReActAgent.java:86)
+	at com.openquartz.cloud.ai.example.manus.agent.BaseAgent.run(BaseAgent.java:217)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.AbstractPlanExecutor.executeStep(AbstractPlanExecutor.java:112)
+	at com.openquartz.cloud.ai.example.manus.planning.executor.PlanExecutor.executeAllSteps(PlanExecutor.java:64)
+	at com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator.executeExistingPlan(PlanningCoordinator.java:138)
+	at com.openquartz.cloud.ai.example.manus.planning.service.PlanTemplateService.lambda$executePlanByTemplateIdInternal$0(PlanTemplateService.java:399)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.exec(CompletableFuture.java:1796)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)
+2025-08-14 23:35:23:423 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 225) -Agent state: failed
+2025-08-14 23:35:23:424 [ForkJoinPool.commonPool-worker-10] INFO  c.o.cloud.ai.example.manus.agent.BaseAgent(BaseAgent.java 215) -Executing round 7/20
+2025-08-14 23:35:28:920 [Thread-2] INFO  c.o.c.a.e.manus.tool.browser.ChromeDriverService(ChromeDriverService.java 145) -JVM shutting down - cleaning up Playwright processes
+2025-08-14 23:35:28:920 [Thread-2] INFO  c.o.c.a.e.manus.tool.browser.ChromeDriverService(ChromeDriverService.java 190) -Successfully cleaned up all Playwright processes	
+2025-08-14 23:35:28:925 [SpringApplicationShutdownHook] INFO  o.s.boot.web.embedded.tomcat.GracefulShutdown(GracefulShutdown.java 54) -Commencing graceful shutdown. Waiting for active requests to complete

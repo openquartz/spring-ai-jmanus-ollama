@@ -13,7 +13,7 @@
 
 [English](./README.md) | [中文](./README-zh.md)
 
-Modern Web UI for [Spring AI Alibaba JManus](../README.md) - AI-Powered Task Automation Platform.
+Modern Web UI for [Spring AI Alibaba JManus](../README_en.md) - AI-Powered Task Automation Platform.
 
 ## ✨ Features
 
@@ -171,7 +171,7 @@ VITE_API_BASE_URL=http://localhost:8080
 
 For detailed documentation, please refer to:
 
-- [JManus Documentation](../README.md)
+- [JManus Documentation](../README_en.md)
 - [API Documentation](./docs/api.md)
 - [Configuration Guide](./docs/configuration.md)
 
