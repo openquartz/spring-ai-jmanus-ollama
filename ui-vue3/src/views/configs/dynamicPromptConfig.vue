@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 -->
-<!-- 
+<!--
    Dynamic Prompt Configuration
 
    Features:
@@ -22,13 +22,25 @@
     - Validate promptName uniqueness
 
    TODO:
-    - add namespace for dynamic prompts
     - Allow editing of promptName during edit mode (originally was disabled)
 -->
 <template>
   <ConfigPanel>
     <template #title>
       <h2>{{ t('config.promptConfig.title') }}</h2>
+    </template>
+
+    <template #actions>
+      <div class="actions-container">
+        <button class="action-btn info" @click="showBatchLanguageModal = true">
+          <Icon icon="carbon:language" />
+          {{ t('config.promptConfig.batchSwitchLanguage') }}
+        </button>
+        <button class="action-btn" @click="handleExport">
+          <Icon icon="carbon:download" />
+          {{ t('config.agentConfig.export') }}
+        </button>
+      </div>
     </template>
 
     <div class="prompt-layout">
@@ -84,11 +96,21 @@
         </button>
       </div>
 
-      <!-- prompt详情 -->
+      <!-- Prompt details -->
       <div class="prompt-detail" v-if="selectedPrompt">
         <div class="detail-header">
           <h3>{{ selectedPrompt.promptName }}</h3>
           <div class="detail-actions">
+            <button class="action-btn" @click="handleExport">
+              <Icon icon="carbon:download" />
+              {{ t('config.agentConfig.export') }}
+            </button>
+            <div v-if="selectedPrompt.builtIn" class="import-language-dropdown">
+              <button class="action-btn info" @click="showImportLanguageModal = true">
+                <Icon icon="carbon:language" />
+                {{ t('config.promptConfig.resetToLanguageDefault') }}
+              </button>
+            </div>
             <button class="action-btn primary" @click="handleSave">
               <Icon icon="carbon:save" />
               {{ t('common.save') }}
@@ -259,20 +281,57 @@
         <button class="confirm-btn danger" @click="handleDelete">{{ t('common.delete') }}</button>
       </template>
     </Modal>
+
+    <!-- Import Language Modal -->
+    <Modal v-model="showImportLanguageModal" :title="t('config.promptConfig.resetToLanguageDefault')" @confirm="handleImportFromLanguage">
+      <div class="modal-form">
+        <div class="form-item">
+          <label>{{ t('config.promptConfig.selectLanguage') }}</label>
+          <select v-model="selectedImportLanguage" class="language-select-modal">
+            <option v-for="lang in supportedLanguages" :key="lang" :value="lang">
+              {{ lang === 'zh' ? t('language.zh') : t('language.en') }}
+            </option>
+          </select>
+        </div>
+        <div class="warning-notice">
+          <Icon icon="carbon:warning" class="warning-icon-small" />
+          <p>{{ t('config.promptConfig.resetLanguageWarning') }}</p>
+        </div>
+      </div>
+    </Modal>
+
+    <!-- Batch Language Switch Modal -->
+    <Modal v-model="showBatchLanguageModal" :title="t('config.promptConfig.batchSwitchLanguage')" @confirm="handleBatchSwitchLanguage">
+      <div class="modal-form">
+        <div class="form-item">
+          <label>{{ t('config.promptConfig.selectLanguage') }}</label>
+          <select v-model="selectedBatchLanguage" class="language-select-modal">
+            <option v-for="lang in supportedLanguages" :key="lang" :value="lang">
+              {{ lang === 'zh' ? t('language.zh') : t('language.en') }}
+            </option>
+          </select>
+        </div>
+        <div class="warning-notice">
+          <Icon icon="carbon:warning" class="warning-icon-small" />
+          <p>{{ t('config.promptConfig.batchSwitchLanguageWarning') }}</p>
+        </div>
+      </div>
+    </Modal>
   </ConfigPanel>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useI18n } from 'vue-i18n'
+import { storeToRefs } from 'pinia'
 import Modal from '@/components/modal/index.vue'
 import { PromptApiService, type Prompt } from '@/api/prompt-api-service'
 import { useToast } from '@/plugins/useToast'
 import CustomSelect from './components/select.vue'
 import ConfigPanel from './components/configPanel.vue'
 import { usenameSpaceStore } from '@/stores/namespace'
-
+import { exportObjectAsFile } from '@/utils'
 
 type PromptField = string | null | undefined
 
@@ -280,6 +339,7 @@ const { t } = useI18n()
 const { success, error } = useToast()
 
 const namespaceStore = usenameSpaceStore()
+const { namespace } = storeToRefs(namespaceStore)
 
 // Reactive data properties
 const loading = ref(false)
@@ -287,6 +347,11 @@ const prompts = reactive<Prompt[]>([])
 const selectedPrompt = ref<Prompt | null>(null)
 const showModal = ref(false)
 const showDeleteModal = ref(false)
+const showImportLanguageModal = ref(false)
+const showBatchLanguageModal = ref(false)
+const selectedImportLanguage = ref('zh')
+const selectedBatchLanguage = ref('zh')
+const supportedLanguages = ref<string[]>(['zh', 'en'])
 const messageTypeEnum: Array<{
   id: string
   name: string
@@ -320,50 +385,17 @@ const newPrompt = reactive<Omit<Prompt, 'id'>>({ ...defaultPromptValues } as Omi
 const loadData = async () => {
   loading.value = true
   try {
-    const loadedPrompts = (await PromptApiService.getAllPrompts(namespaceStore.namespace)) as Prompt[]
+    const loadedPrompts = (await PromptApiService.getAllByNamespace(namespace.value)) as Prompt[]
 
     if (loadedPrompts.length > 0) {
       await selectPrompt(loadedPrompts[0])
     }
     prompts.splice(0, prompts.length, ...loadedPrompts)
   } catch (err: any) {
-    console.error('加载数据失败:', err)
+    console.error('Failed to load data:', err)
     error(t('config.promptConfig.loadDataFailed') + ': ' + err.message)
   } finally {
     loading.value = false
-  }
-}
-// select prompt
-const selectPrompt = async (prompt: Prompt) => {
-  try {
-    const detailedPrompt = await PromptApiService.getPromptById(prompt.id)
-    selectedPrompt.value = {
-      ...detailedPrompt,
-    }
-  } catch (err: any) {
-    console.error('加载Prompt详情失败:', err)
-    error(t('config.promptConfig.loadDetailsFailed') + ': ' + err.message)
-    // base pormpt
-    selectedPrompt.value = {
-      ...prompt,
-    }
-  }
-}
-//
-const handleAddPrompt = async () => {
-  if (!validatePrompt(newPrompt)) return
-  try {
-    const promptData: Omit<Prompt, 'id'> = {
-      ...newPrompt,
-      builtIn: false,
-    }
-    const createdPrompt = await PromptApiService.createPrompt(promptData)
-    prompts.push(createdPrompt)
-    selectedPrompt.value = createdPrompt
-    showModal.value = false
-    success(t('config.promptConfig.createSuccess'))
-  } catch (err: any) {
-    error(t('config.promptConfig.createFailed') + ': ' + err.message)
   }
 }
 
@@ -374,7 +406,7 @@ const handleSave = async () => {
   if (!validatePrompt(selectedPrompt.value)) return
 
   try {
-    const savedPrompt = await PromptApiService.updatePrompt(
+    const savedPrompt = await PromptApiService.update(
       selectedPrompt.value.id,
       selectedPrompt.value
     )
@@ -397,7 +429,7 @@ const handleDelete = async () => {
   if (!selectedPrompt.value) return
 
   try {
-    await PromptApiService.deletePrompt(selectedPrompt.value.id)
+    await PromptApiService.delete(selectedPrompt.value.id)
 
     const index = prompts.findIndex(a => a.id === selectedPrompt.value!.id)
     if (index !== -1) {
@@ -409,6 +441,57 @@ const handleDelete = async () => {
     success(t('config.promptConfig.deleteSuccess'))
   } catch (err: any) {
     error(t('config.promptConfig.deleteFailed') + ': ' + err.message)
+  }
+}
+
+// select prompt
+const selectPrompt = async (prompt: Prompt) => {
+  try {
+    const detailedPrompt = await PromptApiService.getById(prompt.id)
+    selectedPrompt.value = {
+      ...detailedPrompt,
+    }
+  } catch (err: any) {
+    console.error('Failed to load Prompt details:', err)
+    error(t('config.promptConfig.loadDetailsFailed') + ': ' + err.message)
+    // base pormpt
+    selectedPrompt.value = {
+      ...prompt,
+    }
+  }
+}
+//
+const handleAddPrompt = async () => {
+  if (!validatePrompt(newPrompt)) return
+  try {
+    const promptData: Omit<Prompt, 'id'> = {
+      ...newPrompt,
+      namespace: namespace.value,
+      builtIn: false,
+    }
+    const createdPrompt = await PromptApiService.create(promptData)
+    prompts.push(createdPrompt)
+    selectedPrompt.value = createdPrompt
+    showModal.value = false
+    success(t('config.promptConfig.createSuccess'))
+  } catch (err: any) {
+    error(t('config.promptConfig.createFailed') + ': ' + err.message)
+  }
+}
+
+
+
+// Export Prompt
+const handleExport = () => {
+  try {
+    const prompt = selectedPrompt.value as Prompt
+    exportObjectAsFile(
+      prompt,
+      `prompt-${prompt.promptName}-${new Date().toISOString().split('T')[0]}.json`
+    )
+    success(t('config.agentConfig.exportSuccess'))
+  } catch (err: any) {
+    error(t('config.agentConfig.exportFailed') + ': ' + err.message)
   }
 }
 
@@ -460,7 +543,7 @@ const showAddPromptModal = () => {
   newPrompt.promptName = ''
   newPrompt.promptDescription = ''
   newPrompt.promptContent = ''
-  // 初始化 newPrompt 数据
+  // Initialize newPrompt data
   Object.assign(newPrompt, defaultPromptValues)
   showModal.value = true
 }
@@ -469,12 +552,135 @@ const showDeleteConfirm = () => {
   showDeleteModal.value = true
 }
 
-onMounted(() => {
-  loadData()
+// Reset current prompt to default value of specified language
+const handleImportFromLanguage = async () => {
+  if (!selectedPrompt.value) return
+
+  try {
+    await PromptApiService.importSpecificPromptFromLanguage(
+      selectedPrompt.value.promptName,
+      selectedImportLanguage.value
+    )
+    showImportLanguageModal.value = false
+    success(t('config.promptConfig.resetToLanguageDefaultSuccess'))
+
+    // Reload all prompt list to display new descriptions
+    await loadData()
+  } catch (err: any) {
+    error(t('config.promptConfig.resetToLanguageDefaultFailed') + ': ' + err.message)
+  }
+}
+
+// Batch switch all prompts to specified language
+const handleBatchSwitchLanguage = async () => {
+  try {
+    await PromptApiService.importAllPromptsFromLanguage(selectedBatchLanguage.value)
+    showBatchLanguageModal.value = false
+    success(t('config.promptConfig.batchSwitchLanguageSuccess'))
+
+    // Reload all prompt list to display new descriptions
+    await loadData()
+  } catch (err: any) {
+    error(t('config.promptConfig.batchSwitchLanguageFailed') + ': ' + err.message)
+  }
+}
+
+// Load supported languages
+const loadSupportedLanguages = async () => {
+  try {
+    const languages = await PromptApiService.getSupportedLanguages()
+    supportedLanguages.value = languages
+  } catch (err: any) {
+    console.warn('Failed to load supported languages, using default', err)
+  }
+}
+
+onMounted(async () => {
+  await loadSupportedLanguages()
+  await loadData()
 })
+
+watch(
+  () => namespace.value,
+  (newNamespace, oldNamespace) => {
+    if (newNamespace !== oldNamespace) {
+      prompts.splice(0)
+      selectedPrompt.value = null
+      loadData()
+    }
+  }
+)
 </script>
 
 <style scoped>
+.actions-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+
+
+.action-btn.warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.action-btn.warning:hover {
+  background: #d97706;
+}
+
+.action-btn.info {
+  background: #3b82f6;
+  color: white;
+}
+
+.action-btn.info:hover {
+  background: #2563eb;
+}
+
+.import-language-dropdown {
+  display: inline-block;
+}
+
+.language-select-modal {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.language-select-modal:focus {
+  border-color: #409eff;
+}
+
+.warning-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  margin-top: 16px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 6px;
+}
+
+.warning-icon-small {
+  color: #f59e0b;
+  font-size: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.warning-notice p {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
 
 .prompt-layout {
   display: flex;
@@ -800,7 +1006,7 @@ onMounted(() => {
   }
 }
 
-/* 弹窗样式 */
+/* Modal styles */
 .modal-form {
   display: flex;
   flex-direction: column;

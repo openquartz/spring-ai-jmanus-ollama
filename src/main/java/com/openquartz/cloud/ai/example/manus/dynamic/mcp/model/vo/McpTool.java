@@ -18,6 +18,8 @@ package com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.service.McpStateHolderService;
 import com.openquartz.cloud.ai.example.manus.tool.AbstractBaseTool;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
+import com.openquartz.cloud.ai.example.manus.tool.innerStorage.ISmartContentSavingService;
+import com.openquartz.cloud.ai.example.manus.tool.innerStorage.SmartContentSavingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.ai.tool.ToolCallback;
@@ -28,16 +30,23 @@ public class McpTool extends AbstractBaseTool<Map<String, Object>> {
 
 	private final ToolCallback toolCallback;
 
+	private final ObjectMapper objectMapper;
+
 	private String serviceNameString;
 
 	private McpStateHolderService mcpStateHolderService;
 
+	private ISmartContentSavingService smartContentSavingService;
+
 	public McpTool(ToolCallback toolCallback, String serviceNameString, String planId,
-			McpStateHolderService mcpStateHolderService) {
+			McpStateHolderService mcpStateHolderService, ISmartContentSavingService smartContentSavingService,
+			ObjectMapper objectMapper) {
 		this.toolCallback = toolCallback;
+		this.objectMapper = objectMapper;
 		this.serviceNameString = serviceNameString;
 		this.currentPlanId = planId;
 		this.mcpStateHolderService = mcpStateHolderService;
+		this.smartContentSavingService = smartContentSavingService;
 	}
 
 	@Override
@@ -72,7 +81,6 @@ public class McpTool extends AbstractBaseTool<Map<String, Object>> {
 	@Override
 	public ToolExecuteResult run(Map<String, Object> inputMap) {
 		// Convert Map to JSON string, as ToolCallback expects string input
-		ObjectMapper objectMapper = new ObjectMapper();
 		String jsonInput;
 		try {
 			jsonInput = objectMapper.writeValueAsString(inputMap);
@@ -85,6 +93,10 @@ public class McpTool extends AbstractBaseTool<Map<String, Object>> {
 		if (result == null) {
 			result = "";
 		}
+
+		SmartContentSavingService.SmartProcessResult smartProcessResult = smartContentSavingService
+			.processContent(currentPlanId, result, getName());
+		result = smartProcessResult.getSummary();
 		// Here we can store the result to McpStateHolderService
 		McpState mcpState = mcpStateHolderService.getMcpState(currentPlanId);
 		if (mcpState == null) {

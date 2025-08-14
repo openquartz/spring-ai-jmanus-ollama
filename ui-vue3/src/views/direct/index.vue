@@ -29,8 +29,17 @@
           <h2>{{ $t('conversation') }}</h2>
           <div class="header-actions">
             <LanguageSwitcher />
+            <button class="config-button" @click="newChat" :title="$t('memory.newChat')">
+              <Icon icon="carbon:add" width="20" />
+            </button>
             <button class="config-button" @click="handleConfig" :title="$t('direct.configuration')">
               <Icon icon="carbon:settings-adjust" width="20" />
+            </button>
+            <button class="cron-task-btn" @click="showCronTaskModal = true" :title="$t('cronTask.title')">
+              <Icon icon="carbon:alarm" width="20" />
+            </button>
+            <button class="cron-task-btn" @click="memoryStore.toggleSidebar()" :title="$t('memory.selectMemory')">
+              <Icon icon="carbon:calendar" width="20" />
             </button>
           </div>
         </div>
@@ -52,6 +61,7 @@
           ref="inputRef"
           :disabled="isLoading"
           :placeholder="isLoading ? t('input.waiting') : t('input.placeholder')"
+          :initial-value="prompt"
           @send="handleSendMessage"
           @clear="handleInputClear"
           @focus="handleInputFocus"
@@ -71,38 +81,61 @@
       </div>
 
       <!-- Right Panel - Preview -->
-      <RightPanel ref="rightPanelRef" :style="{ width: 100 - leftPanelWidth + '%' }" />
+      <RightPanel ref="rightPanelRef" :style="{ width: 100 - leftPanelWidth + '%' }" :current-root-plan-id="currentRootPlanId" />
+    </div>
+
+    <!-- Cron Task Modal -->
+    <CronTaskModal v-model="showCronTaskModal" />
+
+    <!-- Memory Modal -->
+    <Memory
+        @memory-selected="memorySelected"
+    />
+
+    <!-- Message toast component -->
+    <div v-if="message.show" class="message-toast" :class="message.type">
+      <div class="message-content">
+        <span>{{ message.text }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Icon } from '@iconify/vue'
 import Sidebar from '@/components/sidebar/index.vue'
+import Memory from '@/components/memory/index.vue'
 import RightPanel from '@/components/right-panel/index.vue'
 import ChatContainer from '@/components/chat/index.vue'
 import InputArea from '@/components/input/index.vue'
 import LanguageSwitcher from '@/components/language-switcher/index.vue'
+import CronTaskModal from '@/components/cron-task-modal/index.vue'
 import { PlanActApiService } from '@/api/plan-act-api-service'
 import { useTaskStore } from '@/stores/task'
 import { sidebarStore } from '@/stores/sidebar'
 import { planExecutionManager } from '@/utils/plan-execution-manager'
+import { useMessage } from '@/composables/useMessage'
+import { memoryStore } from "@/stores/memory";
+import type { InputMessage } from "@/stores/memory";
 
 const route = useRoute()
 const router = useRouter()
 const taskStore = useTaskStore()
 const { t } = useI18n()
+const { message } = useMessage()
 
 const prompt = ref<string>('')
+const inputOnlyContent = ref<string>('')
 const rightPanelRef = ref()
 const chatRef = ref()
 const inputRef = ref()
 const isExecutingPlan = ref(false)
 const isLoading = ref(false)
 const currentRootPlanId = ref<string | null>(null)
+const showCronTaskModal = ref(false)
 
 // Related to panel width
 const leftPanelWidth = ref(50) // Left panel width percentage
@@ -198,7 +231,13 @@ onMounted(() => {
       if (uiState) {
         handleInputUpdateState(uiState.enabled, uiState.placeholder)
       }
-    }
+    },
+
+    onPlanError: (message: string) => {
+      // No right panel notification needed, uncomment if needed
+      // showMessage(`${t('planTemplate.executionFailed')}: ${message}`, 'error')
+      chatRef.value.handlePlanError(message)
+    },
   })
 
   console.log('[Direct] Event callbacks registered to planExecutionManager')
@@ -208,16 +247,36 @@ onMounted(() => {
 
   // Check if there is a task in the store
   if (taskStore.hasUnprocessedTask() && taskStore.currentTask) {
-    prompt.value = taskStore.currentTask.prompt
-    console.log('[Direct] Setting prompt from store:', prompt.value)
+    const taskContent = taskStore.currentTask.prompt
+    console.log('[Direct] Found unprocessed task from store:', taskContent)
     // Mark the task as processed to prevent duplicate responses
     taskStore.markTaskAsProcessed()
-    console.log('[Direct] Received task from store:', prompt.value)
+
+    // Execute task directly without showing content in input box
+    nextTick(() => {
+      if (chatRef.value && typeof chatRef.value.handleSendMessage === 'function') {
+        console.log('[Direct] Directly executing task via chatRef.handleSendMessage:', taskContent)
+        chatRef.value.handleSendMessage({
+          input: taskContent
+        })
+      } else {
+        console.warn('[Direct] chatRef.handleSendMessage method not available, falling back to prompt')
+        prompt.value = taskContent
+      }
+    })
   } else {
-    // Degrade to URL parameters (backward compatibility)
-    prompt.value = (route.query.prompt as string) || ''
-    console.log('[Direct] Received task from URL:', prompt.value)
-    console.log('[Direct] No unprocessed task in store')
+    // Check if there is a task to input (for pre-filling input without executing)
+    const taskToInput = taskStore.getAndClearTaskToInput()
+    if (taskToInput) {
+      inputOnlyContent.value = taskToInput
+      console.log('[Direct] Setting inputOnlyContent for input only:', inputOnlyContent.value)
+      // Don't set prompt.value since this is just for input pre-filling
+    } else {
+      // Degrade to URL parameters (backward compatibility)
+      prompt.value = (route.query.prompt as string) || ''
+      console.log('[Direct] Received task from URL:', prompt.value)
+      console.log('[Direct] No unprocessed task in store')
+    }
   }
 
   // Restore panel width from localStorage
@@ -227,6 +286,26 @@ onMounted(() => {
   }
 
   console.log('[Direct] Final prompt value:', prompt.value)
+
+  // Set input content if there's inputOnlyContent (after component is mounted)
+  if (inputOnlyContent.value) {
+    nextTick(() => {
+      if (inputRef.value && typeof inputRef.value.setInputValue === 'function') {
+        inputRef.value.setInputValue(inputOnlyContent.value)
+        console.log('[Direct] Set input value:', inputOnlyContent.value)
+        inputOnlyContent.value = '' // Clear after setting
+      }
+    })
+  }
+
+  // Listen for plan-execution-requested events on window
+  window.addEventListener('plan-execution-requested', ((event: CustomEvent) => {
+    console.log('[DirectView] Received plan-execution-requested event:', event.detail)
+    handlePlanExecutionRequested(event.detail)
+  }) as EventListener)
+
+  // No longer need to check pending plans in sessionStorage
+  // Because emitPlanExecutionRequested in task.ts already sends events directly
 })
 
 // Listen for changes in the store's task (only handle unprocessed tasks)
@@ -235,9 +314,19 @@ watch(
   newTask => {
     console.log('[Direct] Watch taskStore.currentTask triggered, newTask:', newTask)
     if (newTask && !newTask.processed) {
-      prompt.value = newTask.prompt
+      const taskContent = newTask.prompt
       taskStore.markTaskAsProcessed()
-      console.log('[Direct] Received new task from store:', prompt.value)
+      console.log('[Direct] Received new task from store:', taskContent)
+
+      // Execute task directly without showing content in input box
+      nextTick(() => {
+        if (chatRef.value && typeof chatRef.value.handleSendMessage === 'function') {
+          console.log('[Direct] Directly executing new task via chatRef.handleSendMessage:', taskContent)
+          chatRef.value.handleSendMessage(taskContent)
+        } else {
+          console.warn('[Direct] chatRef.handleSendMessage method not available for new task')
+        }
+      })
     } else {
       console.log('[Direct] Task is null or already processed, ignoring')
     }
@@ -250,7 +339,27 @@ watch(
   () => prompt.value,
   (newPrompt, oldPrompt) => {
     console.log('[Direct] prompt value changed from:', oldPrompt, 'to:', newPrompt)
-    // No longer manually call sendMessage. Let the PlanExecutionComponent handle it through the initialPrompt prop.
+    // Prompt is now only used for input field initial value, no automatic execution
+  },
+  { immediate: false }
+)
+
+// Listen for changes in taskToInput (for handling cron task template setting)
+watch(
+  () => taskStore.taskToInput,
+  (newTaskToInput) => {
+    console.log('[Direct] Watch taskStore.taskToInput triggered, newTaskToInput:', newTaskToInput)
+    if (newTaskToInput && newTaskToInput.trim()) {
+      console.log('[Direct] Setting input value from taskToInput:', newTaskToInput)
+      nextTick(() => {
+        if (inputRef.value && typeof inputRef.value.setInputValue === 'function') {
+          inputRef.value.setInputValue(newTaskToInput.trim())
+          console.log('[Direct] Input value set from taskToInput watch:', newTaskToInput.trim())
+          // Clear the taskToInput after setting
+          taskStore.getAndClearTaskToInput()
+        }
+      })
+    }
   },
   { immediate: false }
 )
@@ -267,6 +376,9 @@ onUnmounted(() => {
   // Remove event listeners
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', handleMouseUp)
+  window.removeEventListener('plan-execution-requested', ((event: CustomEvent) => {
+    handlePlanExecutionRequested(event.detail)
+  }) as EventListener)
 })
 
 // Methods related to panel size adjustment
@@ -337,13 +449,13 @@ const shouldProcessEventForCurrentPlan = (rootPlanId: string, allowSpecialIds: b
 }
 
 // New event handler function
-const handleSendMessage = (message: string) => {
-  console.log('[DirectView] Send message from input:', message)
+const handleSendMessage = (message: InputMessage) => {
+  console.log('[DirectView] Send message from input:', JSON.stringify(message))
 
   // In direct mode, only call chat component's handleSendMessage
   // It will handle both UI update and API call via handleDirectMode
   if (chatRef.value && typeof chatRef.value.handleSendMessage === 'function') {
-    console.log('[DirectView] Calling chatRef.handleSendMessage:', message)
+    console.log('[DirectView] Calling chatRef.handleSendMessage:', JSON.stringify(message))
     chatRef.value.handleSendMessage(message)
   } else {
     console.warn('[DirectView] chatRef.handleSendMessage method not available')
@@ -433,19 +545,23 @@ const handlePlanExecutionRequested = async (payload: {
 
   isExecutingPlan.value = true
 
+  // Mark whether user message has been added
+  let userMessageAdded = false;
+
   // First call chat component's addMessage to update UI (avoid triggering user-message-send-requested event)
   if (chatRef.value && typeof chatRef.value.addMessage === 'function') {
     console.log('[DirectView] Calling chatRef.addMessage for plan execution:', payload.title)
     chatRef.value.addMessage('user', payload.title)
+    userMessageAdded = true;
   } else {
     console.warn('[DirectView] chatRef.addMessage method not available')
   }
   try {
     // Get the plan template ID
-    const planTemplateId = payload.planData.planTemplateId || payload.planData.planId
+    const planTemplateId = payload.planData?.planTemplateId || payload.planData?.id || payload.planData?.planId
 
     if (!planTemplateId) {
-      throw new Error('没有找到计划模板ID')
+      throw new Error(t('direct.planTemplateIdNotFound'))
     }
 
     console.log(
@@ -481,7 +597,7 @@ const handlePlanExecutionRequested = async (payload: {
       planExecutionManager.handlePlanExecutionRequested(response.planId, payload.title)
     } else {
       console.error('[Direct] No planId in response:', response)
-      throw new Error('执行计划失败：未返回有效的计划ID')
+      throw new Error(t('direct.executionFailedNoPlanId'))
     }
   } catch (error: any) {
     console.error('[Direct] Plan execution failed:', error)
@@ -493,20 +609,31 @@ const handlePlanExecutionRequested = async (payload: {
     // Get chat component reference to display error
     if (chatRef.value && typeof chatRef.value.addMessage === 'function') {
       console.log('[Direct] Adding error messages to chat')
-      // First add user message
-      chatRef.value.addMessage('user', payload.title)
+      // Only add user message if it hasn't been added before
+      if (!userMessageAdded) {
+        chatRef.value.addMessage('user', payload.title)
+      }
       // Then add error message
-      chatRef.value.addMessage('assistant', `执行计划失败: ${error.message || '未知错误'}`, {
+      chatRef.value.addMessage('assistant', `${t('direct.executionFailed')}: ${error.message || t('common.unknownError')}`, {
         thinking: undefined,
       })
     } else {
       console.error('[Direct] Chat ref not available, showing alert')
-      alert(`执行计划失败: ${error.message || '未知错误'}`)
+      alert(`${t('direct.executionFailed')}: ${error.message || t('common.unknownError')}`)
     }
   } finally {
     console.log('[Direct] Plan execution finished, resetting isExecutingPlan flag')
     isExecutingPlan.value = false
   }
+}
+
+const memorySelected = () => {
+  chatRef.value.showMemory()
+}
+
+const newChat = () => {
+  memoryStore.clearMemoryId()
+  chatRef.value.newChat()
 }
 </script>
 
@@ -568,7 +695,7 @@ const handlePlanExecutionRequested = async (payload: {
   transition: all 0.2s ease;
 }
 
-/* 调整右面板样式 */
+/* Adjust right panel styles */
 :deep(.right-panel) {
   transition: width 0.1s ease;
 }
@@ -646,6 +773,25 @@ const handlePlanExecutionRequested = async (payload: {
   }
 }
 
+.cron-task-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
 .loading-prompt {
   flex: 1;
   display: flex;
@@ -655,4 +801,41 @@ const handlePlanExecutionRequested = async (payload: {
   font-size: 16px;
   padding: 50px;
 }
+
+/* Message toast styles */
+.message-toast {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 9999;
+  min-width: 320px;
+  max-width: 480px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: slideInRight 0.3s ease-out;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.message-toast.error {
+  color: #fff2f0;
+  background-color: #ff4d4f;
+}
+
+.message-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  word-break: break-all;
+}
+
+.message-content i {
+  font-size: 16px;
+}
+
 </style>

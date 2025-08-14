@@ -41,7 +41,7 @@ public class DynamicAgentScanner implements IDynamicAgentScanner {
 
 	private final DynamicAgentRepository repository;
 
-	private final String basePackage = "com.alibaba.cloud.ai.example.manus";
+	private final String basePackage = "com.openquartz.cloud.ai.example.manus";
 
 	@Autowired
 	private IConfigService configService;
@@ -51,6 +51,9 @@ public class DynamicAgentScanner implements IDynamicAgentScanner {
 
 	@Value("${namespace.value}")
 	private String namespace;
+
+	@Value("${agent.init}")
+	private Boolean agentInit = true;
 
 	@Autowired
 	public DynamicAgentScanner(DynamicAgentRepository repository) {
@@ -195,7 +198,9 @@ public class DynamicAgentScanner implements IDynamicAgentScanner {
 						createdCount++;
 					}
 
-					saveStartupAgent(agentConfig);
+					if (agentInit) {
+						saveStartupAgent(agentConfig);
+					}
 					processedCount++;
 				}
 			}

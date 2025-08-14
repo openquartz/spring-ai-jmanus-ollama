@@ -68,33 +68,15 @@ public class DocLoaderTool extends AbstractBaseTool<DocLoaderTool.DocLoaderInput
 
 	}
 
-	private static String PARAMETERS = """
-			{
-			    "type": "object",
-			    "properties": {
-			        "file_type": {
-			            "type": "string",
-			            "description": "(required) File type, only support pdf file."
-			        },
-			        "file_path": {
-			            "type": "string",
-			            "description": "(required) Get the absolute path of the file from the user request."
-			        }
-			    },
-			    "required": ["file_type","file_path"]
-			}
-			""";
-
 	private static final String name = "doc_loader";
 
-	private static final String description = """
-			Get the content information of a local file at a specified path.
-			Use this tool when you want to get some related information asked by the user.
-			This tool accepts the file path and gets the related information content.
-			""";
-
-	public static OllamaApi.ChatRequest.Tool getToolDefinition() {
-		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
+	public OllamaApi.ChatRequest.Tool getToolDefinition() {
+		String description = getDescription();
+		String parameters = getParameters();
+//		OllamaApi.FunctionTool.Function function = new OllamaApi.FunctionTool.Function(description, name, parameters);
+		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(parameters)));
+//		OllamaApi.FunctionTool functionTool = new OllamaApi.FunctionTool(function);
+//		return functionTool;
 	}
 
 	/**
@@ -105,7 +87,11 @@ public class DocLoaderTool extends AbstractBaseTool<DocLoaderTool.DocLoaderInput
 			.<DocLoaderInput, ToolExecuteResult>builder(name,
 					(DocLoaderInput input, org.springframework.ai.chat.model.ToolContext context) -> new DocLoaderTool()
 						.run(input))
-			.description(description)
+			.description("""
+					Get the content information of a local file at a specified path.
+					Use this tool when you want to get some related information asked by the user.
+					This tool accepts the file path and gets the related information content.
+					""")
 			.inputType(DocLoaderInput.class)
 			.build();
 	}
@@ -159,12 +145,31 @@ public class DocLoaderTool extends AbstractBaseTool<DocLoaderTool.DocLoaderInput
 
 	@Override
 	public String getDescription() {
-		return description;
+		return """
+				Get the content information of a local file at a specified path.
+				Use this tool when you want to get some related information asked by the user.
+				This tool accepts the file path and gets the related information content.
+				""";
 	}
 
 	@Override
 	public String getParameters() {
-		return PARAMETERS;
+		return """
+				{
+				    "type": "object",
+				    "properties": {
+				        "file_type": {
+				            "type": "string",
+				            "description": "(required) File type, only support pdf file."
+				        },
+				        "file_path": {
+				            "type": "string",
+				            "description": "(required) Get the absolute path of the file from the user request."
+				        }
+				    },
+				    "required": ["file_type", "file_path"]
+				}
+				""";
 	}
 
 	@Override

@@ -19,8 +19,8 @@ import com.openquartz.cloud.ai.example.manus.tool.AbstractBaseTool;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 import com.openquartz.cloud.ai.example.manus.tool.searchAPI.serpapi.SerpApiProperties;
 import com.openquartz.cloud.ai.example.manus.tool.searchAPI.serpapi.SerpApiService;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.model.ModelOptionsUtils;
@@ -32,289 +32,275 @@ import java.util.Map;
 
 public class GoogleSearch extends AbstractBaseTool<GoogleSearch.GoogleSearchInput> {
 
-	private static final Logger log = LoggerFactory.getLogger(GoogleSearch.class);
+    private static final Logger log = LoggerFactory.getLogger(GoogleSearch.class);
 
-	private SerpApiService service;
+    private SerpApiService service;
 
-	private static String PARAMETERS = """
-			{
-			    "type": "object",
-			    "properties": {
-			        "query": {
-			            "type": "string",
-			            "description": "(required) The search query to submit to Google."
-			        },
-			        "num_results": {
-			            "type": "integer",
-			            "description": "(optional) The number of search results to return. Default is 10.",
-			            "default": 10
-			        }
-			    },
-			    "required": ["query"]
-			}
-			""";
+    private final ObjectMapper objectMapper;
 
-	private static final String name = "google_search";
+    private static String PARAMETERS = """
+            {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "(required) The search query to submit to Google."
+                    },
+                    "num_results": {
+                        "type": "integer",
+                        "description": "(optional) The number of search results to return. Default is 10.",
+                        "default": 10
+                    }
+                },
+                "required": ["query"]
+            }
+            """;
 
-	private static final String description = """
-			Perform a Google search and return a list of relevant links.
-			Use this tool when you need to find information on the web, get up-to-date data, or research specific topics.
-			The tool returns a list of URLs that match the search query.
-			""";
+    private static final String name = "google_search";
 
-	public static OllamaApi.ChatRequest.Tool getToolDefinition() {
-		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
-	}
+    private static final String description = """
+            Perform a Google search and return a list of relevant links.
+            Use this tool when you need to find information on the web, get up-to-date data, or research specific topics.
+            The tool returns a list of URLs that match the search query.
+            """;
 
-	private static final String SERP_API_KEY = System.getenv("SERP_API_KEY");
+    public static OllamaApi.ChatRequest.Tool getToolDefinition() {
+//		OllamaApi.FunctionTool.Function function = new OllamaApi.FunctionTool.Function(description, name, PARAMETERS);
+//		OllamaApi.FunctionTool functionTool = new OllamaApi.FunctionTool(function);
+//		return functionTool;
+        return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
+    }
 
-	private String lastQuery = "";
+    private static final String SERP_API_KEY = System.getenv("SERP_API_KEY");
 
-	private String lastSearchResults = "";
+    private String lastQuery = "";
 
-	private Integer lastNumResults = 0;
+    private String lastSearchResults = "";
 
-	public GoogleSearch() {
-		service = new SerpApiService(new SerpApiProperties(SERP_API_KEY, "google"));
-	}
+    private Integer lastNumResults = 0;
 
-	public ToolExecuteResult run(String toolInput) {
-		log.info("GoogleSearch toolInput:{}", toolInput);
+    public GoogleSearch(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+        service = new SerpApiService(new SerpApiProperties(SERP_API_KEY, "google"));
+    }
 
-		// Add exception handling for JSON deserialization
-		try {
-			Map<String, Object> toolInputMap = new ObjectMapper().readValue(toolInput,
-					new TypeReference<Map<String, Object>>() {
-					});
-			String query = (String) toolInputMap.get("query");
-			this.lastQuery = query;
+    public ToolExecuteResult run(String toolInput) {
+        log.info("GoogleSearch toolInput:{}", toolInput);
 
-			Integer numResults = 2;
-			if (toolInputMap.get("num_results") != null) {
-				numResults = (Integer) toolInputMap.get("num_results");
-			}
-			this.lastNumResults = numResults;
+        // Add exception handling for JSON deserialization
+        try {
+            Map<String, Object> toolInputMap = objectMapper.readValue(toolInput,
+                    new TypeReference<Map<String, Object>>() {
+                    });
+            String query = (String) toolInputMap.get("query");
+            this.lastQuery = query;
 
-			SerpApiService.Request request = new SerpApiService.Request(query);
-			Map<String, Object> response = service.apply(request);
+            Integer numResults = 2;
+            if (toolInputMap.get("num_results") != null) {
+                numResults = (Integer) toolInputMap.get("num_results");
+            }
+            this.lastNumResults = numResults;
 
-			if (response.containsKey("answer_box") && response.get("answer_box") instanceof List) {
-				response.put("answer_box", ((List<Map<String, Object>>) response.get("answer_box")).get(0));
-			}
+            SerpApiService.Request request = new SerpApiService.Request(query);
+            Map<String, Object> response = service.apply(request);
 
-			String toret = "";
-			if (response.containsKey("answer_box")
-					&& ((Map<String, Object>) response.get("answer_box")).containsKey("answer")) {
-				toret = ((Map<String, Object>) response.get("answer_box")).get("answer").toString();
-			}
-			else if (response.containsKey("answer_box")
-					&& ((Map<String, Object>) response.get("answer_box")).containsKey("snippet")) {
-				toret = ((Map<String, Object>) response.get("answer_box")).get("snippet").toString();
-			}
-			else if (response.containsKey("answer_box")
-					&& ((Map<String, Object>) response.get("answer_box")).containsKey("snippet_highlighted_words")) {
-				toret = ((List<String>) ((Map<String, Object>) response.get("answer_box"))
-					.get("snippet_highlighted_words")).get(0);
-			}
-			else if (response.containsKey("sports_results")
-					&& ((Map<String, Object>) response.get("sports_results")).containsKey("game_spotlight")) {
-				toret = ((Map<String, Object>) response.get("sports_results")).get("game_spotlight").toString();
-			}
-			else if (response.containsKey("shopping_results")
-					&& ((List<Map<String, Object>>) response.get("shopping_results")).get(0).containsKey("title")) {
-				List<Map<String, Object>> shoppingResults = (List<Map<String, Object>>) response
-					.get("shopping_results");
-				List<Map<String, Object>> subList = shoppingResults.subList(0, 3);
-				toret = subList.toString();
-			}
-			else if (response.containsKey("knowledge_graph")
-					&& ((Map<String, Object>) response.get("knowledge_graph")).containsKey("description")) {
-				toret = ((Map<String, Object>) response.get("knowledge_graph")).get("description").toString();
-			}
-			else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("snippet")) {
-				toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("snippet")
-					.toString();
-			}
-			else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("link")) {
-				toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("link").toString();
-			}
-			else if (response.containsKey("images_results")
-					&& ((Map<String, Object>) ((List<Map<String, Object>>) response.get("images_results")).get(0))
-						.containsKey("thumbnail")) {
-				List<String> thumbnails = new ArrayList<>();
-				List<Map<String, Object>> imageResults = (List<Map<String, Object>>) response.get("images_results");
-				for (Map<String, Object> item : imageResults.subList(0, 10)) {
-					thumbnails.add(item.get("thumbnail").toString());
-				}
-				toret = thumbnails.toString();
-			}
-			else {
-				toret = "No good search result found";
-			}
-			log.warn("SerpapiTool result:{}", toret);
-			this.lastSearchResults = toret;
-			return new ToolExecuteResult(toret);
-		}
-		catch (Exception e) {
-			log.error("Error deserializing JSON", e);
-			return new ToolExecuteResult("Error deserializing JSON: " + e.getMessage());
-		}
-	}
+            if (response.containsKey("answer_box") && response.get("answer_box") instanceof List) {
+                response.put("answer_box", ((List<Map<String, Object>>) response.get("answer_box")).get(0));
+            }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+            String toret = "";
+            if (response.containsKey("answer_box")
+                    && ((Map<String, Object>) response.get("answer_box")).containsKey("answer")) {
+                toret = ((Map<String, Object>) response.get("answer_box")).get("answer").toString();
+            } else if (response.containsKey("answer_box")
+                    && ((Map<String, Object>) response.get("answer_box")).containsKey("snippet")) {
+                toret = ((Map<String, Object>) response.get("answer_box")).get("snippet").toString();
+            } else if (response.containsKey("answer_box")
+                    && ((Map<String, Object>) response.get("answer_box")).containsKey("snippet_highlighted_words")) {
+                toret = ((List<String>) ((Map<String, Object>) response.get("answer_box"))
+                        .get("snippet_highlighted_words")).get(0);
+            } else if (response.containsKey("sports_results")
+                    && ((Map<String, Object>) response.get("sports_results")).containsKey("game_spotlight")) {
+                toret = ((Map<String, Object>) response.get("sports_results")).get("game_spotlight").toString();
+            } else if (response.containsKey("shopping_results")
+                    && ((List<Map<String, Object>>) response.get("shopping_results")).get(0).containsKey("title")) {
+                List<Map<String, Object>> shoppingResults = (List<Map<String, Object>>) response
+                        .get("shopping_results");
+                List<Map<String, Object>> subList = shoppingResults.subList(0, 3);
+                toret = subList.toString();
+            } else if (response.containsKey("knowledge_graph")
+                    && ((Map<String, Object>) response.get("knowledge_graph")).containsKey("description")) {
+                toret = ((Map<String, Object>) response.get("knowledge_graph")).get("description").toString();
+            } else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("snippet")) {
+                toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("snippet")
+                        .toString();
+            } else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("link")) {
+                toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("link").toString();
+            } else if (response.containsKey("images_results")
+                    && ((Map<String, Object>) ((List<Map<String, Object>>) response.get("images_results")).get(0))
+                    .containsKey("thumbnail")) {
+                List<String> thumbnails = new ArrayList<>();
+                List<Map<String, Object>> imageResults = (List<Map<String, Object>>) response.get("images_results");
+                for (Map<String, Object> item : imageResults.subList(0, 10)) {
+                    thumbnails.add(item.get("thumbnail").toString());
+                }
+                toret = thumbnails.toString();
+            } else {
+                toret = "No good search result found";
+            }
+            log.warn("SerpapiTool result:{}", toret);
+            this.lastSearchResults = toret;
+            return new ToolExecuteResult(toret);
+        } catch (Exception e) {
+            log.error("Error deserializing JSON", e);
+            return new ToolExecuteResult("Error deserializing JSON: " + e.getMessage());
+        }
+    }
 
-	@Override
-	public String getDescription() {
-		return description;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public String getParameters() {
-		return PARAMETERS;
-	}
+    @Override
+    public String getDescription() {
+        return description;
+    }
 
-	@Override
-	public Class<GoogleSearchInput> getInputType() {
-		return GoogleSearchInput.class;
-	}
+    @Override
+    public String getParameters() {
+        return PARAMETERS;
+    }
 
-	@Override
-	public ToolExecuteResult run(GoogleSearchInput input) {
-		String query = input.getQuery();
-		Integer numResults = input.getNumResults() != null ? input.getNumResults() : 2;
+    @Override
+    public Class<GoogleSearchInput> getInputType() {
+        return GoogleSearchInput.class;
+    }
 
-		log.info("GoogleSearch input: query={}, numResults={}", query, numResults);
+    @Override
+    public ToolExecuteResult run(GoogleSearchInput input) {
+        String query = input.getQuery();
+        Integer numResults = input.getNumResults() != null ? input.getNumResults() : 2;
 
-		this.lastQuery = query;
-		this.lastNumResults = numResults;
+        log.info("GoogleSearch input: query={}, numResults={}", query, numResults);
 
-		try {
-			SerpApiService.Request request = new SerpApiService.Request(query);
-			Map<String, Object> response = service.apply(request);
+        this.lastQuery = query;
+        this.lastNumResults = numResults;
 
-			if (response.containsKey("answer_box") && response.get("answer_box") instanceof List) {
-				response.put("answer_box", ((List<Map<String, Object>>) response.get("answer_box")).get(0));
-			}
+        try {
+            SerpApiService.Request request = new SerpApiService.Request(query);
+            Map<String, Object> response = service.apply(request);
 
-			String toret = "";
-			if (response.containsKey("answer_box")
-					&& ((Map<String, Object>) response.get("answer_box")).containsKey("answer")) {
-				toret = ((Map<String, Object>) response.get("answer_box")).get("answer").toString();
-			}
-			else if (response.containsKey("answer_box")
-					&& ((Map<String, Object>) response.get("answer_box")).containsKey("snippet")) {
-				toret = ((Map<String, Object>) response.get("answer_box")).get("snippet").toString();
-			}
-			else if (response.containsKey("answer_box")
-					&& ((Map<String, Object>) response.get("answer_box")).containsKey("snippet_highlighted_words")) {
-				toret = ((List<String>) ((Map<String, Object>) response.get("answer_box"))
-					.get("snippet_highlighted_words")).get(0);
-			}
-			else if (response.containsKey("sports_results")
-					&& ((Map<String, Object>) response.get("sports_results")).containsKey("game_spotlight")) {
-				toret = ((Map<String, Object>) response.get("sports_results")).get("game_spotlight").toString();
-			}
-			else if (response.containsKey("shopping_results")
-					&& ((List<Map<String, Object>>) response.get("shopping_results")).get(0).containsKey("title")) {
-				List<Map<String, Object>> shoppingResults = (List<Map<String, Object>>) response
-					.get("shopping_results");
-				List<Map<String, Object>> subList = shoppingResults.subList(0, 3);
-				toret = subList.toString();
-			}
-			else if (response.containsKey("knowledge_graph")
-					&& ((Map<String, Object>) response.get("knowledge_graph")).containsKey("description")) {
-				toret = ((Map<String, Object>) response.get("knowledge_graph")).get("description").toString();
-			}
-			else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("snippet")) {
-				toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("snippet")
-					.toString();
-			}
-			else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("link")) {
-				toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("link").toString();
-			}
-			else if (response.containsKey("images_results")
-					&& ((Map<String, Object>) ((List<Map<String, Object>>) response.get("images_results")).get(0))
-						.containsKey("thumbnail")) {
-				List<String> thumbnails = new ArrayList<>();
-				List<Map<String, Object>> imageResults = (List<Map<String, Object>>) response.get("images_results");
-				for (Map<String, Object> item : imageResults.subList(0, 10)) {
-					thumbnails.add(item.get("thumbnail").toString());
-				}
-				toret = thumbnails.toString();
-			}
-			else {
-				toret = "No good search result found";
-			}
-			log.warn("SerpapiTool result:{}", toret);
-			this.lastSearchResults = toret;
-			return new ToolExecuteResult(toret);
-		}
-		catch (Exception e) {
-			log.error("Error executing Google search", e);
-			return new ToolExecuteResult("Error executing Google search: " + e.getMessage());
-		}
-	}
+            if (response.containsKey("answer_box") && response.get("answer_box") instanceof List) {
+                response.put("answer_box", ((List<Map<String, Object>>) response.get("answer_box")).get(0));
+            }
 
-	@Override
-	public String getCurrentToolStateString() {
-		return String.format("""
-				Google Search Status:
-				- Search Location: %s
-				- Recent Search: %s
-				- Search Results: %s
-				""", new java.io.File("").getAbsolutePath(),
-				lastQuery.isEmpty() ? "No search performed yet"
-						: String.format("Searched for: '%s' (max results: %d)", lastQuery, lastNumResults),
-				lastSearchResults.isEmpty() ? "No results found" : lastSearchResults);
-	}
+            String toret = "";
+            if (response.containsKey("answer_box")
+                    && ((Map<String, Object>) response.get("answer_box")).containsKey("answer")) {
+                toret = ((Map<String, Object>) response.get("answer_box")).get("answer").toString();
+            } else if (response.containsKey("answer_box")
+                    && ((Map<String, Object>) response.get("answer_box")).containsKey("snippet")) {
+                toret = ((Map<String, Object>) response.get("answer_box")).get("snippet").toString();
+            } else if (response.containsKey("answer_box")
+                    && ((Map<String, Object>) response.get("answer_box")).containsKey("snippet_highlighted_words")) {
+                toret = ((List<String>) ((Map<String, Object>) response.get("answer_box"))
+                        .get("snippet_highlighted_words")).get(0);
+            } else if (response.containsKey("sports_results")
+                    && ((Map<String, Object>) response.get("sports_results")).containsKey("game_spotlight")) {
+                toret = ((Map<String, Object>) response.get("sports_results")).get("game_spotlight").toString();
+            } else if (response.containsKey("shopping_results")
+                    && ((List<Map<String, Object>>) response.get("shopping_results")).get(0).containsKey("title")) {
+                List<Map<String, Object>> shoppingResults = (List<Map<String, Object>>) response
+                        .get("shopping_results");
+                List<Map<String, Object>> subList = shoppingResults.subList(0, 3);
+                toret = subList.toString();
+            } else if (response.containsKey("knowledge_graph")
+                    && ((Map<String, Object>) response.get("knowledge_graph")).containsKey("description")) {
+                toret = ((Map<String, Object>) response.get("knowledge_graph")).get("description").toString();
+            } else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("snippet")) {
+                toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("snippet")
+                        .toString();
+            } else if ((((List<Map<String, Object>>) response.get("organic_results")).get(0)).containsKey("link")) {
+                toret = (((List<Map<String, Object>>) response.get("organic_results")).get(0)).get("link").toString();
+            } else if (response.containsKey("images_results")
+                    && ((Map<String, Object>) ((List<Map<String, Object>>) response.get("images_results")).get(0))
+                    .containsKey("thumbnail")) {
+                List<String> thumbnails = new ArrayList<>();
+                List<Map<String, Object>> imageResults = (List<Map<String, Object>>) response.get("images_results");
+                for (Map<String, Object> item : imageResults.subList(0, 10)) {
+                    thumbnails.add(item.get("thumbnail").toString());
+                }
+                toret = thumbnails.toString();
+            } else {
+                toret = "No good search result found";
+            }
+            log.warn("SerpapiTool result:{}", toret);
+            this.lastSearchResults = toret;
+            return new ToolExecuteResult(toret);
+        } catch (Exception e) {
+            log.error("Error executing Google search", e);
+            return new ToolExecuteResult("Error executing Google search: " + e.getMessage());
+        }
+    }
 
-	@Override
-	public void cleanup(String planId) {
-		// do nothing
-	}
+    @Override
+    public String getCurrentToolStateString() {
+        return String.format("""
+                        Google Search Status:
+                        - Search Location: %s
+                        - Recent Search: %s
+                        - Search Results: %s
+                        """, new java.io.File("").getAbsolutePath(),
+                lastQuery.isEmpty() ? "No search performed yet"
+                        : String.format("Searched for: '%s' (max results: %d)", lastQuery, lastNumResults),
+                lastSearchResults.isEmpty() ? "No results found" : lastSearchResults);
+    }
 
-	@Override
-	public String getServiceGroup() {
-		return "default-service-group";
-	}
+    @Override
+    public void cleanup(String planId) {
+        // do nothing
+    }
 
-	/**
-	 * Internal input class for defining input parameters of Google search tool
-	 */
-	public static class GoogleSearchInput {
+    @Override
+    public String getServiceGroup() {
+        return "default-service-group";
+    }
 
-		private String query;
+    /**
+     * Internal input class for defining input parameters of Google search tool
+     */
+    public static class GoogleSearchInput {
 
-		@com.fasterxml.jackson.annotation.JsonProperty("num_results")
-		private Integer numResults;
+        private String query;
 
-		public GoogleSearchInput() {
-		}
+        @com.fasterxml.jackson.annotation.JsonProperty("num_results")
+        private Integer numResults;
 
-		public GoogleSearchInput(String query, Integer numResults) {
-			this.query = query;
-			this.numResults = numResults;
-		}
+        public GoogleSearchInput() {
+        }
 
-		public String getQuery() {
-			return query;
-		}
+        public GoogleSearchInput(String query, Integer numResults) {
+            this.query = query;
+            this.numResults = numResults;
+        }
 
-		public void setQuery(String query) {
-			this.query = query;
-		}
+        public String getQuery() {
+            return query;
+        }
 
-		public Integer getNumResults() {
-			return numResults;
-		}
+        public void setQuery(String query) {
+            this.query = query;
+        }
 
-		public void setNumResults(Integer numResults) {
-			this.numResults = numResults;
-		}
+        public Integer getNumResults() {
+            return numResults;
+        }
 
-	}
+        public void setNumResults(Integer numResults) {
+            this.numResults = numResults;
+        }
+
+    }
 
 }

@@ -72,6 +72,11 @@ public class ExecutionContext {
 	private boolean useMemory = false;
 
 	/**
+	 * Memory ID for memory usage
+	 */
+	private String memoryId;
+
+	/**
 	 * Get plan ID
 	 * @return Unique identifier of the plan
 	 */
@@ -222,6 +227,14 @@ public class ExecutionContext {
 
 	public void setUseMemory(boolean useMemory) {
 		this.useMemory = useMemory;
+	}
+
+	public String getMemoryId() {
+		return memoryId;
+	}
+
+	public void setMemoryId(String memoryId) {
+		this.memoryId = memoryId;
 	}
 
 }

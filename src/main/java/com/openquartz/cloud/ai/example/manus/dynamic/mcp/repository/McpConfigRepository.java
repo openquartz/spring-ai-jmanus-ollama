@@ -15,10 +15,13 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.mcp.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.po.McpConfigEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.po.McpConfigStatus;
 
 /**
  * McpConfig
@@ -27,5 +30,12 @@ import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.po.McpConfigEntit
 public interface McpConfigRepository extends JpaRepository<McpConfigEntity, Long> {
 
 	McpConfigEntity findByMcpServerName(String mcpServerName);
+
+	/**
+	 * Query MCP configuration list by status
+	 * @param status MCP configuration status
+	 * @return List of MCP configurations that meet the criteria
+	 */
+	List<McpConfigEntity> findByStatus(McpConfigStatus status);
 
 }

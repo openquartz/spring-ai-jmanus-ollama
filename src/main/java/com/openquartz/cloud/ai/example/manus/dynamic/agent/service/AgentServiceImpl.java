@@ -15,7 +15,6 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.agent.service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +23,8 @@ import java.util.stream.Collectors;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.service.IMcpService;
 import com.openquartz.cloud.ai.example.manus.dynamic.model.entity.DynamicModelEntity;
 import com.openquartz.cloud.ai.example.manus.dynamic.model.model.vo.ModelConfig;
+import com.openquartz.cloud.ai.example.manus.dynamic.namespace.namespace.vo.NamespaceConfig;
+import com.openquartz.cloud.ai.example.manus.dynamic.namespace.service.NamespaceService;
 import com.openquartz.cloud.ai.example.manus.tool.TerminateTool;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -46,12 +47,6 @@ import com.openquartz.cloud.ai.example.manus.llm.ILlmService;
 @Service
 public class AgentServiceImpl implements AgentService {
 
-	private static final String DEFAULT_AGENT_NAME = "DEFAULT_AGENT";
-
-	// MapReduce protected agent names - cannot be deleted by users
-	private static final String[] PROTECTED_MAPREDUCE_AGENTS = { "MAPREDUCE_DATA_PREPARE_AGENT", "MAPREDUCE_FIN_AGENT",
-			"MAPREDUCE_MAP_TASK_AGENT", "MAPREDUCE_REDUCE_TASK_AGENT" };
-
 	private static final Logger log = LoggerFactory.getLogger(AgentServiceImpl.class);
 
 	private final IDynamicAgentLoader dynamicAgentLoader;
@@ -61,6 +56,8 @@ public class AgentServiceImpl implements AgentService {
 	private final IPlanningFactory planningFactory;
 
 	private final IMcpService mcpService;
+
+	private final NamespaceService namespaceService;
 
 	@Autowired
 	@Lazy
@@ -72,27 +69,23 @@ public class AgentServiceImpl implements AgentService {
 
 	@Autowired
 	public AgentServiceImpl(@Lazy IDynamicAgentLoader dynamicAgentLoader, DynamicAgentRepository repository,
-			@Lazy IPlanningFactory planningFactory, @Lazy IMcpService mcpService) {
+			@Lazy IPlanningFactory planningFactory, @Lazy IMcpService mcpService, NamespaceService namespaceService) {
 		this.dynamicAgentLoader = dynamicAgentLoader;
 		this.repository = repository;
 		this.planningFactory = planningFactory;
 		this.mcpService = mcpService;
-	}
-
-	@Override
-	public List<AgentConfig> getAllAgents() {
-		return repository.findAll().stream().map(this::mapToAgentConfig).collect(Collectors.toList());
+		this.namespaceService = namespaceService;
 	}
 
 	@Override
 	public List<AgentConfig> getAllAgentsByNamespace(String namespace) {
 		List<DynamicAgentEntity> entities;
-		if ("default".equalsIgnoreCase(namespace)) {
-			entities = repository.findAll();
+		if (namespace == null || namespace.trim().isEmpty()) {
+			// If namespace is null or empty, use default namespace
+			namespace = "default";
+			log.info("Namespace not specified, using default namespace: {}", namespace);
 		}
-		else {
-			entities = repository.findAllByNamespace(namespace);
-		}
+		entities = repository.findAllByNamespace(namespace);
 		return entities.stream().map(this::mapToAgentConfig).collect(Collectors.toList());
 	}
 
@@ -106,6 +99,14 @@ public class AgentServiceImpl implements AgentService {
 	@Override
 	public AgentConfig createAgent(AgentConfig config) {
 		try {
+			// Set default namespace if namespace is null or empty
+			if (config.getNamespace() == null || config.getNamespace().trim().isEmpty()) {
+				String defaultNamespace = getDefaultNamespace();
+				config.setNamespace(defaultNamespace);
+				log.info("Namespace not specified for Agent: {}, using default namespace: {}", config.getName(),
+						defaultNamespace);
+			}
+
 			// Check if an Agent with the same name already exists
 			DynamicAgentEntity existingAgent = repository.findByAgentName(config.getName());
 			if (existingAgent != null) {
@@ -151,14 +152,9 @@ public class AgentServiceImpl implements AgentService {
 		DynamicAgentEntity entity = repository.findById(Long.parseLong(id))
 			.orElseThrow(() -> new IllegalArgumentException("Agent not found: " + id));
 
-		// Protect default agent from deletion
-		if (DEFAULT_AGENT_NAME.equals(entity.getAgentName())) {
-			throw new IllegalArgumentException("Cannot delete default Agent");
-		}
-
-		// Protect MapReduce system agents from deletion
-		if (Arrays.asList(PROTECTED_MAPREDUCE_AGENTS).contains(entity.getAgentName())) {
-			throw new IllegalArgumentException("Cannot delete protected system Agent: " + entity.getAgentName());
+		// Protect built-in agents from deletion
+		if (Boolean.TRUE.equals(entity.getBuiltIn())) {
+			throw new IllegalArgumentException("Cannot delete built-in Agent: " + entity.getAgentName());
 		}
 
 		repository.deleteById(Long.parseLong(id));
@@ -167,9 +163,10 @@ public class AgentServiceImpl implements AgentService {
 	public List<Tool> getAvailableTools() {
 
 		String uuid = UUID.randomUUID().toString();
-		List<String> columns = Arrays.asList("dummyColumn1", "dummyColumn2");
+		String expectedReturnInfo = "dummyColumn1, dummyColumn2";
 		try {
-			Map<String, ToolCallBackContext> toolcallContext = planningFactory.toolCallbackMap(uuid, uuid, columns);
+			Map<String, ToolCallBackContext> toolcallContext = planningFactory.toolCallbackMap(uuid, uuid,
+					expectedReturnInfo);
 			return toolcallContext.entrySet().stream().map(entry -> {
 				Tool tool = new Tool();
 				tool.setKey(entry.getKey());
@@ -196,12 +193,55 @@ public class AgentServiceImpl implements AgentService {
 		config.setNextStepPrompt(entity.getNextStepPrompt());
 		config.setAvailableTools(entity.getAvailableToolKeys());
 		config.setClassName(entity.getClassName());
+		config.setNamespace(entity.getNamespace());
+		config.setBuiltIn(entity.getBuiltIn());
 		DynamicModelEntity model = entity.getModel();
 		config.setModel(model == null ? null : model.mapToModelConfig());
 		return config;
 	}
 
+	/**
+	 * Get default namespace code when no namespace is specified. Uses the first available
+	 * namespace from getAllNamespaces(), or "default" if no namespaces exist.
+	 * @return default namespace code
+	 */
+	private String getDefaultNamespace() {
+		try {
+			List<NamespaceConfig> namespaces = namespaceService.getAllNamespaces();
+			if (!namespaces.isEmpty()) {
+				// Find the namespace with code "default" first
+				for (NamespaceConfig namespace : namespaces) {
+					if ("default".equals(namespace.getCode())) {
+						log.debug("Found default namespace with code: {}", namespace.getCode());
+						return namespace.getCode();
+					}
+				}
+				// If no "default" code namespace found, use the first one
+				String firstNamespaceCode = namespaces.get(0).getCode();
+				log.debug("Using first namespace as default: {}", firstNamespaceCode);
+				return firstNamespaceCode;
+			}
+			else {
+				// If no namespaces exist, return "default"
+				log.warn("No namespaces found, using fallback default namespace code: default");
+				return "default";
+			}
+		}
+		catch (Exception e) {
+			log.error("Error getting default namespace, using fallback: {}", e.getMessage());
+			return "default";
+		}
+	}
+
 	private void updateEntityFromConfig(DynamicAgentEntity entity, AgentConfig config) {
+		// Set default namespace if namespace is null or empty
+		if (config.getNamespace() == null || config.getNamespace().trim().isEmpty()) {
+			String defaultNamespace = getDefaultNamespace();
+			config.setNamespace(defaultNamespace);
+			log.info("Namespace not specified for Agent: {}, using default namespace: {}", config.getName(),
+					defaultNamespace);
+		}
+
 		entity.setAgentName(config.getName());
 		entity.setAgentDescription(config.getDescription());
 		String nextStepPrompt = config.getNextStepPrompt();
@@ -230,6 +270,12 @@ public class AgentServiceImpl implements AgentService {
 
 		// 4. Set the user-selected namespace
 		entity.setNamespace(config.getNamespace());
+
+		// 5. Set builtIn if provided (only allow setting to false for existing built-in
+		// agents)
+		if (config.getBuiltIn() != null) {
+			entity.setBuiltIn(config.getBuiltIn());
+		}
 	}
 
 	private DynamicAgentEntity mergePrompts(DynamicAgentEntity entity, String agentName) {
@@ -251,7 +297,7 @@ public class AgentServiceImpl implements AgentService {
 
 	@Override
 	public BaseAgent createDynamicBaseAgent(String name, String planId, String rootPlanId,
-			Map<String, Object> initialAgentSetting, List<String> columns) {
+			Map<String, Object> initialAgentSetting, String expectedReturnInfo) {
 
 		log.info("Create new BaseAgent: {}, planId: {}", name, planId);
 
@@ -264,24 +310,18 @@ public class AgentServiceImpl implements AgentService {
 			agent.setRootPlanId(rootPlanId);
 			// Set tool callback mapping
 			Map<String, ToolCallBackContext> toolCallbackMap = planningFactory.toolCallbackMap(planId, rootPlanId,
-					columns);
+					expectedReturnInfo);
 			agent.setToolCallbackProvider(new ToolCallbackProvider() {
 
 				@Override
 				public Map<String, ToolCallBackContext> getToolCallBackContext() {
 					return toolCallbackMap;
 				}
-
 			});
-
-			log.info("Successfully loaded BaseAgent: {}, available tools count: {}", name,
-					agent.getToolCallList().size());
-
 			return agent;
 		}
 		catch (Exception e) {
-			log.error("Exception occurred during BaseAgent loading: {}, error message: {}", name, e.getMessage(), e);
-			throw new RuntimeException("Failed to load BaseAgent: " + e.getMessage(), e);
+			throw new RuntimeException("Failed to create dynamic base agent: " + name, e);
 		}
 	}
 

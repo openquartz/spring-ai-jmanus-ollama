@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,13 +65,14 @@ public class PlanTemplateController {
 	@Autowired
 	private PlanIdDispatcher planIdDispatcher;
 
-	private final ObjectMapper objectMapper = new ObjectMapper();
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	/**
-	 * 将计划对象序列化为JSON字符串
-	 * @param plan 计划对象
-	 * @return 格式化的JSON字符串（带缩进和换行）
-	 * @throws Exception 序列化失败时抛出异常
+	 * Serialize plan object to JSON string
+	 * @param plan Plan object
+	 * @return Formatted JSON string (with indentation and line breaks)
+	 * @throws Exception Thrown when serialization fails
 	 */
 	private String planToJson(PlanInterface plan) throws Exception {
 		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(plan);
@@ -100,7 +100,9 @@ public class PlanTemplateController {
 			// Escape curly braces in JSON to prevent String.format from misinterpreting
 			// them as placeholders
 			String escapedJson = existingJson.replace("{", "\\{").replace("}", "\\}");
-			enhancedQuery = String.format("参照过去的执行计划 %s 。以及用户的新的query：%s。构建一个新的执行计划。", escapedJson, query);
+			enhancedQuery = String.format(
+					"Refer to the past execution plan %s and the user's new query: %s. Build a new execution plan.",
+					escapedJson, query);
 		}
 		else {
 			enhancedQuery = query;
@@ -128,15 +130,15 @@ public class PlanTemplateController {
 					.body(Map.of("error", "Plan generation failed, cannot get plan data"));
 			}
 
-			// 获取计划JSON - 使用 Jackson 序列化
+			// Get plan JSON - using Jackson serialization
 			String planJson;
 			try {
 				planJson = planToJson(context.getPlan());
 			}
 			catch (Exception jsonException) {
-				logger.error("序列化计划为JSON失败", jsonException);
+				logger.error("Failed to serialize plan to JSON", jsonException);
 				return ResponseEntity.internalServerError()
-					.body(Map.of("error", "序列化计划失败: " + jsonException.getMessage()));
+					.body(Map.of("error", "Plan serialization failed: " + jsonException.getMessage()));
 			}
 
 			// Save to version history
@@ -173,7 +175,7 @@ public class PlanTemplateController {
 		}
 
 		String rawParam = request.get("rawParam");
-		return executePlanByTemplateIdInternal(planTemplateId, rawParam);
+		return planTemplateService.executePlanByTemplateIdInternal(planTemplateId, rawParam);
 	}
 
 	/**
@@ -193,97 +195,7 @@ public class PlanTemplateController {
 		logger.info("Execute plan template, ID: {}, parameters: {}", planTemplateId, allParams);
 		String rawParam = allParams != null ? allParams.get("rawParam") : null;
 		// If there are URL parameters, use the method with parameters
-		return executePlanByTemplateIdInternal(planTemplateId, rawParam);
-	}
-
-	/**
-	 * Internal common method for executing plans (version with URL parameters)
-	 * @param planTemplateId Plan template ID
-	 * @param rawParam URL query parameters
-	 * @return Result status
-	 */
-	private ResponseEntity<Map<String, Object>> executePlanByTemplateIdInternal(String planTemplateId,
-			String rawParam) {
-		try {
-			// Step 1: Get execution JSON from repository by planTemplateId
-			PlanTemplate template = planTemplateService.getPlanTemplate(planTemplateId);
-			if (template == null) {
-				return ResponseEntity.notFound().build();
-			}
-
-			// Get the latest version of the plan JSON
-			List<String> versions = planTemplateService.getPlanVersions(planTemplateId);
-			if (versions.isEmpty()) {
-				return ResponseEntity.internalServerError()
-					.body(Map.of("error", "Plan template has no executable version"));
-			}
-			String planJson = planTemplateService.getPlanVersion(planTemplateId, versions.size() - 1);
-			if (planJson == null || planJson.trim().isEmpty()) {
-				return ResponseEntity.internalServerError().body(Map.of("error", "Cannot get plan JSON data"));
-			}
-
-			// Generate a new plan ID, not using the template ID
-			String newPlanId = planIdDispatcher.generatePlanId();
-
-			// Get planning flow, using the new plan ID
-			PlanningCoordinator planningCoordinator = planningFactory.createPlanningCoordinator(newPlanId);
-			ExecutionContext context = new ExecutionContext();
-			context.setCurrentPlanId(newPlanId);
-			context.setRootPlanId(newPlanId);
-			context.setNeedSummary(true); // We need to generate a summary
-
-			try {
-				// 使用 Jackson 反序列化 JSON 为 PlanInterface 对象（支持多态）
-				PlanInterface plan = objectMapper.readValue(planJson, PlanInterface.class);
-
-				// 设置新的计划ID，覆盖JSON中的ID
-				plan.setCurrentPlanId(newPlanId);
-				plan.setRootPlanId(newPlanId);
-				// 设置URL参数到计划中
-				if (rawParam != null && !rawParam.isEmpty()) {
-					logger.info("Set execution parameters to plan: {}", rawParam);
-					plan.setExecutionParams(rawParam);
-				}
-
-				// Set plan to context
-				context.setPlan(plan);
-
-				// Get user request from recorder
-				context.setUserRequest(template.getTitle());
-			}
-			catch (Exception e) {
-				logger.error("Failed to parse plan JSON or get user request", e);
-				context.setUserRequest("Execute plan: " + newPlanId + "\nFrom template: " + planTemplateId);
-
-				// If parsing fails, record the error but continue with the flow
-				logger.warn("Using original JSON to continue execution", e);
-			}
-
-			// Execute the plan asynchronously
-			CompletableFuture.runAsync(() -> {
-				try {
-					// Execute the plan and summary steps, skipping the create plan step
-					planningCoordinator.executeExistingPlan(context);
-					logger.info("Plan execution successful: {}", newPlanId);
-				}
-				catch (Exception e) {
-					logger.error("Plan execution failed", e);
-				}
-			});
-
-			// Return task ID and initial status
-			Map<String, Object> response = new HashMap<>();
-			response.put("planId", newPlanId);
-			response.put("status", "processing");
-			response.put("message", "计划执行请求已提交，正在处理中");
-
-			return ResponseEntity.ok(response);
-		}
-		catch (Exception e) {
-			logger.error("Plan execution failed", e);
-			return ResponseEntity.internalServerError()
-				.body(Map.of("error", "Plan execution failed: " + e.getMessage()));
-		}
+		return planTemplateService.executePlanByTemplateIdInternal(planTemplateId, rawParam);
 	}
 
 	/**
@@ -294,8 +206,7 @@ public class PlanTemplateController {
 	private PlanTemplateService.VersionSaveResult saveToVersionHistory(String planJson) {
 		try {
 			// Parse JSON to extract planTemplateId and title
-			ObjectMapper mapper = new ObjectMapper();
-			PlanInterface planData = mapper.readValue(planJson, PlanInterface.class);
+			PlanInterface planData = objectMapper.readValue(planJson, PlanInterface.class);
 
 			String planTemplateId = planData.getRootPlanId();
 			if (planTemplateId == null || planTemplateId.trim().isEmpty()) {
@@ -371,8 +282,7 @@ public class PlanTemplateController {
 
 		try {
 			// Parse JSON to get planId
-			ObjectMapper mapper = new ObjectMapper();
-			PlanInterface planData = mapper.readValue(planJson, PlanInterface.class);
+			PlanInterface planData = objectMapper.readValue(planJson, PlanInterface.class);
 			String planId = planData.getCurrentPlanId();
 			if (planId == null) {
 				planId = planData.getRootPlanId();
@@ -565,7 +475,9 @@ public class PlanTemplateController {
 			// Escape curly braces in JSON to prevent String.format from misinterpreting
 			// them as placeholders
 			String escapedJson = existingJson.replace("{", "\\{").replace("}", "\\}");
-			enhancedQuery = String.format("参照过去的执行计划 %s 。以及用户的新的query：%s。更新这个执行计划。", escapedJson, query);
+			enhancedQuery = String.format(
+					"Refer to the past execution plan %s and the user's new query: %s. Update this execution plan.",
+					escapedJson, query);
 		}
 		else {
 			enhancedQuery = query;
@@ -592,15 +504,15 @@ public class PlanTemplateController {
 					.body(Map.of("error", "Plan update failed, cannot get plan data"));
 			}
 
-			// 获取计划JSON - 使用 Jackson 序列化
+			// Get plan JSON - using Jackson serialization
 			String planJson;
 			try {
 				planJson = planToJson(context.getPlan());
 			}
 			catch (Exception jsonException) {
-				logger.error("序列化计划为JSON失败", jsonException);
+				logger.error("Failed to serialize plan to JSON", jsonException);
 				return ResponseEntity.internalServerError()
-					.body(Map.of("error", "序列化计划失败: " + jsonException.getMessage()));
+					.body(Map.of("error", "Plan serialization failed: " + jsonException.getMessage()));
 			}
 
 			// Save to version history

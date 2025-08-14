@@ -18,8 +18,6 @@ package com.openquartz.cloud.ai.example.manus.tool;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.model.ModelOptionsUtils;
-import org.springframework.ai.ollama.api.OllamaApi;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +28,7 @@ public class TerminateTool extends AbstractBaseTool<Map<String, Object>> impleme
 
 	public static final String name = "terminate";
 
-	private final List<String> columns;
+	private final String expectedReturnInfo;
 
 	private String lastTerminationMessage = "";
 
@@ -38,97 +36,63 @@ public class TerminateTool extends AbstractBaseTool<Map<String, Object>> impleme
 
 	private String terminationTimestamp = "";
 
-	public static OllamaApi.ChatRequest.Tool getToolDefinition(List<String> columns) {
-		String parameters = generateParametersJson(columns);
-		String description = getDescriptions(columns);
-		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(parameters)));
+	private static String getDescriptions(String expectedReturnInfo) {
+		// Simple description to avoid generating overly long content
+		return "Terminate the current execution step with structured data. "
+				+ "Provide data in JSON format with 'message' field and optional 'fileList' array containing file information.";
 	}
 
-	private static String getDescriptions(List<String> columns) {
-		// If columns is null or empty, use "message" as default column
-		List<String> effectiveColumns = (columns == null || columns.isEmpty()) ? List.of("message") : columns;
-
-		// Generate columns example as JSON string
-		StringBuilder columnsExample = new StringBuilder();
-		columnsExample.append("[");
-		for (int i = 0; i < effectiveColumns.size(); i++) {
-			columnsExample.append("\"").append(effectiveColumns.get(i)).append("\"");
-			if (i < effectiveColumns.size() - 1) {
-				columnsExample.append(", ");
-			}
-		}
-		columnsExample.append("]");
-
-		// Generate data example
-		StringBuilder dataExample = new StringBuilder();
-		dataExample.append("[\n");
-		for (int i = 0; i < 2; i++) { // Show 2 example rows
-			dataExample.append("      [");
-			for (int j = 0; j < effectiveColumns.size(); j++) {
-				dataExample.append("\"example").append(i + 1).append("_").append(effectiveColumns.get(j)).append("\"");
-				if (j < effectiveColumns.size() - 1) {
-					dataExample.append(", ");
-				}
-			}
-			dataExample.append("]");
-			if (i < 1) {
-				dataExample.append(",");
-			}
-			dataExample.append("\n");
-		}
-		dataExample.append("    ]");
-
-		String template = """
-				Terminate the current execution step with structured data.
-				The data should be provided in a format with columns and corresponding data rows:
-				{
-				  "columns": %s,
-				  "data": %s
-				}
-				""";
-
-		return String.format(template, columnsExample.toString(), dataExample.toString());
-	}
-
-	private static String generateParametersJson(List<String> columns) {
-		// If columns is null or empty, use "message" as default column
-		List<String> effectiveColumns = (columns == null || columns.isEmpty()) ? List.of("message") : columns;
-
-		// Generate default columns array as JSON string
-		StringBuilder defaultColumnsBuilder = new StringBuilder();
-		defaultColumnsBuilder.append("[");
-		for (int i = 0; i < effectiveColumns.size(); i++) {
-			defaultColumnsBuilder.append("\"").append(effectiveColumns.get(i)).append("\"");
-			if (i < effectiveColumns.size() - 1) {
-				defaultColumnsBuilder.append(", ");
-			}
-		}
-		defaultColumnsBuilder.append("]");
-
+	private static String generateParametersJson(String expectedReturnInfo) {
 		String template = """
 				{
 				  "type": "object",
 				  "properties": {
-				    "columns": {
-				      "type": "array",
-				      "items": {"type": "string"},
-				      "description": "Column names for the data",
-				      "default": %s
+				    "message": {
+				      "type": "string",
+				      "description": "Comprehensive termination message that should include all relevant facts, viewpoints, details, and conclusions from the execution step. This message should provide a complete summary of what was accomplished, any important observations, key findings, and final outcomes. The message must explicitly mention and describe the data corresponding to the expected return information: %s"
 				    },
-				    "data": {
+				    "fileList": {
 				      "type": "array",
 				      "items": {
-				        "type": "array",
-				        "items": {}
+				        "type": "object",
+				        "properties": {
+				          "fileName": {
+				            "type": "string",
+				            "description": "Name of the file"
+				          },
+				          "fileDescription": {
+				            "type": "string",
+				            "description": "Detailed description of what the file contains. This should include a comprehensive summary of all content generated during this agent execution cycle. Every file created during this execution must be listed here with complete and accurate information about its contents."
+				          }
+				        },
+				        "required": ["fileName", "fileDescription"]
 				      },
-				      "description": "Data rows corresponding to the columns"
+				      "description": "Complete list of all files generated during this agent execution cycle. Every file created must be included with its name and a detailed description of its contents. This is mandatory for full transparency and auditing purposes."
+				    },
+				    "folderList": {
+				      "type": "array",
+				      "items": {
+				        "type": "object",
+				        "properties": {
+				          "folderName": {
+				            "type": "string",
+				            "description": "Name of the folder"
+				          },
+				          "folderDescription": {
+				            "type": "string",
+				            "description": "Detailed description of what the folder contains. This should include a comprehensive summary of all content within this folder generated during this agent execution cycle."
+				          }
+				        },
+				        "required": ["folderName", "folderDescription"]
+				      },
+				      "description": "Complete list of all folders generated during this agent execution cycle. Every folder created must be included with its name and a detailed description of its contents."
 				    }
 				  },
-				  "required": ["columns", "data"]
+				  "required": ["message"]
 				}
 				""";
 
-		return String.format(template, defaultColumnsBuilder.toString());
+		return String.format(template, expectedReturnInfo != null ? expectedReturnInfo : "N/A");
 	}
 
 	@Override
@@ -140,18 +104,19 @@ public class TerminateTool extends AbstractBaseTool<Map<String, Object>> impleme
 				- Termination Message: %s
 				- Timestamp: %s
 				- Plan ID: %s
-				- Columns: %s
+				- Expected Return Info: %s
 				""", isTerminated ? "🛑 Terminated" : "⚡ Active",
 				isTerminated ? "Process was terminated" : "No termination recorded",
 				lastTerminationMessage.isEmpty() ? "N/A" : lastTerminationMessage,
 				terminationTimestamp.isEmpty() ? "N/A" : terminationTimestamp,
-				currentPlanId != null ? currentPlanId : "N/A", columns != null ? String.join(", ", columns) : "N/A");
+				currentPlanId != null ? currentPlanId : "N/A", expectedReturnInfo != null ? expectedReturnInfo : "N/A");
 	}
 
-	public TerminateTool(String planId, List<String> columns) {
+	public TerminateTool(String planId, String expectedReturnInfo) {
 		this.currentPlanId = planId;
-		// If columns is null or empty, use "message" as default column
-		this.columns = (columns == null || columns.isEmpty()) ? List.of("message") : columns;
+		// If expectedReturnInfo is null or empty, use "message" as default
+		this.expectedReturnInfo = (expectedReturnInfo == null || expectedReturnInfo.isEmpty()) ? "message"
+				: expectedReturnInfo;
 	}
 
 	@Override
@@ -169,21 +134,40 @@ public class TerminateTool extends AbstractBaseTool<Map<String, Object>> impleme
 
 	private String formatStructuredData(Map<String, Object> input) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Structured termination data:\n");
 
-		if (input.containsKey("columns") && input.containsKey("data")) {
-			@SuppressWarnings("unchecked")
-			List<String> inputColumns = (List<String>) input.get("columns");
-			@SuppressWarnings("unchecked")
-			List<List<Object>> inputData = (List<List<Object>>) input.get("data");
+		// Handle new format with message and fileList
+		if (input.containsKey("message")) {
+			sb.append("Message: ").append(input.get("message")).append("\n");
+		}
 
-			sb.append("Columns: ").append(inputColumns).append("\n");
-			sb.append("Data:\n");
-			for (List<Object> row : inputData) {
-				sb.append("  ").append(row).append("\n");
+		if (input.containsKey("fileList")) {
+			@SuppressWarnings("unchecked")
+			List<Map<String, String>> fileList = (List<Map<String, String>>) input.get("fileList");
+			sb.append("Files:\n");
+			for (Map<String, String> file : fileList) {
+				sb.append("  - Name: ")
+					.append(file.get("fileName"))
+					.append("\n    Description: ")
+					.append(file.get("fileDescription"))
+					.append("\n");
 			}
 		}
-		else {
+
+		if (input.containsKey("folderList")) {
+			@SuppressWarnings("unchecked")
+			List<Map<String, String>> folderList = (List<Map<String, String>>) input.get("folderList");
+			sb.append("Folders:\n");
+			for (Map<String, String> folder : folderList) {
+				sb.append("  - Name: ")
+					.append(folder.get("folderName"))
+					.append("\n    Description: ")
+					.append(folder.get("folderDescription"))
+					.append("\n");
+			}
+		}
+
+		// If no recognized keys, just output the whole map
+		if (!input.containsKey("message") && !input.containsKey("fileList") && !input.containsKey("folderList")) {
 			sb.append(input.toString());
 		}
 
@@ -197,12 +181,12 @@ public class TerminateTool extends AbstractBaseTool<Map<String, Object>> impleme
 
 	@Override
 	public String getDescription() {
-		return getDescriptions(this.columns);
+		return getDescriptions(this.expectedReturnInfo);
 	}
 
 	@Override
 	public String getParameters() {
-		return generateParametersJson(this.columns);
+		return generateParametersJson(this.expectedReturnInfo);
 	}
 
 	@Override

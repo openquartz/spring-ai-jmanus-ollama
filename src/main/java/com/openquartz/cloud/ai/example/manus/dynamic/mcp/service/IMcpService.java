@@ -17,60 +17,78 @@ package com.openquartz.cloud.ai.example.manus.dynamic.mcp.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
-import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo.McpConfigRequestVO;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.po.McpConfigEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.po.McpConfigStatus;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo.McpServiceEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo.McpServerRequestVO;
 
 /**
- * MCP service interface, providing MCP service management functionality
+ * MCP service interface (refactored) defining core business methods for MCP services
  */
 public interface IMcpService {
 
 	/**
-	 * Add MCP server
-	 * @param mcpConfig MCP configuration
+	 * Batch save MCP server configurations
+	 * @param configJson MCP configuration JSON string
+	 * @return Configuration entity list
 	 * @throws IOException IO exception
 	 */
-	void addMcpServer(McpConfigRequestVO mcpConfig) throws IOException;
+	List<McpConfigEntity> saveMcpServers(String configJson) throws IOException;
 
 	/**
-	 * Insert or update MCP repository
-	 * @param mcpConfigVO MCP configuration VO
-	 * @return MCP configuration entity list
+	 * Save single MCP server configuration
+	 * @param requestVO MCP server form request
+	 * @return Configuration entity
 	 * @throws IOException IO exception
 	 */
-	List<McpConfigEntity> insertOrUpdateMcpRepo(McpConfigRequestVO mcpConfigVO) throws IOException;
+	McpConfigEntity saveMcpServer(McpServerRequestVO requestVO) throws IOException;
 
 	/**
-	 * Remove MCP server
-	 * @param id server ID
+	 * Delete MCP server
+	 * @param id MCP server ID
 	 */
 	void removeMcpServer(long id);
 
 	/**
-	 * Remove MCP server
-	 * @param mcpServerName server name
+	 * Delete MCP server
+	 * @param mcpServerName MCP server name
 	 */
 	void removeMcpServer(String mcpServerName);
 
 	/**
-	 * Get MCP server list
+	 * Get all MCP server configurations
 	 * @return MCP configuration entity list
 	 */
 	List<McpConfigEntity> getMcpServers();
 
 	/**
-	 * Get function callbacks
-	 * @param planId plan ID
+	 * Find MCP configuration by ID
+	 * @param id MCP configuration ID
+	 * @return Optional MCP configuration entity
+	 */
+	Optional<McpConfigEntity> findById(Long id);
+
+	/**
+	 * Get MCP service entity list
+	 * @param planId Plan ID
 	 * @return MCP service entity list
 	 */
 	List<McpServiceEntity> getFunctionCallbacks(String planId);
 
 	/**
-	 * Close MCP service for the specified plan
-	 * @param planId plan ID
+	 * Close MCP services for specified plan
+	 * @param planId Plan ID
 	 */
 	void close(String planId);
+
+	/**
+	 * Update MCP server status
+	 * @param id MCP server ID
+	 * @param status Target status
+	 * @return true if updated successfully, false otherwise
+	 */
+	boolean updateMcpServerStatus(Long id, McpConfigStatus status);
 
 }

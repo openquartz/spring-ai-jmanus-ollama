@@ -18,6 +18,8 @@ package com.openquartz.cloud.ai.example.manus.dynamic.prompt.service;
 import com.openquartz.cloud.ai.example.manus.dynamic.prompt.model.po.PromptEntity;
 import com.openquartz.cloud.ai.example.manus.dynamic.prompt.model.vo.PromptVO;
 import com.openquartz.cloud.ai.example.manus.dynamic.prompt.repository.PromptRepository;
+import com.openquartz.cloud.ai.example.manus.dynamic.prompt.model.enums.PromptEnum;
+import com.openquartz.cloud.ai.example.manus.prompt.PromptLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.messages.Message;
@@ -38,13 +40,16 @@ public class PromptServiceImpl implements PromptService {
 
 	private final PromptRepository promptRepository;
 
+	private final PromptLoader promptLoader;
+
 	@Value("${namespace.value}")
 	private String namespace;
 
 	private static final Logger log = LoggerFactory.getLogger(PromptDataInitializer.class);
 
-	public PromptServiceImpl(PromptRepository promptRepository) {
+	public PromptServiceImpl(PromptRepository promptRepository, PromptLoader promptLoader) {
 		this.promptRepository = promptRepository;
+		this.promptLoader = promptLoader;
 	}
 
 	@Override
@@ -56,7 +61,7 @@ public class PromptServiceImpl implements PromptService {
 	public List<PromptVO> getAllByNamespace(String namespace) {
 		List<PromptEntity> entities;
 		if ("default".equalsIgnoreCase(namespace)) {
-			entities = promptRepository.findAll();
+			entities = promptRepository.findByPromptNameWithDefault(namespace);
 		}
 		else {
 			entities = promptRepository.getAllByNamespace(namespace);
@@ -72,6 +77,15 @@ public class PromptServiceImpl implements PromptService {
 	}
 
 	@Override
+	public PromptVO getPromptByName(String promptName) {
+		PromptEntity entity = promptRepository.findByNamespaceAndPromptName(namespace, promptName);
+		if (entity == null) {
+			throw new IllegalArgumentException("Prompt not found: " + promptName);
+		}
+		return mapToPromptVO(entity);
+	}
+
+	@Override
 	public PromptVO create(PromptVO promptVO) {
 		if (promptVO.invalid()) {
 			throw new IllegalArgumentException("PromptVO filed is invalid");
@@ -80,7 +94,6 @@ public class PromptServiceImpl implements PromptService {
 		if (Boolean.TRUE.equals(promptVO.getBuiltIn())) {
 			throw new IllegalArgumentException("Cannot create built-in prompt");
 		}
-
 		PromptEntity prompt = promptRepository.findByNamespaceAndPromptName(promptVO.getNamespace(),
 				promptVO.getPromptName());
 		if (prompt != null) {
@@ -128,12 +141,6 @@ public class PromptServiceImpl implements PromptService {
 		promptRepository.deleteById(id);
 	}
 
-	/**
-	 * Create system prompt template message
-	 * @param promptName Prompt Name
-	 * @param variables Variable mapping
-	 * @return Prompt template message
-	 */
 	@Override
 	public Message createSystemMessage(String promptName, Map<String, Object> variables) {
 		PromptEntity promptEntity = promptRepository.findByNamespaceAndPromptName(namespace, promptName);
@@ -145,12 +152,6 @@ public class PromptServiceImpl implements PromptService {
 		return template.createMessage(variables != null ? variables : Map.of());
 	}
 
-	/**
-	 * Create user prompt template message
-	 * @param promptName Prompt Name
-	 * @param variables Variable mapping
-	 * @return Prompt template message
-	 */
 	@Override
 	public Message createUserMessage(String promptName, Map<String, Object> variables) {
 		PromptEntity promptEntity = promptRepository.findByNamespaceAndPromptName(namespace, promptName);
@@ -176,7 +177,6 @@ public class PromptServiceImpl implements PromptService {
 		else if (MessageType.SYSTEM.name().equals(promptEntity.getMessageType())) {
 			SystemPromptTemplate template = new SystemPromptTemplate(promptEntity.getPromptContent());
 			return template.createMessage(variables != null ? variables : Map.of());
-
 		}
 		else if (MessageType.ASSISTANT.name().equals(promptEntity.getMessageType())) {
 			AssistantPromptTemplate template = new AssistantPromptTemplate(promptEntity.getPromptContent());
@@ -185,7 +185,6 @@ public class PromptServiceImpl implements PromptService {
 		else {
 			throw new IllegalArgumentException("Prompt message type not support : " + promptEntity.getMessageType());
 		}
-
 	}
 
 	/**
@@ -201,9 +200,67 @@ public class PromptServiceImpl implements PromptService {
 			throw new IllegalArgumentException("Prompt not found: " + promptName);
 		}
 
-		log.info(promptName + " prompt content: {}", promptEntity.getPromptContent());
 		PromptTemplate template = new PromptTemplate(promptEntity.getPromptContent());
 		return template.render(variables != null ? variables : Map.of());
+	}
+
+	@Override
+	public String[] getSupportedLanguages() {
+		return PromptEnum.getSupportedLanguages();
+	}
+
+	@Override
+	public void importSpecificPromptFromLanguage(String promptName, String language) {
+		log.info("Starting to reset prompt: {} to language default: {}", promptName, language);
+
+		PromptEnum promptEnum = null;
+		for (PromptEnum pe : PromptEnum.values()) {
+			if (pe.getPromptName().equals(promptName)) {
+				promptEnum = pe;
+				break;
+			}
+		}
+
+		if (promptEnum == null) {
+			throw new IllegalArgumentException("Unknown prompt: " + promptName);
+		}
+
+		PromptEntity entity = promptRepository.findByNamespaceAndPromptName(namespace, promptName);
+		if (entity != null) {
+			String promptPath = promptEnum.getPromptPathForLanguage(language);
+			String newContent = promptLoader.loadPrompt(promptPath);
+
+			if (!newContent.isEmpty()) {
+				entity.setPromptContent(newContent);
+				entity.setPromptDescription(promptEnum.getPromptDescriptionForLanguage(language));
+				promptRepository.save(entity);
+
+				log.info("Successfully reset prompt: {} to language default: {}", promptName, language);
+			}
+			else {
+				throw new RuntimeException(
+						"Empty content loaded for prompt: " + promptName + " from language: " + language);
+			}
+		}
+		else {
+			throw new IllegalArgumentException("Prompt not found in database: " + promptName);
+		}
+	}
+
+	@Override
+	public void importAllPromptsFromLanguage(String language) {
+		log.info("Starting to reset all prompts to language default: {}", language);
+
+		for (PromptEnum promptEnum : PromptEnum.values()) {
+			try {
+				importSpecificPromptFromLanguage(promptEnum.getPromptName(), language);
+			}
+			catch (Exception e) {
+				log.error("Failed to reset prompt: {} to language: {}", promptEnum.getPromptName(), language, e);
+			}
+		}
+
+		log.info("Completed resetting all prompts to language default: {}", language);
 	}
 
 	private PromptVO mapToPromptVO(PromptEntity entity) {
@@ -216,6 +273,35 @@ public class PromptServiceImpl implements PromptService {
 		PromptEntity entity = new PromptEntity();
 		BeanUtils.copyProperties(promptVO, entity);
 		return entity;
+	}
+
+	public void reinitializePrompts() {
+		log.info("Starting prompt namespace correction");
+
+		List<PromptEntity> allPrompts = promptRepository.findAll();
+		log.info("Found {} prompts in total", allPrompts.size());
+
+		int updatedCount = 0;
+		int validCount = 0;
+
+		for (PromptEntity prompt : allPrompts) {
+			if (prompt.getNamespace() == null || prompt.getNamespace().trim().isEmpty()) {
+				log.info("Updating prompt '{}' (ID: {}) namespace from '{}' to 'default'", prompt.getPromptName(),
+						prompt.getId(), prompt.getNamespace());
+
+				prompt.setNamespace("default");
+				promptRepository.save(prompt);
+				updatedCount++;
+			}
+			else {
+				validCount++;
+				log.debug("Prompt '{}' (ID: {}) already has valid namespace: {}", prompt.getPromptName(),
+						prompt.getId(), prompt.getNamespace());
+			}
+		}
+
+		log.info("Prompt namespace correction completed. Summary: {} prompts updated, {} prompts already valid.",
+				updatedCount, validCount);
 	}
 
 }

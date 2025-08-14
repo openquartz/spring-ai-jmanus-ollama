@@ -1,4 +1,4 @@
-<!-- 
+<!--
  * Copyright 2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -93,7 +93,7 @@
               </div>
             </div>
             <div class="task-time">
-              {{ getRelativeTimeString(new Date(template.updateTime || template.createTime)) }}
+              {{ getRelativeTimeString(sidebarStore.parseDateTime(template.updateTime || template.createTime)) }}
             </div>
             <div class="task-actions">
               <button
@@ -196,10 +196,10 @@
               </div>
             </div>
             <textarea
-              v-model="sidebarStore.jsonContent"
+              v-model="formattedJsonContent"
               class="json-editor"
               :placeholder="$t('sidebar.jsonPlaceholder')"
-              rows="8"
+              rows="12"
             ></textarea>
           </div>
 
@@ -259,16 +259,73 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useI18n } from 'vue-i18n'
 import { sidebarStore } from '@/stores/sidebar'
 
 const { t } = useI18n()
 
+// Fields to hide in JSON editor
+const hiddenFields = ['currentPlanId', 'userRequest', 'rootPlanId']
+
+// Computed property for formatted JSON content
+const formattedJsonContent = computed({
+  get() {
+    try {
+      if (!sidebarStore.jsonContent) return ''
+
+      const parsed = JSON.parse(sidebarStore.jsonContent)
+
+      // Remove hidden fields for display
+      const filtered = { ...parsed }
+      hiddenFields.forEach(field => {
+        delete filtered[field]
+      })
+
+      // Return formatted JSON
+      return JSON.stringify(filtered, null, 2)
+    } catch {
+      // If parsing fails, return original content
+      return sidebarStore.jsonContent
+    }
+  },
+  set(value: string) {
+    try {
+      if (!value.trim()) {
+        sidebarStore.jsonContent = ''
+        return
+      }
+
+      const parsed = JSON.parse(value)
+
+      // Get original data to preserve hidden fields
+      let originalData: any = {}
+      try {
+        originalData = JSON.parse(sidebarStore.jsonContent || '{}')
+      } catch {
+        // If original is not valid JSON, start fresh
+      }
+
+      // Merge user input with preserved hidden fields
+      const merged: any = { ...parsed }
+      hiddenFields.forEach(field => {
+        if (originalData[field] !== undefined) {
+          merged[field] = originalData[field]
+        }
+      })
+
+      sidebarStore.jsonContent = JSON.stringify(merged)
+    } catch {
+      // If parsing fails, store as-is
+      sidebarStore.jsonContent = value
+    }
+  }
+})
+
 // Use pinia store
-// 使用 TS 对象实现的 sidebarStore
-// 直接使用 sidebarStore 实例，无需 pinia
+// Use TS object-implemented sidebarStore
+// Use sidebarStore instance directly, no pinia needed
 
 // Emits - Keep some events for communication with external components
 const emit = defineEmits<{
@@ -287,7 +344,7 @@ const handleSaveTemplate = async () => {
       alert(t('sidebar.saveStatus', { message: saveResult.message }))
     }
   } catch (error: any) {
-    console.error('保存计划修改失败:', error)
+    console.error('Failed to save plan modifications:', error)
     alert(error.message || t('sidebar.saveFailed'))
   }
 }
@@ -297,7 +354,7 @@ const handleGeneratePlan = async () => {
     await sidebarStore.generatePlan()
     alert(t('sidebar.generateSuccess', { templateId: sidebarStore.selectedTemplate?.id ?? t('sidebar.unknown') }))
   } catch (error: any) {
-    console.error('生成计划失败:', error)
+    console.error('Failed to generate plan:', error)
     alert(t('sidebar.generateFailed') + ': ' + error.message)
   }
 }
@@ -307,7 +364,7 @@ const handleUpdatePlan = async () => {
     await sidebarStore.updatePlan()
     alert(t('sidebar.updateSuccess'))
   } catch (error: any) {
-    console.error('更新计划失败:', error)
+    console.error('Failed to update plan:', error)
     alert(t('sidebar.updateFailed') + ': ' + error.message)
   }
 }
@@ -323,15 +380,15 @@ const handleExecutePlan = async () => {
       return
     }
 
-    console.log('[Sidebar] 触发计划执行请求:', planData)
+    console.log('[Sidebar] Triggering plan execution request:', planData)
 
-    // 发送计划执行事件给聊天组件
+    // Send plan execution event to chat component
     console.log('[Sidebar] Emitting planExecutionRequested event')
     emit('planExecutionRequested', planData)
 
     console.log('[Sidebar] Event emitted')
   } catch (error: any) {
-    console.error('执行计划出错:', error)
+    console.error('Error executing plan:', error)
     alert(t('sidebar.executeFailed') + ': ' + error.message)
   } finally {
     sidebarStore.finishPlanExecution()
@@ -340,16 +397,22 @@ const handleExecutePlan = async () => {
 
 // Utility functions
 const getRelativeTimeString = (date: Date): string => {
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    console.warn('Invalid date received:', date)
+    return t('time.unknown')
+  }
+
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMinutes = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffMinutes < 1) return '刚刚'
-  if (diffMinutes < 60) return `${diffMinutes}分钟前`
-  if (diffHours < 24) return `${diffHours}小时前`
-  if (diffDays < 30) return `${diffDays}天前`
+  if (diffMinutes < 1) return t('time.now')
+  if (diffMinutes < 60) return t('time.minuteAgo', { count: diffMinutes })
+  if (diffHours < 24) return t('time.hourAgo', { count: diffHours })
+  if (diffDays < 30) return t('time.dayAgo', { count: diffDays })
 
   return date.toLocaleDateString('zh-CN')
 }
@@ -375,7 +438,7 @@ defineExpose({
 <style scoped>
 .sidebar-wrapper {
   position: relative;
-  width: 500px;
+  width: 26%;
   height: 100vh;
   background: rgba(255, 255, 255, 0.05);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -573,6 +636,17 @@ defineExpose({
           &::placeholder {
             color: rgba(255, 255, 255, 0.4);
           }
+        }
+
+        .json-editor {
+            min-height: 200px;
+            font-size: 11px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            tab-size: 2;
+            font-variant-ligatures: none;
         }
 
         .generator-content {

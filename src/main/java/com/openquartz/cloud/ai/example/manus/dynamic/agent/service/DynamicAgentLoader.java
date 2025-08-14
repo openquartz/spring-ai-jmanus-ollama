@@ -30,8 +30,10 @@ import com.openquartz.cloud.ai.example.manus.dynamic.agent.DynamicAgent;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.repository.DynamicAgentRepository;
 import com.openquartz.cloud.ai.example.manus.llm.ILlmService;
+import com.openquartz.cloud.ai.example.manus.llm.StreamingResponseHandler;
 import com.openquartz.cloud.ai.example.manus.planning.service.UserInputService;
 import com.openquartz.cloud.ai.example.manus.recorder.PlanExecutionRecorder;
+import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
 
 @Service
 public class DynamicAgentLoader implements IDynamicAgentLoader {
@@ -50,12 +52,15 @@ public class DynamicAgentLoader implements IDynamicAgentLoader {
 
 	private final PromptService promptService;
 
+	private final StreamingResponseHandler streamingResponseHandler;
+
 	@Value("${namespace.value}")
 	private String namespace;
 
 	public DynamicAgentLoader(DynamicAgentRepository repository, @Lazy ILlmService llmService,
 			PlanExecutionRecorder recorder, ManusProperties properties, @Lazy ToolCallingManager toolCallingManager,
-			UserInputService userInputService, PromptService promptService) {
+			UserInputService userInputService, PromptService promptService,
+			StreamingResponseHandler streamingResponseHandler) {
 		this.repository = repository;
 		this.llmService = llmService;
 		this.recorder = recorder;
@@ -63,6 +68,7 @@ public class DynamicAgentLoader implements IDynamicAgentLoader {
 		this.toolCallingManager = toolCallingManager;
 		this.userInputService = userInputService;
 		this.promptService = promptService;
+		this.streamingResponseHandler = streamingResponseHandler;
 	}
 
 	public DynamicAgent loadAgent(String agentName, Map<String, Object> initialAgentSetting) {
@@ -73,14 +79,19 @@ public class DynamicAgentLoader implements IDynamicAgentLoader {
 
 		return new DynamicAgent(llmService, recorder, properties, entity.getAgentName(), entity.getAgentDescription(),
 				entity.getNextStepPrompt(), entity.getAvailableToolKeys(), toolCallingManager, initialAgentSetting,
-				userInputService, promptService, entity.getModel());
+				userInputService, promptService, entity.getModel(), streamingResponseHandler);
 	}
 
 	public List<DynamicAgentEntity> getAllAgents() {
-		return repository.findAll()
+		return repository.findAllByNamespace(namespace)
 			.stream()
 			.filter(entity -> Objects.equals(entity.getNamespace(), namespace))
 			.toList();
+	}
+
+	@Override
+	public List<DynamicAgentEntity> getAgents(ExecutionContext context) {
+		return IDynamicAgentLoader.super.getAgents(context);
 	}
 
 }

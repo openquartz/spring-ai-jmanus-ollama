@@ -1,8 +1,5 @@
 /*
- * Copyright 2025 the oriimport com.alibaba.cloud.ai.example.manus.planning.executor.PlanExecutor;
-import com.alibaba.cloud.ai.example.manus.planning.executor.factory.PlanExecutorFactory;
-import com.alibaba.cloud.ai.example.manus.planning.finalizer.PlanFinalizer;
-import com.alibaba.cloud.ai.example.manus.recorder.PlanExecutionRecorder; author or authors.
+ * Copyright 2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +16,45 @@ import com.alibaba.cloud.ai.example.manus.recorder.PlanExecutionRecorder; author
 
 package com.openquartz.cloud.ai.example.manus.planning;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.util.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ai.model.tool.ToolCallingManager;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.function.FunctionToolCallback;
+import org.springframework.ai.tool.metadata.ToolMetadata;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.ToolCallbackProvider;
 import com.openquartz.cloud.ai.example.manus.dynamic.agent.entity.DynamicAgentEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.cron.service.CronService;
+import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.IDynamicAgentLoader;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo.McpServiceEntity;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo.McpTool;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.service.McpService;
 import com.openquartz.cloud.ai.example.manus.dynamic.mcp.service.McpStateHolderService;
 import com.openquartz.cloud.ai.example.manus.dynamic.prompt.service.PromptService;
 import com.openquartz.cloud.ai.example.manus.llm.ILlmService;
+import com.openquartz.cloud.ai.example.manus.llm.StreamingResponseHandler;
 import com.openquartz.cloud.ai.example.manus.planning.coordinator.PlanningCoordinator;
 import com.openquartz.cloud.ai.example.manus.planning.creator.PlanCreator;
 import com.openquartz.cloud.ai.example.manus.planning.executor.factory.PlanExecutorFactory;
@@ -41,45 +69,26 @@ import com.openquartz.cloud.ai.example.manus.tool.ToolCallBiFunctionDef;
 import com.openquartz.cloud.ai.example.manus.tool.bash.Bash;
 import com.openquartz.cloud.ai.example.manus.tool.browser.BrowserUseTool;
 import com.openquartz.cloud.ai.example.manus.tool.browser.ChromeDriverService;
-import com.openquartz.cloud.ai.example.manus.tool.code.PythonExecute;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
+import com.openquartz.cloud.ai.example.manus.tool.database.DataSourceService;
+import com.openquartz.cloud.ai.example.manus.tool.database.DatabaseUseTool;
+import com.openquartz.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
+import com.openquartz.cloud.ai.example.manus.tool.cron.CronTool;
 import com.openquartz.cloud.ai.example.manus.tool.innerStorage.SmartContentSavingService;
-// import com.alibaba.cloud.ai.example.manus.tool.innerStorage.InnerStorageTool;
 import com.openquartz.cloud.ai.example.manus.tool.innerStorage.InnerStorageContentTool;
+import com.openquartz.cloud.ai.example.manus.tool.innerStorage.FileMergeTool;
+import com.openquartz.cloud.ai.example.manus.tool.mapreduce.DataSplitTool;
+import com.openquartz.cloud.ai.example.manus.tool.mapreduce.FinalizeTool;
+import com.openquartz.cloud.ai.example.manus.tool.mapreduce.MapOutputTool;
 import com.openquartz.cloud.ai.example.manus.tool.mapreduce.MapReduceSharedStateManager;
-import com.openquartz.cloud.ai.example.manus.tool.mapreduce.MapReduceTool;
-import com.openquartz.cloud.ai.example.manus.tool.searchAPI.GoogleSearch;
+import com.openquartz.cloud.ai.example.manus.tool.mapreduce.ReduceOperationTool;
+import com.openquartz.cloud.ai.example.manus.tool.tableProcessor.TableProcessingService;
 import com.openquartz.cloud.ai.example.manus.tool.textOperator.TextFileOperator;
 import com.openquartz.cloud.ai.example.manus.tool.textOperator.TextFileService;
-import com.openquartz.cloud.ai.example.manus.tool.filesystem.UnifiedDirectoryManager;
+import com.openquartz.cloud.ai.example.manus.tool.pptGenerator.PptGeneratorOperator;
+import com.openquartz.cloud.ai.example.manus.tool.jsxGenerator.JsxGeneratorOperator;
 import com.openquartz.cloud.ai.example.manus.workflow.SummaryWorkflow;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.util.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.ai.model.tool.ToolCallingManager;
-import org.springframework.ai.tool.ToolCallback;
-import org.springframework.ai.tool.function.FunctionToolCallback;
-import org.springframework.ai.tool.metadata.ToolMetadata;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.AgentService;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.service.IDynamicAgentLoader;
-import com.openquartz.cloud.ai.example.manus.dynamic.agent.ToolCallbackProvider;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author yuluo
@@ -101,12 +110,16 @@ public class PlanningFactory implements IPlanningFactory {
 
 	private final UnifiedDirectoryManager unifiedDirectoryManager;
 
+	private final DataSourceService dataSourceService;
+
+	private final TableProcessingService tableProcessingService;
+
 	private final static Logger log = LoggerFactory.getLogger(PlanningFactory.class);
 
-	@Autowired
-	private AgentService agentService;
-
 	private final McpService mcpService;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Autowired
 	@Lazy
@@ -133,9 +146,26 @@ public class PlanningFactory implements IPlanningFactory {
 	@Autowired
 	private PromptService promptService;
 
+	@Autowired
+	private StreamingResponseHandler streamingResponseHandler;
+
+	@Autowired
+	@Lazy
+	private CronService cronService;
+
+	@Autowired
+	private PptGeneratorOperator pptGeneratorOperator;
+
+	@Value("${agent.init}")
+	private Boolean agentInit = true;
+
+	@Autowired
+	private JsxGeneratorOperator jsxGeneratorOperator;
+
 	public PlanningFactory(ChromeDriverService chromeDriverService, PlanExecutionRecorder recorder,
 			ManusProperties manusProperties, TextFileService textFileService, McpService mcpService,
-			SmartContentSavingService innerStorageService, UnifiedDirectoryManager unifiedDirectoryManager) {
+			SmartContentSavingService innerStorageService, UnifiedDirectoryManager unifiedDirectoryManager,
+			DataSourceService dataSourceService, TableProcessingService tableProcessingService) {
 		this.chromeDriverService = chromeDriverService;
 		this.recorder = recorder;
 		this.manusProperties = manusProperties;
@@ -143,6 +173,26 @@ public class PlanningFactory implements IPlanningFactory {
 		this.mcpService = mcpService;
 		this.innerStorageService = innerStorageService;
 		this.unifiedDirectoryManager = unifiedDirectoryManager;
+		this.dataSourceService = dataSourceService;
+		this.tableProcessingService = tableProcessingService;
+	}
+
+	public PlanningCoordinator createPlanningCoordinator(ExecutionContext context) {
+		// Add all dynamic agents from the database
+		List<DynamicAgentEntity> agentEntities = dynamicAgentLoader.getAgents(context);
+
+		PlanningToolInterface planningTool = new PlanningTool();
+
+		PlanCreator planCreator = new PlanCreator(agentEntities, llmService, planningTool, recorder, promptService,
+				manusProperties, streamingResponseHandler);
+
+		PlanFinalizer planFinalizer = new PlanFinalizer(llmService, recorder, promptService, manusProperties,
+				streamingResponseHandler);
+
+		PlanningCoordinator planningCoordinator = new PlanningCoordinator(planCreator, planExecutorFactory,
+				planFinalizer);
+
+		return planningCoordinator;
 	}
 
 	// Use the enhanced PlanningCoordinator with dynamic executor selection
@@ -154,9 +204,10 @@ public class PlanningFactory implements IPlanningFactory {
 		PlanningToolInterface planningTool = new PlanningTool();
 
 		PlanCreator planCreator = new PlanCreator(agentEntities, llmService, planningTool, recorder, promptService,
-				manusProperties);
+				manusProperties, streamingResponseHandler);
 
-		PlanFinalizer planFinalizer = new PlanFinalizer(llmService, recorder, promptService, manusProperties);
+		PlanFinalizer planFinalizer = new PlanFinalizer(llmService, recorder, promptService, manusProperties,
+				streamingResponseHandler);
 
 		PlanningCoordinator planningCoordinator = new PlanningCoordinator(planCreator, planExecutorFactory,
 				planFinalizer);
@@ -186,7 +237,7 @@ public class PlanningFactory implements IPlanningFactory {
 	}
 
 	public Map<String, ToolCallBackContext> toolCallbackMap(String planId, String rootPlanId,
-			List<String> terminateColumns) {
+			String expectedReturnInfo) {
 		Map<String, ToolCallBackContext> toolCallbackMap = new HashMap<>();
 		List<ToolCallBiFunctionDef<?>> toolDefinitions = new ArrayList<>();
 		if (chromeDriverService == null) {
@@ -197,19 +248,34 @@ public class PlanningFactory implements IPlanningFactory {
 			log.error("SmartContentSavingService is null, skipping BrowserUseTool registration");
 			return toolCallbackMap;
 		}
-		// Add all tool definitions
-		toolDefinitions.add(BrowserUseTool.getInstance(chromeDriverService, innerStorageService));
-		toolDefinitions.add(new TerminateTool(planId, terminateColumns));
-		toolDefinitions.add(new Bash(unifiedDirectoryManager));
-		toolDefinitions.add(new DocLoaderTool());
-		toolDefinitions.add(new TextFileOperator(textFileService, innerStorageService, unifiedDirectoryManager));
-		// toolDefinitions.add(new InnerStorageTool(unifiedDirectoryManager));
-		toolDefinitions.add(new InnerStorageContentTool(unifiedDirectoryManager, summaryWorkflow, recorder));
-		toolDefinitions.add(new GoogleSearch());
-		toolDefinitions.add(new PythonExecute());
-		toolDefinitions.add(new FormInputTool());
-		toolDefinitions.add(new MapReduceTool(planId, manusProperties, sharedStateManager, unifiedDirectoryManager,
-				terminateColumns));
+		if (agentInit) {
+			// Add all tool definitions
+			toolDefinitions.add(BrowserUseTool.getInstance(chromeDriverService, innerStorageService, objectMapper));
+			toolDefinitions.add(DatabaseUseTool.getInstance(dataSourceService, objectMapper));
+			toolDefinitions.add(new TerminateTool(planId, expectedReturnInfo));
+			toolDefinitions.add(new Bash(unifiedDirectoryManager, objectMapper));
+			toolDefinitions.add(new DocLoaderTool());
+			toolDefinitions.add(new TextFileOperator(textFileService, innerStorageService, objectMapper));
+			// toolDefinitions.add(new InnerStorageTool(unifiedDirectoryManager));
+			// toolDefinitions.add(pptGeneratorOperator);
+			// toolDefinitions.add(jsxGeneratorOperator);
+			toolDefinitions.add(new InnerStorageContentTool(unifiedDirectoryManager, summaryWorkflow, recorder));
+			toolDefinitions.add(new FileMergeTool(unifiedDirectoryManager));
+			// toolDefinitions.add(new GoogleSearch());
+			// toolDefinitions.add(new PythonExecute());
+			toolDefinitions.add(new FormInputTool(objectMapper));
+			toolDefinitions.add(new DataSplitTool(planId, manusProperties, sharedStateManager, unifiedDirectoryManager,
+					objectMapper, tableProcessingService));
+			toolDefinitions.add(new MapOutputTool(planId, manusProperties, sharedStateManager, unifiedDirectoryManager,
+					objectMapper));
+			toolDefinitions
+				.add(new ReduceOperationTool(planId, manusProperties, sharedStateManager, unifiedDirectoryManager));
+			toolDefinitions.add(new FinalizeTool(planId, manusProperties, sharedStateManager, unifiedDirectoryManager));
+			toolDefinitions.add(new CronTool(cronService, objectMapper));
+		}
+		else {
+			toolDefinitions.add(new TerminateTool(planId, expectedReturnInfo));
+		}
 
 		List<McpServiceEntity> functionCallbacks = mcpService.getFunctionCallbacks(planId);
 		for (McpServiceEntity toolCallback : functionCallbacks) {
@@ -217,7 +283,8 @@ public class PlanningFactory implements IPlanningFactory {
 			ToolCallback[] tCallbacks = toolCallback.getAsyncMcpToolCallbackProvider().getToolCallbacks();
 			for (ToolCallback tCallback : tCallbacks) {
 				// The serviceGroup is the name of the tool
-				toolDefinitions.add(new McpTool(tCallback, serviceGroup, planId, new McpStateHolderService()));
+				toolDefinitions.add(new McpTool(tCallback, serviceGroup, planId, new McpStateHolderService(),
+						innerStorageService, objectMapper));
 			}
 		}
 
@@ -267,7 +334,7 @@ public class PlanningFactory implements IPlanningFactory {
 	@ConditionalOnMissingBean
 	@ConditionalOnProperty(name = "spring.ai.mcp.client.enabled", havingValue = "false")
 	public ToolCallbackProvider emptyToolCallbackProvider() {
-		return () -> new HashMap<>();
+		return () -> new HashMap<String, PlanningFactory.ToolCallBackContext>();
 	}
 
 }

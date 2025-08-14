@@ -15,10 +15,12 @@
  */
 package com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.vo;
 
+import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.po.McpConfigType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.openquartz.cloud.ai.example.manus.dynamic.mcp.model.po.McpConfigStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +30,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class McpServerConfig {
+
+	private final ObjectMapper objectMapper;
+
+	/**
+	 * Default constructor for Jackson deserialization
+	 */
+	public McpServerConfig() {
+		this.env = new HashMap<>();
+		this.objectMapper = new ObjectMapper();
+	}
+
+	public McpServerConfig(ObjectMapper objectMapper) {
+		this.env = new HashMap<>();
+		this.objectMapper = objectMapper;
+	}
 
 	private String url;
 
@@ -40,9 +57,8 @@ public class McpServerConfig {
 	@JsonProperty("env")
 	private Map<String, String> env;
 
-	public McpServerConfig() {
-		this.env = new HashMap<>();
-	}
+	@JsonProperty("status")
+	private McpConfigStatus status = McpConfigStatus.ENABLE; // Default to enabled status
 
 	public String getUrl() {
 		return url;
@@ -76,13 +92,66 @@ public class McpServerConfig {
 		this.env = env;
 	}
 
+	public McpConfigStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(McpConfigStatus status) {
+		this.status = status;
+	}
+
+	/**
+	 * Get connection type. Logic: 1. If has command field → STUDIO 2. If URL suffix is
+	 * sse → SSE 3. Other cases → STREAMING
+	 * @return Connection type
+	 */
+	public McpConfigType getConnectionType() {
+		// 1. Check if has command field
+		if (command != null && !command.isEmpty()) {
+			return McpConfigType.STUDIO;
+		}
+
+		// 2. Check if URL suffix is sse
+		if (url != null && !url.isEmpty() && isSSEUrl(url)) {
+			return McpConfigType.SSE;
+		}
+
+		// 3. Other cases default to STREAMING
+		return McpConfigType.STREAMING;
+	}
+
+	/**
+	 * Determine if URL is SSE connection
+	 * @param url Server URL
+	 * @return Whether it's SSE URL
+	 */
+	private boolean isSSEUrl(String url) {
+		if (url == null || url.isEmpty()) {
+			return false;
+		}
+
+		try {
+			java.net.URL parsedUrl = new java.net.URL(url);
+			String path = parsedUrl.getPath();
+
+			// Check if path contains sse
+			boolean pathContainsSse = path != null && path.toLowerCase().contains("sse");
+
+			return pathContainsSse;
+		}
+		catch (java.net.MalformedURLException e) {
+			// Return false if URL format is invalid
+			return false;
+		}
+	}
+
 	/**
 	 * Convert ServerConfig to JSON string
 	 * @return Converted JSON string
 	 */
 	public String toJson() {
 		try {
-			return new ObjectMapper().writeValueAsString(this);
+			return objectMapper.writeValueAsString(this);
 		}
 		catch (Exception e) {
 			// If serialization fails, manually build a simplified JSON
@@ -130,6 +199,11 @@ public class McpServerConfig {
 				}
 				sb.append("}");
 			}
+
+			// Add status (always include)
+			if (sb.length() > 1)
+				sb.append(",");
+			sb.append("\"status\":\"").append(status.name()).append("\"");
 
 			sb.append("}");
 			return sb.toString();

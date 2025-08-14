@@ -13,7 +13,7 @@
 
 [English](./README.md) | 中文
 
-[Spring AI Alibaba JManus](../QuickStart.md) 的现代化 Web 管理界面。
+[Spring AI Alibaba JManus](../README.md) 的现代化 Web 管理界面。
 
 ## 🚀 快速开始
 

@@ -16,7 +16,7 @@
 <template>
   <div class="input-area">
     <div class="input-container">
-      <button class="attach-btn" title="附加文件">
+      <button class="attach-btn" :title="$t('input.attachFile')">
         <Icon icon="carbon:attachment" />
       </button>
       <textarea
@@ -46,19 +46,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted, computed, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useI18n } from 'vue-i18n'
+import { memoryStore } from "@/stores/memory"
+import type { InputMessage } from "@/stores/memory"
 
 const { t } = useI18n()
 
 interface Props {
   placeholder?: string
   disabled?: boolean
+  initialValue?: string
 }
 
 interface Emits {
-  (e: 'send', message: string): void
+  (e: 'send', message: InputMessage): void
   (e: 'clear'): void
   (e: 'update-state', enabled: boolean, placeholder?: string): void
   (e: 'plan-mode-clicked'): void
@@ -67,6 +70,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   placeholder: '',
   disabled: false,
+  initialValue: '',
 })
 
 const emit = defineEmits<Emits>()
@@ -98,11 +102,14 @@ const handleKeydown = (event: KeyboardEvent) => {
 const handleSend = () => {
   if (!currentInput.value.trim() || isDisabled.value) return
 
-  const query = currentInput.value.trim()
-  
+  const query = {
+    input: currentInput.value.trim(),
+    memoryId: memoryStore.selectMemoryId
+  }
+
   // Use Vue's emit to send a message
   emit('send', query)
-  
+
   // Clear the input
   clearInput()
 }
@@ -133,6 +140,14 @@ const updateState = (enabled: boolean, placeholder?: string) => {
   emit('update-state', enabled, placeholder)
 }
 
+/**
+ * Set the input value without triggering send
+ * @param {string} value - The value to set
+ */
+const setInputValue = (value: string) => {
+  currentInput.value = value
+  adjustInputHeight()
+}
 
 /**
  * Get the current value of the input box
@@ -142,10 +157,23 @@ const getQuery = () => {
   return currentInput.value.trim()
 }
 
+// Watch for initialValue changes
+watch(
+  () => props.initialValue,
+  (newValue) => {
+    if (newValue && newValue.trim()) {
+      currentInput.value = newValue
+      adjustInputHeight()
+    }
+  },
+  { immediate: true }
+)
+
 // Expose methods to the parent component
 defineExpose({
   clearInput,
   updateState,
+  setInputValue,
   getQuery,
   focus: () => inputRef.value?.focus()
 })
@@ -228,7 +256,7 @@ onUnmounted(() => {
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    
+
     &::placeholder {
       color: #444444;
     }
@@ -278,5 +306,10 @@ onUnmounted(() => {
     opacity: 0.5;
     cursor: not-allowed;
   }
+}
+
+.clear-memory-btn{
+  width: 1.5em;
+  height: 1.5em;
 }
 </style>

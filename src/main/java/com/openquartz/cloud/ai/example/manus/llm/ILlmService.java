@@ -15,9 +15,9 @@
  */
 package com.openquartz.cloud.ai.example.manus.llm;
 
+import com.openquartz.cloud.ai.example.manus.dynamic.model.entity.DynamicModelEntity;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.model.ChatModel;
 
 /**
  * LLM service interface, providing chat client and memory management functionality
@@ -32,12 +32,10 @@ public interface ILlmService {
 
 	/**
 	 * Get dynamic chat client
-	 * @param host host address
-	 * @param apiKey API key
-	 * @param modelName model name
+	 * @param model
 	 * @return ChatClient
 	 */
-	ChatClient getDynamicChatClient(String host, String apiKey, String modelName);
+	ChatClient getDynamicChatClient(DynamicModelEntity model);
 
 	/**
 	 * Get Agent memory
@@ -71,16 +69,23 @@ public interface ILlmService {
 	ChatClient getFinalizeChatClient();
 
 	/**
-	 * Get chat model
-	 * @return ChatModel
-	 */
-	ChatModel getChatModel();
-
-	/**
 	 * Get conversation memory
 	 * @param maxMessages maximum number of messages
 	 * @return ChatMemory
 	 */
 	ChatMemory getConversationMemory(Integer maxMessages);
+
+	/**
+	 * Get chat client by model ID
+	 * @param modelId model ID
+	 * @return ChatClient
+	 */
+	ChatClient getChatClientByModelId(Long modelId);
+
+	/**
+	 * Get default chat client based on configuration
+	 * @return ChatClient
+	 */
+	ChatClient getDefaultChatClient();
 
 }

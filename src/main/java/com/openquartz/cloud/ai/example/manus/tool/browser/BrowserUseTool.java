@@ -17,14 +17,29 @@ package com.openquartz.cloud.ai.example.manus.tool.browser;
 
 import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
 import com.openquartz.cloud.ai.example.manus.tool.AbstractBaseTool;
-import com.openquartz.cloud.ai.example.manus.tool.browser.actions.*;
+
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.BrowserRequestVO;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.ClickByElementAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.CloseTabAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.ExecuteJsAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.GetElementPositionByNameAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.GetHtmlAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.GetTextAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.InputTextAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.KeyEnterAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.MoveToAndClickAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.NavigateAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.NewTabAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.RefreshAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.ScreenShotAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.ScrollAction;
+import com.openquartz.cloud.ai.example.manus.tool.browser.actions.SwitchTabAction;
 import com.openquartz.cloud.ai.example.manus.tool.code.ToolExecuteResult;
 import com.openquartz.cloud.ai.example.manus.tool.innerStorage.SmartContentSavingService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.model.ModelOptionsUtils;
-import org.springframework.ai.ollama.api.OllamaApi;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,9 +53,13 @@ public class BrowserUseTool extends AbstractBaseTool<BrowserRequestVO> {
 
 	private final SmartContentSavingService innerStorageService;
 
-	public BrowserUseTool(ChromeDriverService chromeDriverService, SmartContentSavingService innerStorageService) {
+	private final ObjectMapper objectMapper;
+
+	public BrowserUseTool(ChromeDriverService chromeDriverService, SmartContentSavingService innerStorageService,
+			ObjectMapper objectMapper) {
 		this.chromeDriverService = chromeDriverService;
 		this.innerStorageService = innerStorageService;
+		this.objectMapper = objectMapper;
 	}
 
 	public DriverWrapper getDriver() {
@@ -56,255 +75,11 @@ public class BrowserUseTool extends AbstractBaseTool<BrowserRequestVO> {
 		return timeout != null ? timeout : 30; // Default timeout is 30 seconds
 	}
 
-	private final String PARAMETERS = """
-			{
-			    "oneOf": [
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "navigate"
-			                },
-			                "url": {
-			                    "type": "string",
-			                    "description": "URL to navigate to"
-			                }
-			            },
-			            "required": ["action", "url"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "click"
-			                },
-			                "index": {
-			                    "type": "integer",
-			                    "description": "Element index to click"
-			                }
-			            },
-			            "required": ["action", "index"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "input_text"
-			                },
-			                "index": {
-			                    "type": "integer",
-			                    "description": "Element index to input text"
-			                },
-			                "text": {
-			                    "type": "string",
-			                    "description": "Text to input"
-			                }
-			            },
-			            "required": ["action", "index", "text"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "key_enter"
-			                },
-			                "index": {
-			                    "type": "integer",
-			                    "description": "Element index to press enter"
-			                }
-			            },
-			            "required": ["action", "index"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "screenshot"
-			                }
-			            },
-			            "required": ["action"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "get_html"
-			                }
-			            },
-			            "required": ["action"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "get_text"
-			                }
-			            },
-			            "required": ["action"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "execute_js"
-			                },
-			                "script": {
-			                    "type": "string",
-			                    "description": "JavaScript code to execute"
-			                }
-			            },
-			            "required": ["action", "script"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "scroll"
-			                },
-			                "scroll_amount": {
-			                    "type": "integer",
-			                    "description": "Pixels to scroll (positive for down, negative for up)"
-			                }
-			            },
-			            "required": ["action", "scroll_amount"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "switch_tab"
-			                },
-			                "tab_id": {
-			                    "type": "integer",
-			                    "description": "Tab ID to switch to"
-			                }
-			            },
-			            "required": ["action", "tab_id"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "new_tab"
-			                },
-			                "url": {
-			                    "type": "string",
-			                    "description": "URL to open in new tab"
-			                }
-			            },
-			            "required": ["action", "url"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "close_tab"
-			                }
-			            },
-			            "required": ["action"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "refresh"
-			                }
-			            },
-			            "required": ["action"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "get_element_position"
-			                },
-			                "element_name": {
-			                    "type": "string",
-			                    "description": "Element name to get position"
-			                }
-			            },
-			            "required": ["action", "element_name"],
-			            "additionalProperties": false
-			        },
-			        {
-			            "type": "object",
-			            "properties": {
-			                "action": {
-			                    "type": "string",
-			                    "const": "move_to_and_click"
-			                },
-			                "position_x": {
-			                    "type": "integer",
-			                    "description": "X coordinate to move to and click"
-			                },
-			                "position_y": {
-			                    "type": "integer",
-			                    "description": "Y coordinate to move to and click"
-			                }
-			            },
-			            "required": ["action", "position_x", "position_y"],
-			            "additionalProperties": false
-			        }
-			    ]
-			}
-			""";
-
 	private final String name = "browser_use";
 
-	private final String description = """
-			与网页浏览器交互，执行各种操作，如导航、元素交互、内容提取和标签页管理。搜索类优先考虑此工具。
-			支持的操作包括：
-			- 'navigate'：访问特定URL
-			- 'click'：按索引点击元素
-			- 'input_text'：在元素中输入文本
-			- 'key_enter'：按回车键
-			- 'screenshot'：捕获屏幕截图
-			- 'get_html'：获取当前页面的HTML内容(不支持url参数)
-			- 'get_text'：获取当前页面文本内容(不支持url参数)
-			- 'execute_js'：执行JavaScript代码
-			- 'scroll'：滚动页面
-			- 'switch_tab'：切换到特定标签页
-			- 'new_tab'：打开新标签页
-			- 'close_tab'：关闭当前标签页
-			- 'refresh'：刷新当前页面
-			- 'get_element_position'：通过关键词获取元素的位置坐标(x,y)
-			- 'move_to_and_click'：移动到指定的绝对位置(x,y)并点击
-			""";
-
-	public OllamaApi.ChatRequest.Tool getToolDefinition() {
-		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
-	}
-
 	public static synchronized BrowserUseTool getInstance(ChromeDriverService chromeDriverService,
-			SmartContentSavingService innerStorageService) {
-		BrowserUseTool instance = new BrowserUseTool(chromeDriverService, innerStorageService);
+			SmartContentSavingService innerStorageService, ObjectMapper objectMapper) {
+		BrowserUseTool instance = new BrowserUseTool(chromeDriverService, innerStorageService, objectMapper);
 		return instance;
 	}
 
@@ -382,7 +157,7 @@ public class BrowserUseTool extends AbstractBaseTool<BrowserRequestVO> {
 					break;
 				}
 				case "get_element_position": {
-					result = new GetElementPositionByNameAction(this).execute(requestVO);
+					result = new GetElementPositionByNameAction(this, objectMapper).execute(requestVO);
 					break;
 				}
 				case "move_to_and_click": {
@@ -467,12 +242,252 @@ public class BrowserUseTool extends AbstractBaseTool<BrowserRequestVO> {
 
 	@Override
 	public String getDescription() {
-		return description;
+		return """
+				Interact with web browser to perform various operations such as navigation, element interaction, content extraction and tab management. Prioritize this tool for search-related tasks.
+
+				Supported operations include:
+				- 'navigate': Visit specific URL
+				- 'click': Click element by index
+				- 'input_text': Input text in element
+				- 'key_enter': Press Enter key
+				- 'screenshot': Capture screenshot
+				- 'get_html': Get HTML content of current page
+				- 'get_text': Get text content of current page
+				- 'execute_js': Execute JavaScript code
+				- 'scroll': Scroll page up/down
+				- 'refresh': Refresh current page
+				- 'new_tab': Open new tab
+				- 'close_tab': Close current tab
+				- 'switch_tab': Switch to specific tab
+				- 'get_element_position_by_name': Get element position by name
+				- 'move_to_and_click': Move to coordinates and click
+
+				Note: Browser operations have timeout configuration, default is 30 seconds.
+				""";
 	}
 
 	@Override
 	public String getParameters() {
-		return PARAMETERS;
+		return """
+				{
+				    "oneOf": [
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "navigate"
+				                },
+				                "url": {
+				                    "type": "string",
+				                    "description": "URL to navigate to"
+				                }
+				            },
+				            "required": ["action", "url"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "click"
+				                },
+				                "index": {
+				                    "type": "integer",
+				                    "description": "Element index to click"
+				                }
+				            },
+				            "required": ["action", "index"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "input_text"
+				                },
+				                "index": {
+				                    "type": "integer",
+				                    "description": "Element index to input text"
+				                },
+				                "text": {
+				                    "type": "string",
+				                    "description": "Text to input"
+				                }
+				            },
+				            "required": ["action", "index", "text"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "key_enter"
+				                },
+				                "index": {
+				                    "type": "integer",
+				                    "description": "Element index to press enter"
+				                }
+				            },
+				            "required": ["action", "index"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "screenshot"
+				                }
+				            },
+				            "required": ["action"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "get_html"
+				                }
+				            },
+				            "required": ["action"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "get_text"
+				                }
+				            },
+				            "required": ["action"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "execute_js"
+				                },
+				                "script": {
+				                    "type": "string",
+				                    "description": "JavaScript code to execute"
+				                }
+				            },
+				            "required": ["action", "script"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "scroll"
+				                },
+				                "direction": {
+				                    "type": "string",
+				                    "enum": ["up", "down"],
+				                    "description": "Scroll direction"
+				                }
+				            },
+				            "required": ["action", "direction"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "switch_tab"
+				                },
+				                "tab_id": {
+				                    "type": "integer",
+				                    "description": "Tab ID to switch to"
+				                }
+				            },
+				            "required": ["action", "tab_id"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "new_tab"
+				                },
+				                "url": {
+				                    "type": "string",
+				                    "description": "URL to open in new tab"
+				                }
+				            },
+				            "required": ["action", "url"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "close_tab"
+				                }
+				            },
+				            "required": ["action"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "refresh"
+				                }
+				            },
+				            "required": ["action"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "get_element_position"
+				                },
+				                "element_name": {
+				                    "type": "string",
+				                    "description": "Element name to get position"
+				                }
+				            },
+				            "required": ["action", "element_name"],
+				            "additionalProperties": false
+				        },
+				        {
+				            "type": "object",
+				            "properties": {
+				                "action": {
+				                    "type": "string",
+				                    "const": "move_to_and_click"
+				                },
+				                "position_x": {
+				                    "type": "integer",
+				                    "description": "X coordinate to move to and click"
+				                },
+				                "position_y": {
+				                    "type": "integer",
+				                    "description": "Y coordinate to move to and click"
+				                }
+				            },
+				            "required": ["action", "position_x", "position_y"],
+				            "additionalProperties": false
+				        }
+				    ]
+				}
+				""";
 	}
 
 	@Override

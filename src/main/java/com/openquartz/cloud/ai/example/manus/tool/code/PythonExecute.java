@@ -16,17 +16,18 @@
 package com.openquartz.cloud.ai.example.manus.tool.code;
 
 import com.openquartz.cloud.ai.example.manus.tool.AbstractBaseTool;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.model.ModelOptionsUtils;
-import org.springframework.ai.ollama.api.OllamaApi;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class PythonExecute extends AbstractBaseTool<PythonExecute.PythonInput> {
+
+	private final ObjectMapper objectMapper;
 
 	private static final Logger log = LoggerFactory.getLogger(PythonExecute.class);
 
@@ -56,38 +57,7 @@ public class PythonExecute extends AbstractBaseTool<PythonExecute.PythonInput> {
 
 	private Boolean arm64 = true;
 
-	public static final String LLMMATH_PYTHON_CODE = """
-			import sys
-			import math
-			import numpy as np
-			import numexpr as ne
-			input = '%s'
-			res = ne.evaluate(input)
-			print(res)
-			""";
-
-	private static String PARAMETERS = """
-			{
-			    "type": "object",
-			    "properties": {
-			        "code": {
-			            "type": "string",
-			            "description": "The Python code to execute."
-			        }
-			    },
-			    "required": ["code"]
-			}
-			""";
-
 	private static final String name = "python_execute";
-
-	private static final String description = """
-			Executes Python code string. Note: Only print outputs are visible, function return values are not captured. Use print statements to see results.
-			""";
-
-	public static OllamaApi.ChatRequest.Tool getToolDefinition() {
-		return new OllamaApi.ChatRequest.Tool(new OllamaApi.ChatRequest.Tool.Function(name, description, ModelOptionsUtils.jsonToMap(PARAMETERS)));
-	}
 
 	private String lastCode = "";
 
@@ -98,6 +68,10 @@ public class PythonExecute extends AbstractBaseTool<PythonExecute.PythonInput> {
 	private String lastError = "";
 
 	private boolean hasError = false;
+
+	public PythonExecute(ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
+	}
 
 	@Override
 	public String getCurrentToolStateString() {
@@ -131,7 +105,7 @@ public class PythonExecute extends AbstractBaseTool<PythonExecute.PythonInput> {
 		log.info("PythonExecute toolInput:{}", toolInput);
 		try {
 			// Add exception handling for JSON deserialization
-			Map<String, Object> toolInputMap = new ObjectMapper().readValue(toolInput,
+			Map<String, Object> toolInputMap = objectMapper.readValue(toolInput,
 					new TypeReference<Map<String, Object>>() {
 					});
 			String code = (String) toolInputMap.get("code");
@@ -194,12 +168,23 @@ public class PythonExecute extends AbstractBaseTool<PythonExecute.PythonInput> {
 
 	@Override
 	public String getDescription() {
-		return description;
+		return "Executes Python code string. Note: Only print outputs are visible, function return values are not captured. Use print statements to see results.";
 	}
 
 	@Override
 	public String getParameters() {
-		return PARAMETERS;
+		return """
+				{
+				    "type": "object",
+				    "properties": {
+				        "code": {
+				            "type": "string",
+				            "description": "The Python code to execute."
+				        }
+				    },
+				    "required": ["code"]
+				}
+				""";
 	}
 
 	@Override

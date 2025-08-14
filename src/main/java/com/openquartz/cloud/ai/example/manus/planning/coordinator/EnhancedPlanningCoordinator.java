@@ -1,4 +1,5 @@
 package com.openquartz.cloud.ai.example.manus.planning.coordinator;// /*
+
 // * Copyright 2025 the original author or authors.
 // *
 // * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +14,15 @@ package com.openquartz.cloud.ai.example.manus.planning.coordinator;// /*
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 // */
-// package com.alibaba.cloud.ai.example.manus.planning.coordinator;
+// package com.openquartz.cloud.ai.example.manus.planning.coordinator;
 
-// import com.alibaba.cloud.ai.example.manus.planning.creator.PlanCreator;
-// import com.alibaba.cloud.ai.example.manus.planning.executor.PlanExecutorInterface;
+// import com.openquartz.cloud.ai.example.manus.planning.creator.PlanCreator;
+// import com.openquartz.cloud.ai.example.manus.planning.executor.PlanExecutorInterface;
 // import
-// com.alibaba.cloud.ai.example.manus.planning.executor.factory.PlanExecutorFactory;
-// import com.alibaba.cloud.ai.example.manus.planning.finalizer.PlanFinalizer;
-// import com.alibaba.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
-// import com.alibaba.cloud.ai.example.manus.planning.model.vo.PlanInterface;
+// com.openquartz.cloud.ai.example.manus.planning.executor.factory.PlanExecutorFactory;
+// import com.openquartz.cloud.ai.example.manus.planning.finalizer.PlanFinalizer;
+// import com.openquartz.cloud.ai.example.manus.planning.model.vo.ExecutionContext;
+// import com.openquartz.cloud.ai.example.manus.planning.model.vo.PlanInterface;
 // import org.slf4j.Logger;
 // import org.slf4j.LoggerFactory;
 

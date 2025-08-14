@@ -15,115 +15,451 @@
  */
 package com.openquartz.cloud.ai.example.manus.llm;
 
+import com.openquartz.cloud.ai.example.manus.config.ManusProperties;
+import com.openquartz.cloud.ai.example.manus.dynamic.model.entity.DynamicModelEntity;
+import com.openquartz.cloud.ai.example.manus.dynamic.model.repository.DynamicModelRepository;
+import com.openquartz.cloud.ai.example.manus.event.JmanusListener;
+import com.openquartz.cloud.ai.example.manus.event.ModelChangeEvent;
+import io.micrometer.observation.ObservationRegistry;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.ChatMemoryRepository;
+import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.observation.ChatModelObservationConvention;
+import org.springframework.ai.model.tool.DefaultToolExecutionEligibilityPredicate;
+import org.springframework.ai.model.tool.ToolExecutionEligibilityPredicate;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.ollama.api.OllamaOptions;
+import org.springframework.ai.retry.RetryUtils;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class LlmService implements ILlmService {
+public class LlmService implements ILlmService, JmanusListener<ModelChangeEvent> {
 
 	private static final Logger log = LoggerFactory.getLogger(LlmService.class);
 
-	private final ChatClient agentExecutionClient;
+	private ChatClient agentExecutionClient;
 
-	private final ChatClient planningChatClient;
+	private ChatClient planningChatClient;
 
-	private final ChatClient finalizeChatClient;
+	private ChatClient finalizeChatClient;
 
 	private ChatMemory conversationMemory;
 
 	private ChatMemory agentMemory;
 
-	private final ChatModel chatModel;
+	private Map<Long, ChatClient> clients = new ConcurrentHashMap<>();
 
-	public LlmService(ChatModel chatModel) {
+	/*
+	 * Required for creating custom chatModel
+	 */
+	@Autowired
+	private ObjectProvider<RestClient.Builder> restClientBuilderProvider;
 
-		this.chatModel = chatModel;
-		// Execute and summarize planning, use the same memory
-		this.planningChatClient = ChatClient.builder(chatModel)
-			.defaultAdvisors(new SimpleLoggerAdvisor())
-			.defaultOptions(OllamaOptions.builder().temperature(0.1).build())
-			.build();
+	@Autowired
+	private ObjectProvider<WebClient.Builder> webClientBuilderProvider;
 
-		// Each agent execution process uses independent memory
+	@Autowired
+	private ObjectProvider<ObservationRegistry> observationRegistry;
 
-		this.agentExecutionClient = ChatClient.builder(chatModel)
-			// .defaultAdvisors(MessageChatMemoryAdvisor.builder(agentMemory).build())
-			.defaultAdvisors(new SimpleLoggerAdvisor())
-			.defaultOptions(OllamaOptions.builder().internalToolExecutionEnabled(false).build())
-			.build();
+	@Autowired
+	private ObjectProvider<ChatModelObservationConvention> observationConvention;
 
-		this.finalizeChatClient = ChatClient.builder(chatModel)
-			// .defaultAdvisors(MessageChatMemoryAdvisor.builder(conversationMemory).build())
-			.defaultAdvisors(new SimpleLoggerAdvisor())
-			.build();
+	@Autowired
+	private ObjectProvider<ToolExecutionEligibilityPredicate> OllamaApiToolExecutionEligibilityPredicate;
 
+	@Autowired(required = false)
+	private ManusProperties manusProperties;
+
+	@Autowired
+	private DynamicModelRepository dynamicModelRepository;
+
+	@Autowired
+	private ChatMemoryRepository chatMemoryRepository;
+
+	@Autowired
+	private LlmTraceRecorder llmTraceRecorder;
+
+	public LlmService() {
 	}
 
+	@PostConstruct
+	public void initializeChatClients() {
+		try {
+			log.info("Checking and init ChatClient instance...");
+
+			DynamicModelEntity defaultModel = dynamicModelRepository.findByIsDefaultTrue();
+			if (defaultModel == null) {
+				List<DynamicModelEntity> availableModels = dynamicModelRepository.findAll();
+				if (!availableModels.isEmpty()) {
+					defaultModel = availableModels.get(0);
+					log.info("Cannot find default model, use the first one: {}", defaultModel.getModelName());
+				}
+			}
+			else {
+				log.info("Find default model: {}", defaultModel.getModelName());
+			}
+
+			if (defaultModel != null) {
+				initializeChatClientsWithModel(defaultModel);
+				log.info("ChatClient init success");
+			}
+			else {
+				log.warn("Cannot find any model，ChatClient will be initialize after model being configured");
+			}
+		}
+		catch (Exception e) {
+			log.error("Init ChatClient failed", e);
+		}
+	}
+
+	private void initializeChatClientsWithModel(DynamicModelEntity model) {
+		OllamaOptions.Builder optionsBuilder = OllamaOptions.builder();
+
+		if (model.getTemperature() != null) {
+			optionsBuilder.temperature(model.getTemperature());
+		}
+
+		if (model.getTopP() != null) {
+			optionsBuilder.topP(model.getTopP());
+		}
+
+		OllamaOptions defaultOptions = optionsBuilder.build();
+
+		if (this.planningChatClient == null) {
+			this.planningChatClient = buildPlanningChatClient(model, defaultOptions);
+			log.debug("Planning ChatClient init finish");
+		}
+
+		// Initialize agentExecutionClient
+		if (this.agentExecutionClient == null) {
+			this.agentExecutionClient = buildAgentExecutionClient(model, defaultOptions);
+			log.debug("Agent Execution Client init finish");
+		}
+
+		// Initialize finalizeChatClient
+		if (this.finalizeChatClient == null) {
+			this.finalizeChatClient = buildFinalizeChatClient(model, defaultOptions);
+			log.debug("Finalize ChatClient init finish");
+		}
+
+		// Ensure dynamic ChatClient is also created
+		buildOrUpdateDynamicChatClient(model);
+	}
+
+	private void tryLazyInitialization() {
+		try {
+			DynamicModelEntity defaultModel = dynamicModelRepository.findByIsDefaultTrue();
+			if (defaultModel == null) {
+				List<DynamicModelEntity> availableModels = dynamicModelRepository.findAll();
+				if (!availableModels.isEmpty()) {
+					defaultModel = availableModels.get(0);
+				}
+			}
+
+			if (defaultModel != null) {
+				log.info("Lazy init ChatClient, using model: {}", defaultModel.getModelName());
+				initializeChatClientsWithModel(defaultModel);
+			}
+		}
+		catch (Exception e) {
+			log.error("Lazy init ChatClient failed", e);
+		}
+	}
+
+	@Override
 	public ChatClient getAgentChatClient() {
+		if (agentExecutionClient == null) {
+			log.warn("Agent ChatClient not initialized...");
+			tryLazyInitialization();
+
+			if (agentExecutionClient == null) {
+				throw new IllegalStateException("Agent ChatClient not initialized, please specify model first");
+			}
+		}
 		return agentExecutionClient;
 	}
 
-	public ChatClient getDynamicChatClient(String host, String apiKey, String modelName) {
-		OllamaApi openAiApi = OllamaApi.builder().baseUrl(host).build();
-
-		OllamaOptions chatOptions = OllamaOptions.builder().model(modelName).build();
-
-		OllamaChatModel openAiChatModel = OllamaChatModel.builder()
-			.ollamaApi(openAiApi)
-			.defaultOptions(chatOptions)
-			.build();
-		return ChatClient.builder(openAiChatModel)
-			// .defaultAdvisors(MessageChatMemoryAdvisor.builder(agentMemory).build())
-			.defaultAdvisors(new SimpleLoggerAdvisor())
-			.defaultOptions(OllamaOptions.builder().internalToolExecutionEnabled(false).build())
-			.build();
+	@Override
+	public ChatClient getDynamicChatClient(DynamicModelEntity model) {
+		Long modelId = model.getId();
+		if (clients.containsKey(modelId)) {
+			return clients.get(modelId);
+		}
+		return buildOrUpdateDynamicChatClient(model);
 	}
 
+	public ChatClient buildOrUpdateDynamicChatClient(DynamicModelEntity model) {
+		Long modelId = model.getId();
+		String host = model.getBaseUrl();
+		String apiKey = model.getApiKey();
+		String modelName = model.getModelName();
+		Map<String, String> headers = model.getHeaders();
+
+		OllamaApi ollamaApi = OllamaApi.builder().baseUrl(host).build();
+
+		OllamaOptions.Builder chatOptionsBuilder = OllamaOptions.builder().model(modelName);
+
+		if (model.getTemperature() != null) {
+			chatOptionsBuilder.temperature(model.getTemperature());
+		}
+
+		if (model.getTopP() != null) {
+			chatOptionsBuilder.topP(model.getTopP());
+		}
+
+		chatOptionsBuilder.internalToolExecutionEnabled(false);
+
+		OllamaOptions chatOptions = chatOptionsBuilder.build();
+//		if (headers != null) {
+//			chatOptions.setHttpHeaders(headers);
+//		}
+		OllamaChatModel OllamaApiChatModel = OllamaChatModel.builder()
+			.ollamaApi(ollamaApi)
+			.defaultOptions(chatOptions)
+			.build();
+		ChatClient client = ChatClient.builder(OllamaApiChatModel)
+			// .defaultAdvisors(MessageChatMemoryAdvisor.builder(agentMemory).build())
+			.defaultAdvisors(new SimpleLoggerAdvisor())
+			.build();
+		clients.put(modelId, client);
+		log.info("Build or update dynamic chat client for model: {}", modelName);
+		return client;
+	}
+
+	@Override
 	public ChatMemory getAgentMemory(Integer maxMessages) {
 		if (agentMemory == null) {
-			agentMemory = MessageWindowChatMemory.builder().maxMessages(maxMessages).build();
+			agentMemory = MessageWindowChatMemory.builder()
+				// in memory use by agent
+				.chatMemoryRepository(new InMemoryChatMemoryRepository())
+				.maxMessages(maxMessages)
+				.build();
 		}
 		return agentMemory;
 	}
 
-	public void clearAgentMemory(String planId) {
-		this.agentMemory.clear(planId);
+	@Override
+	public void clearAgentMemory(String memoryId) {
+		if (this.agentMemory != null) {
+			this.agentMemory.clear(memoryId);
+		}
 	}
 
+	@Override
 	public ChatClient getPlanningChatClient() {
+		if (planningChatClient == null) {
+			// Try lazy initialization
+			log.warn("Agent ChatClient not initialized...");
+			tryLazyInitialization();
+
+			if (planningChatClient == null) {
+				throw new IllegalStateException("Agent ChatClient not initialized, please specify model first");
+			}
+		}
 		return planningChatClient;
 	}
 
-	public void clearConversationMemory(String planId) {
+	@Override
+	public void clearConversationMemory(String memoryId) {
 		if (this.conversationMemory == null) {
 			// Default to 100 messages if not specified elsewhere
-			this.conversationMemory = MessageWindowChatMemory.builder().maxMessages(100).build();
+			this.conversationMemory = MessageWindowChatMemory.builder()
+				.chatMemoryRepository(chatMemoryRepository)
+				.maxMessages(100)
+				.build();
 		}
-		this.conversationMemory.clear(planId);
+		this.conversationMemory.clear(memoryId);
 	}
 
+	@Override
 	public ChatClient getFinalizeChatClient() {
+		if (finalizeChatClient == null) {
+			// Try lazy initialization
+			log.warn("Agent ChatClient not initialized...");
+			tryLazyInitialization();
+
+			if (finalizeChatClient == null) {
+				throw new IllegalStateException("Agent ChatClient not initialized, please specify model first");
+			}
+		}
 		return finalizeChatClient;
 	}
 
-	public ChatModel getChatModel() {
+	@Override
+	public ChatMemory getConversationMemory(Integer maxMessages) {
+		if (conversationMemory == null) {
+			conversationMemory = MessageWindowChatMemory.builder()
+				.chatMemoryRepository(chatMemoryRepository)
+				.maxMessages(maxMessages)
+				.build();
+		}
+		return conversationMemory;
+	}
+
+	@Override
+	public void onEvent(ModelChangeEvent event) {
+		DynamicModelEntity dynamicModelEntity = event.getDynamicModelEntity();
+
+		initializeChatClientsWithModel(dynamicModelEntity);
+
+		if (dynamicModelEntity.getIsDefault()) {
+			log.info("Model updated");
+			this.planningChatClient = null;
+			this.agentExecutionClient = null;
+			this.finalizeChatClient = null;
+			initializeChatClientsWithModel(dynamicModelEntity);
+		}
+	}
+
+	private ChatClient buildPlanningChatClient(DynamicModelEntity dynamicModelEntity,
+			OllamaOptions defaultOptions) {
+		OllamaChatModel chatModel = OllamaApiChatModel(dynamicModelEntity, defaultOptions);
+		return ChatClient.builder(chatModel)
+			.defaultAdvisors(new SimpleLoggerAdvisor())
+			.defaultOptions(OllamaOptions.fromOptions(defaultOptions))
+			.build();
+	}
+
+	private ChatClient buildAgentExecutionClient(DynamicModelEntity dynamicModelEntity,
+			OllamaOptions defaultOptions) {
+		defaultOptions.setInternalToolExecutionEnabled(false);
+		OllamaChatModel chatModel = OllamaApiChatModel(dynamicModelEntity, defaultOptions);
+		return ChatClient.builder(chatModel)
+			// .defaultAdvisors(MessageChatMemoryAdvisor.builder(agentMemory).build())
+			.defaultAdvisors(new SimpleLoggerAdvisor())
+			.defaultOptions(OllamaOptions.fromOptions(defaultOptions))
+			.build();
+	}
+
+	private ChatClient buildFinalizeChatClient(DynamicModelEntity dynamicModelEntity,
+			OllamaOptions defaultOptions) {
+		OllamaChatModel chatModel = OllamaApiChatModel(dynamicModelEntity, defaultOptions);
+		return ChatClient.builder(chatModel)
+			// .defaultAdvisors(MessageChatMemoryAdvisor.builder(conversationMemory).build())
+			.defaultAdvisors(new SimpleLoggerAdvisor())
+			.build();
+	}
+
+	public OllamaChatModel OllamaApiChatModel(DynamicModelEntity dynamicModelEntity, OllamaOptions defaultOptions) {
+		defaultOptions.setModel(dynamicModelEntity.getModelName());
+		if (defaultOptions.getTemperature() == null && dynamicModelEntity.getTemperature() != null) {
+			defaultOptions.setTemperature(dynamicModelEntity.getTemperature());
+		}
+		if (defaultOptions.getTopP() == null && dynamicModelEntity.getTopP() != null) {
+			defaultOptions.setTopP(dynamicModelEntity.getTopP());
+		}
+		Map<String, String> headers = dynamicModelEntity.getHeaders();
+		if (headers == null) {
+			headers = new HashMap<>();
+		}
+		headers.put("User-Agent", "JManus/3.0.2-SNAPSHOT");
+//		defaultOptions.setHttpHeaders(headers);
+		var OllamaApi = ollamaApi(restClientBuilderProvider.getIfAvailable(RestClient::builder),
+				webClientBuilderProvider.getIfAvailable(WebClient::builder), dynamicModelEntity);
+		OllamaOptions options = OllamaOptions.fromOptions(defaultOptions);
+		var chatModel = OllamaChatModel.builder()
+			.ollamaApi(OllamaApi)
+			.defaultOptions(options)
+			// .toolCallingManager(toolCallingManager)
+			.toolExecutionEligibilityPredicate(
+					OllamaApiToolExecutionEligibilityPredicate.getIfUnique(DefaultToolExecutionEligibilityPredicate::new))
+			// .retryTemplate(retryTemplate)
+			.observationRegistry(observationRegistry.getIfUnique(() -> ObservationRegistry.NOOP))
+			.build();
+
+		observationConvention.ifAvailable(chatModel::setObservationConvention);
+
 		return chatModel;
 	}
 
-	public ChatMemory getConversationMemory(Integer maxMessages) {
-		if (conversationMemory == null) {
-			conversationMemory = MessageWindowChatMemory.builder().maxMessages(maxMessages).build();
+	@Override
+	public ChatClient getChatClientByModelId(Long modelId) {
+		if (modelId == null) {
+			return getDefaultChatClient();
 		}
-		return conversationMemory;
+
+		DynamicModelEntity model = dynamicModelRepository.findById(modelId).orElse(null);
+		if (model == null) {
+			return getDefaultChatClient();
+		}
+
+		return getDynamicChatClient(model);
+	}
+
+	@Override
+	public ChatClient getDefaultChatClient() {
+		DynamicModelEntity defaultModel = dynamicModelRepository.findByIsDefaultTrue();
+		if (defaultModel != null) {
+			return getDynamicChatClient(defaultModel);
+		}
+
+		List<DynamicModelEntity> availableModels = dynamicModelRepository.findAll();
+		if (!availableModels.isEmpty()) {
+			return getDynamicChatClient(availableModels.get(0));
+		}
+
+		throw new IllegalStateException("Agent ChatClient not initialized, please specify model first");
+	}
+
+	private OllamaApi ollamaApi(RestClient.Builder restClientBuilder, WebClient.Builder webClientBuilder,
+			DynamicModelEntity dynamicModelEntity) {
+		Map<String, String> headers = dynamicModelEntity.getHeaders();
+		MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
+		if (headers != null) {
+			headers.forEach(multiValueMap::add);
+		}
+
+		// Clone WebClient.Builder and add timeout configuration
+		WebClient.Builder enhancedWebClientBuilder = webClientBuilder.clone()
+			// Add 5 minutes default timeout setting
+			.codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // 10MB
+			.filter((request, next) -> next.exchange(request).timeout(Duration.ofMinutes(10)));
+
+		String completionsPath = dynamicModelEntity.getCompletionsPath();
+
+		return OllamaApi.builder()
+				.baseUrl(dynamicModelEntity.getBaseUrl())
+				.restClientBuilder(restClientBuilder)
+				.webClientBuilder(enhancedWebClientBuilder)
+				.responseErrorHandler(RetryUtils.DEFAULT_RESPONSE_ERROR_HANDLER)
+				.build();
+		
+//		return new OllamaApi(dynamicModelEntity.getBaseUrl(), new SimpleApiKey(dynamicModelEntity.getApiKey()),
+//				multiValueMap, completionsPath, "/v1/embeddings", restClientBuilder, enhancedWebClientBuilder,
+//				RetryUtils.DEFAULT_RESPONSE_ERROR_HANDLER) {
+//			@Override
+//			public ResponseEntity<ChatCompletion> chatCompletionEntity(OllamaApi.ChatRequest chatRequest,
+//																	   MultiValueMap<String, String> additionalHttpHeader) {
+//				llmTraceRecorder.recordRequest(chatRequest);
+//				return super.chatCompletionEntity(chatRequest, additionalHttpHeader);
+//			}
+//
+//			@Override
+//			public Flux<ChatCompletionChunk> chatCompletionStream(ChatCompletionRequest chatRequest,
+//					MultiValueMap<String, String> additionalHttpHeader) {
+//				llmTraceRecorder.recordRequest(chatRequest);
+//				return super.chatCompletionStream(chatRequest, additionalHttpHeader);
+//			}
+//		};
 	}
 
 }

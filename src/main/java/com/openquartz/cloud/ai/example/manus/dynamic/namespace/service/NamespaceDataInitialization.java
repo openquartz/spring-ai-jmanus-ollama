@@ -41,11 +41,15 @@ public class NamespaceDataInitialization implements CommandLineRunner {
 			// Check if default namespace already exists
 			if (namespaceRepository.count() == 0) {
 				NamespaceEntity defaultNamespace = new NamespaceEntity();
-				defaultNamespace.setName("Default Namespace");
+				defaultNamespace.setName("Default");
 				defaultNamespace.setCode("default");
 				defaultNamespace.setDescription("Default namespace for general purpose use");
 				namespaceRepository.save(defaultNamespace);
 				log.info("Default namespace initialized successfully");
+			}
+			else {
+				long existingCount = namespaceRepository.count();
+				log.info("{} namespaces already exist, skipping default namespace initialization", existingCount);
 			}
 		}
 		catch (Exception e) {

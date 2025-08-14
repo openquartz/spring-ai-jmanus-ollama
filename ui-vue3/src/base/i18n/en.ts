@@ -22,6 +22,52 @@ const words: I18nType = {
   backHome: 'Back to Home',
   noPageTip: 'The page you are looking for does not exist.',
 
+  // Initialization page
+  init: {
+    welcome: 'Welcome to JManus',
+    welcomeStep: 'Welcome to JManus',
+    description: 'To get started, you need to configure an LLM service to enable AI features. You can choose Alibaba Cloud DashScope or configure any OllamaApi-compatible API service.',
+    languageStepDescription: 'Please select your language preference, which will be used as the default interface language.',
+    stepLanguage: 'Language',
+    stepModel: 'Model Setup',
+    selectLanguageLabel: 'Select Language',
+    continueToModel: 'Continue to Model Setup',
+    back: 'Back',
+    configModeLabel: 'Configuration Mode',
+    dashscopeMode: 'Alibaba Cloud DashScope (Recommended)',
+    dashscopeModeDesc: 'Use Alibaba Cloud DashScope service, just provide API key to get started quickly',
+    customMode: 'Custom OllamaApi Compatible Service',
+    customModeDesc: 'Configure any OllamaApi API compatible service, such as Ollama, LocalAI, etc.',
+    apiKeyLabel: 'DashScope API Key',
+    apiKeyPlaceholder: 'Enter your API key',
+    apiKeyHint: 'You can get your API key from Alibaba Cloud Bailian Console.',
+    getApiKey: 'Get API Key',
+    showApiKey: 'Show API Key',
+    hideApiKey: 'Hide API Key',
+    baseUrlLabel: 'API Base URL',
+    baseUrlPlaceholder: 'http://localhost:11434 or your custom URL',
+    baseUrlHint: 'OllamaApi compatible API base URL, e.g. http://localhost:11434',
+    customApiKeyLabel: 'API Key',
+    customApiKeyPlaceholder: 'Enter your API key',
+    modelNameLabel: 'Model Name',
+    modelNamePlaceholder: 'gpt-4.1 or your model name',
+    modelNameHint: 'Enter the model name you want to use, e.g. gemini-2.5-pro, gpt-4.1, etc.',
+    modelDisplayNameLabel: 'Model Display Name (Optional)',
+    modelDisplayNamePlaceholder: 'Display name for the model',
+    saveAndContinue: 'Save and Continue',
+    saving: 'Saving...',
+    apiKeyRequired: 'API key is required',
+    baseUrlRequired: 'API base URL is required',
+    modelNameRequired: 'Model name is required',
+    saveFailed: 'Failed to save configuration',
+    networkError: 'Network error, please check your internet connection',
+    successMessage: 'Configuration saved successfully! Redirecting to home page...',
+    restartRequired: 'API key saved successfully! The application needs to be restarted for the configuration to take effect.\n\nClick "OK" to restart now, or "Cancel" to restart manually later.',
+    simplifiedChinese: 'Simplified Chinese',
+    completionsPath: 'Completions Path',
+    completionsPathPlaceholder: 'If not specified, the default configuration is: /v1/chat/completions',
+  },
+
   // Common buttons and actions
   common: {
     cancel: 'Cancel',
@@ -36,8 +82,44 @@ const words: I18nType = {
     update: 'Update',
     submit: 'Submit',
     clear: 'Clear',
+    submitFailed: 'Submit Failed',
+    unknownError: 'Unknown Error',
     search: 'Search',
     loading: 'Loading...',
+    parameters: 'Parameters',
+  },
+
+  // File Browser
+  fileBrowser: {
+    title: 'File Browser',
+    refresh: 'Refresh',
+    loading: 'Loading file tree...',
+    retry: 'Retry',
+    noFiles: 'No files found',
+    loadError: 'Failed to load file tree',
+    loadingContent: 'Loading file content...',
+    contentLoadError: 'Failed to load file content',
+    download: 'Download',
+    downloadToView: 'Download to View',
+    binaryFile: 'This is a binary file that cannot be displayed in the viewer.',
+    open: 'Open',
+    copyPath: 'Copy Path',
+    noPlanSelected: 'No plan selected. Please execute a task to view files.',
+    noFilesYet: 'No Files Generated Yet',
+    waitingForFiles: 'The AI model is still processing your request. Files will appear here once they are generated.',
+    filesTip: 'Generated files like analysis results, reports, and data exports will be displayed in this file browser.',
+    noPlanExecuting: 'No task is currently being executed.',
+    startTaskTip: 'Please start a task in the chat panel on the left. Generated files will be displayed here.',
+    waitingForGeneration: 'Waiting for File Generation',
+    planExecuting: 'The AI model is currently executing the plan and generating files.',
+    checking: 'Checking...',
+    checkNow: 'Check Now',
+  },
+
+  // Language
+  language: {
+    zh: '中文',
+    en: 'English',
     success: 'Success',
     error: 'Error',
     warning: 'Warning',
@@ -73,6 +155,9 @@ const words: I18nType = {
     parameters: 'Parameters',
     thinking: 'Thinking',
     input: 'Input',
+    total: 'Total',
+    loadFailed: 'Load Failed',
+    switch: 'Switch Language',
   },
 
   // Configuration related
@@ -106,6 +191,7 @@ const words: I18nType = {
       model: 'Model Configuration',
       mcp: 'Tools/MCP Configuration',
       prompt: 'Dynamic Prompt Configuration',
+      namespace: 'Namespace Configuration',
     },
     subGroupDisplayNames: {
       agent: 'Agent',
@@ -116,7 +202,8 @@ const words: I18nType = {
       general: 'General',
       agents: 'Multi - Agent',
       infiniteContext: 'Infinite Context',
-      filesystem: 'File System'
+      filesystem: 'File System',
+      mcpServiceLoader: 'MCP Service Loader',
     },
     // Agent configuration page
     agentConfig: {
@@ -159,6 +246,9 @@ const words: I18nType = {
       invalidFormat: 'Invalid agent configuration format: missing required fields',
       modelConfiguration: 'Model Configuration',
       modelConfigurationLabel: 'Select Model',
+      cannotDeleteBuiltIn: 'Cannot delete built-in agent',
+      builtInAgents: 'Built-in Agents',
+      customAgents: 'Custom Agents',
     },
     // Model configuration page
     modelConfig: {
@@ -177,6 +267,8 @@ const words: I18nType = {
       baseUrlPlaceholder: 'Enter base url',
       apiKey: 'API Key',
       apiKeyPlaceholder: 'Enter API key',
+      showApiKey: 'Show API Key',
+      hideApiKey: 'Hide API Key',
       modelName: 'Model Name',
       modelNamePlaceholder: 'Enter model name',
       description: 'Description',
@@ -198,6 +290,29 @@ const words: I18nType = {
       loadDataFailed: 'Failed to load data',
       loadDetailsFailed: 'Failed to load model details',
       invalidFormat: 'Model configuration format is invalid: missing required fields',
+      validateConfig: 'Validate Config',
+      validationSuccess: 'Validation successful',
+      validationFailed: 'Validation failed',
+      pleaseEnterBaseUrlAndApiKey: 'Please enter Base URL and API Key',
+      selectModel: 'Select Model',
+      availableModels: 'Available Models',
+      searchModels: 'Search models...',
+      getModelsCount: 'Found {count} available models',
+      default: 'Default',
+      setAsDefault: 'Set as Default',
+      currentDefault: 'Current Default',
+      setDefaultSuccess: 'Model set as default successfully',
+      setDefaultFailed: 'Failed to set model as default',
+      validatingBeforeSave: 'Validating API key before saving...',
+      validationFailedCannotSave: 'API key validation failed, cannot save',
+      temperature: 'Temperature',
+      temperaturePlaceholder: 'Leave empty to use model default',
+      topP: 'Top P',
+      topPPlaceholder: 'Leave empty to use model default',
+      completionsPath: 'Completions Path',
+      completionsPathPlaceholder: 'If not specified, the default configuration is: /v1/chat/completions',
+      headers: 'Headers',
+      headersPlaceholder: 'Request headers (JSON format)',
     },
     // MCP configuration page
     mcpConfig: {
@@ -226,47 +341,131 @@ const words: I18nType = {
       invalidJson: 'Configuration JSON format is incorrect, please check syntax',
       addFailed: 'Failed to add MCP server, please try again',
       deleteFailed: 'Failed to delete MCP server, please try again',
+      formatJson: 'Format',
+      jsonStatusEmpty: 'Please enter JSON configuration',
+      jsonStatusValid: 'JSON format is valid',
+      jsonStatusInvalid: 'JSON format is invalid',
+      missingMcpServers: '❌ Missing mcpServers property - Please ensure JSON contains mcpServers object',
+      invalidServerConfig: '❌ Invalid server configuration: {serverId} - Server config must be an object',
+      invalidArgs: '❌ args field must be an array: {serverId} - Please change args to array format',
+      invalidEnv: '❌ env field must be an object: {serverId} - Please change env to object format',
+      invalidArgsType: '❌ args array elements must be strings: {serverId}, index: {index} - Please ensure all arguments are strings',
+      invalidEnvType: '❌ env object values must be strings: {serverId}, key: {key} - Environment variable values must be strings',
+      missingUrl: '❌ Missing url field: {serverId} - Must have url when no command is present',
+      invalidUrl: '❌ Invalid url format: {serverId} - Please check if URL format is correct',
       studioExample:
         'Please enter MCP server configuration JSON.\n\nExample:\n{\n  "mcpServers": {\n    "github": {\n      "command": "npx",\n      "args": [\n        "-y",\n        "@modelcontextprotocol/server-github"\n      ],\n      "env": {\n        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"\n      }\n    }\n  }\n}',
       sseExample:
         'Please enter SSE MCP server configuration JSON.\n\nExample:\n{\n  "mcpServers": {\n    "remote-server": {\n      "url": "https://example.com/mcp",\n      "headers": {\n        "Authorization": "Bearer <YOUR_TOKEN>"\n      }\n    }\n  }\n}',
+      selectServerHint: 'Please select an MCP server on the left or click to create a new MCP configuration',
+      jsonEditor: 'JSON Editor',
+      jsonConfigEmpty: 'JSON configuration cannot be empty',
+      jsonFormatError: 'JSON format error',
+      jsonConfigSaved: 'JSON configuration saved',
+      confirmDelete: 'Confirm Delete',
+      deleteConfirmMessage: 'Are you sure you want to delete this MCP server configuration? This action cannot be undone.',
+      deleteWarningText: 'This action cannot be undone. Please proceed with caution.',
+      noServerSelected: 'No MCP server selected',
+      updateSuccess: 'Updated successfully',
+      saveFailed: 'Save failed, please retry',
+      operationFailed: 'Operation failed',
+      mcpServerNamePlaceholder: 'Please enter MCP server name',
+      enabled: 'Enabled',
+      disabled: 'Disabled',
+      newMcpConfig: 'New MCP Config',
+      importAll: 'Import All',
+      exportAll: 'Export All',
+      mcpName: 'MCP Name',
+      usageInstructions: 'Usage Instructions',
+      getMcpServiceList: 'Get MCP Service List',
+      findMcpServices: 'You can find available MCP services on mcp.higress.ai, mcp.so, modelscope.cn',
+      batchImportTip: 'If you need to batch configure MCP services, you can use the import all function in the top right corner',
+      configureMcpService: 'Configure MCP Service',
+      fillServiceName: 'Fill in service name',
+      selectConnectionType: 'Select connection type: choose STUDIO for local and input Command, Args and Env. Choose SSE or STREAMING for remote and input URL',
+      clickSaveToComplete: 'Click save button to complete MCP configuration, MCP tools will be automatically registered to the system',
+      configureAgentUsage: 'Configure Agent Usage',
+      createAgentTip: 'Create a new Agent on the Agent configuration page, add the just configured MCP service to the Agent, this can reduce tool conflicts and improve Agent tool selection accuracy',
+      copyJsonConfig: 'Copy the complete JSON configuration to the input box above (you can refer to configuration examples), then click import',
+      command: 'Command',
+      args: 'Args',
+      env: 'Env',
+      url: 'URL',
+      save: 'Save',
+      delete: 'Delete',
+      reset: 'Reset',
+      import: 'Import',
+      cancel: 'Cancel',
+      exportSuccess: 'Export successful',
+      exportFailed: 'Export failed',
+      statusToggleSuccess: 'Status toggle successful',
+      statusToggleFailed: 'Status toggle failed',
+      missingUrlField: 'Missing url field: {serverId} - must have url or baseUrl when no command',
+      urlFieldTip: '💡 Please provide url or baseUrl field',
+      serverConfigWarning: 'Server {serverId} has no command but also no url or baseUrl',
+      jsonSyntaxError: '❌ JSON syntax error - please check brackets, commas, quotes and other symbols',
+      jsonIncomplete: '❌ JSON incomplete - please check if ending brackets or quotes are missing',
+      jsonNumberError: '❌ JSON number format error - please check number format',
+      jsonStringError: '❌ JSON string format error - please check if quotes are paired',
+      jsonSyntaxErrorWithMessage: '❌ JSON syntax error: {message}',
+      correctFormatExample: '💡 Correct format example: {"mcpServers": {"server-id": {"name": "Server Name", "url": "Server URL"}}}',
+      commandPlaceholder: 'e.g.: uvx',
+      urlPlaceholder: 'e.g.: https://mcp.example.com/server',
+      argsPlaceholder: 'One parameter per line, e.g.:\n--from\nmysql_mcp_server_pro\n--mode\nstdio',
+      envPlaceholder: 'Key-value format, one per line, e.g.:\nMYSQL_HOST:127.0.0.1\nMYSQL_PORT:3306\nMYSQL_USER:root',
+      connectionTypePlaceholder: 'Please select connection type',
+      argsFormatError: 'Args format error, please enter a valid JSON array',
+      envFormatError: 'Env format error, please enter a valid JSON object',
+      argsStringError: 'Args format error, each parameter must be a string',
+      envStringError: 'Env format error, each value must be a string',
+      importSuccess: 'Import successful',
+      importFailed: 'Import failed',
+      importInvalidJson: 'Imported JSON is invalid',
     },
     // Basic configuration
     basicConfig: {
       title: 'Basic Configuration',
       browserSettings: {
         headless: 'Whether to use headless browser mode',
-        requestTimeout: 'Browser request timeout (seconds)'
+        requestTimeout: 'Browser request timeout (seconds)',
       },
       general: {
-        debugDetail: 'Debug mode: The model will output more content to facilitate problem - finding, but it will be slower',
-        baseDir: 'Manus root directory'
+        debugDetail:
+          'Debug mode: The model will output more content to facilitate problem - finding, but it will be slower',
+        baseDir: 'Manus root directory',
       },
       interactionSettings: {
-        openBrowser: 'Automatically open the browser on startup'
+        openBrowser: 'Automatically open the browser on startup',
       },
       agentSettings: {
         maxSteps: 'Max Steps',
         userInputTimeout: 'User input form waiting timeout (seconds)',
         maxMemory: 'Maximum number of messages that can be remembered',
-        parallelToolCalls: 'Parallel tool calls'
+        parallelToolCalls: 'Parallel tool calls',
       },
       agents: {
-        forceOverrideFromYaml: 'Force override of agents with the same name using the YAML configuration file'
+        forceOverrideFromYaml:
+          'Force override of agents with the same name using the YAML configuration file',
       },
       infiniteContext: {
         enabled: 'Whether to enable infinite context',
         parallelThreads: 'Number of parallel processing threads',
-        taskContextSize: 'Character count threshold for triggering infinite context (number of characters)'
+        taskContextSize:
+          'Character count threshold for triggering infinite context (number of characters)',
       },
       fileSystem: {
-        allowExternalAccess: 'Whether to allow file operations beyond the working directory'
+        allowExternalAccess: 'Whether to allow file operations beyond the working directory',
+      },
+      mcpServiceLoader: {
+        connectionTimeoutSeconds: 'MCP connection timeout (seconds)',
+        maxRetryCount: 'MCP connection max retry count',
+        maxConcurrentConnections: 'MCP max concurrent connections',
       },
       systemSettings: {
         systemName: 'System Name',
         language: 'Language',
         maxThreads: 'Max Threads',
-        timeoutSeconds: 'Request Timeout (seconds)'
+        timeoutSeconds: 'Request Timeout (seconds)',
       },
       totalConfigs: 'Total Configurations',
       modified: 'Modified',
@@ -274,11 +473,20 @@ const words: I18nType = {
       importConfigs: 'Import Configurations',
       search: 'Search',
       loading: 'Loading',
+      saveSuccess: 'Configuration saved successfully',
+      exportSuccess: 'Configuration exported successfully',
+      exportFailed: 'Failed to export configuration',
+      invalidFormat: 'Configuration file format is invalid',
+      importSuccess: 'Configuration imported successfully',
+      resetSuccess: 'Configuration reset successfully',
       notFound: 'No configuration items found',
+      noModified: 'No modified configurations',
       resetGroupConfirm: 'Reset all configurations in this group to default values',
+      isDefault: 'This group configuration is default',
       reset: 'Reset',
       requestTimeout: 'Request timeout (seconds)',
       browserTimeout: 'Browser request timeout (seconds)',
+      loadConfigSuccess: 'Configuration loaded successfully',
       loadConfigFailed: 'Failed to load configuration, please refresh and try again',
       saveFailed: 'Save failed, please try again',
       resetFailed: 'Reset failed, please try again',
@@ -290,6 +498,10 @@ const words: I18nType = {
         system: 'System',
         performance: 'Performance',
       },
+      restoreAllDefaults: 'Restore to Default',
+      restoreAllDefaultsConfirm: 'Are you sure you want to restore all configurations to default values? This will overwrite all custom configurations.',
+      restoreAllDefaultsSuccess: 'All configurations have been restored to default values',
+      restoreAllDefaultsFailed: 'Failed to restore default configurations',
     },
     promptConfig: {
       title: 'Dynamic Prompt Configuration',
@@ -320,20 +532,42 @@ const words: I18nType = {
       deleteConfirm: 'Delete Confirmation',
       deleteConfirmText: 'Are you sure you want to delete',
       deleteWarning: 'This action cannot be undone.',
+      exportSuccess: 'Configuration exported successfully',
+      exportFailed: 'Failed to export configuration',
+      importSuccess: 'Configuration imported successfully',
+      importFailed: 'Failed to import configuration',
+      resetToLanguageDefault: 'Reset to Language Default',
+      selectLanguage: 'Select Language',
+      resetToLanguageDefaultSuccess: 'Reset to language default successfully',
+      resetToLanguageDefaultFailed: 'Failed to reset to language default',
+      resetLanguageWarning: 'This will overwrite current content with the default version of selected language',
+      batchSwitchLanguage: 'Batch Switch Language',
+      batchSwitchLanguageSuccess: 'Batch language switch successful',
+      batchSwitchLanguageFailed: 'Failed to batch switch language',
+      batchSwitchLanguageWarning: 'This will overwrite all prompt content and descriptions with the default version of selected language',
     },
     namespaceConfig: {
       title: 'Namespace Configuration',
+      name: 'Namespace Name',
+      code: 'Namespace Code',
+      host: 'Host',
+      description: 'Namespace Description',
       loadDetailsFailed: 'Failed to load namespace details',
+      selectNameSpaceHint: 'Please select a namespace to configure',
       createNew: 'Create New Namespace',
       placeholder: 'Please enter',
       saveSuccess: 'Saved successfully',
-      saveFailed: 'Failed to save',
+      saveFailed: 'Save failed',
       deleteSuccess: 'Deleted successfully',
-      deleteFailed: 'Failed to delete',
+      deleteFailed: 'Delete failed',
       deleteConfirm: 'Delete Confirmation',
       deleteConfirmText: 'Are you sure you want to delete',
       deleteWarning: 'This action cannot be undone.',
       configured: 'Configured Namespaces',
+      namespace: {
+        selectNamespace: 'Please select a namespace',
+        namespace: 'Namespace',
+      },
     },
   },
 
@@ -361,6 +595,21 @@ const words: I18nType = {
     saveFailed: 'Failed to save agent',
     deleteSuccess: 'Agent deleted successfully',
     deleteFailed: 'Failed to delete agent',
+    // Multi-language support
+    multiLanguage: {
+      title: 'Agent Multi-Language Management',
+      resetAll: 'Reset All Agents',
+      resetAllConfirm: 'Reset All Agents Confirmation',
+      resetAllWarning: 'This operation will delete all existing agent configurations and reload the specified language version. This action cannot be undone!',
+      selectLanguage: 'Select Language',
+      resetSuccess: 'All agents have been reset to the specified language version',
+      resetFailed: 'Failed to reset agents',
+      currentLanguage: 'Current Language',
+      supportedLanguages: 'Supported Languages',
+      resetInProgress: 'Resetting agents...',
+      confirmReset: 'Confirm Reset',
+      cancel: 'Cancel',
+    },
   },
   // Model Configuration
   model: {
@@ -442,12 +691,14 @@ const words: I18nType = {
     executionFailed: 'Execution failed',
     generationSuccess: 'Generation successful',
     generationFailed: 'Generation failed',
+    invalidJson: 'Invalid JSON format, please correct and save again',
+    executePlanTemplate: 'Execute Plan Template',
   },
 
   // Chat component
   chat: {
-    botName: 'TaskPilot:',
-    thinkingLabel: 'TaskPilot Thinking/Processing',
+    botName: 'JManus:',
+    thinkingLabel: 'JManus Thinking/Processing',
     processing: 'Processing...',
     step: 'Step',
     stepNumber: 'Step {number}',
@@ -485,16 +736,25 @@ const words: I18nType = {
     formatError: 'Request format might be incorrect, could you please rephrase your request?',
     unknownError: 'Encountered some issues while processing your request, please try again later',
     thinkingOutput: 'Thinking Output',
+    defaultResponse: 'I understand. Is there anything else I can help you with?',
+    anythingElse: 'Is there anything else I can help you with?',
+    okayDone: 'Okay, {text}',
+    ifOtherQuestions: 'If you have any other questions, please feel free to let me know',
+    hopeHelpful: 'I hope this answer is helpful to you!',
+    great: 'Great!',
+    ifOtherHelp: 'If you need any other help, please feel free to let me know',
+    completedRequest: 'I have completed your request: {result}'
   },
 
   // Input component
   input: {
-    placeholder: 'Send a message to JTaskPilot',
+    placeholder: 'Send a message to JManus',
     send: 'Send',
     planMode: 'PLAN-ACT Template Mode',
-    waiting: 'Waiting for task completion...',
+    waiting: 'Waiting for user input...',
     maxLength: 'Max Length',
     charactersRemaining: 'Characters Remaining',
+    attachFile: 'Attach File',
   },
 
   // Sidebar
@@ -568,6 +828,26 @@ const words: I18nType = {
     defaultExecutionPlanTitle: 'Execution Plan',
   },
 
+  // Tool Selection
+  toolSelection: {
+    title: 'Select Tools',
+    searchPlaceholder: 'Search tools...',
+    sortByGroup: 'Sort by Service Group',
+    sortByName: 'Sort by Name',
+    sortByStatus: 'Sort by Status',
+    summary: '{groups} service groups, {tools} tools ({selected} selected)',
+    enableAll: 'Enable All',
+    noToolsFound: 'No tools found'
+  },
+
+  // Direct execution page
+  direct: {
+    planTemplateIdNotFound: 'Plan template ID not found',
+    executionFailedNoPlanId: 'Plan execution failed: No valid plan ID returned',
+    executionFailed: 'Plan execution failed',
+    configuration: 'config'
+  },
+
   // Modal
   modal: {
     close: 'Close',
@@ -594,12 +874,9 @@ const words: I18nType = {
     resetFontSize: 'Reset Font Size',
   },
 
-  // Language switching
-  language: {
-    switch: 'Switch Language',
-    current: 'Current Language',
-    zh: '中文',
-    en: 'English',
+  // Validation
+  validation: {
+    required: 'Content cannot be empty',
   },
 
   // Theme
@@ -622,23 +899,10 @@ const words: I18nType = {
     retry: 'Retry',
   },
 
-  // Form validation
-  validation: {
-    required: 'This field is required',
-    email: 'Please enter a valid email address',
-    phone: 'Please enter a valid phone number',
-    url: 'Please enter a valid URL',
-    minLength: 'At least {min} characters required',
-    maxLength: 'Maximum {max} characters allowed',
-    min: 'Value cannot be less than {min}',
-    max: 'Value cannot be greater than {max}',
-    pattern: 'Invalid format',
-    confirmation: 'The two inputs do not match',
-  },
-
   // Time related
   time: {
     now: 'Just now',
+    unknown: 'Unknown time',
     minuteAgo: '{count} minutes ago',
     hourAgo: '{count} hours ago',
     dayAgo: '{count} days ago',
@@ -678,28 +942,51 @@ const words: I18nType = {
 
   // Home page
   home: {
-    welcomeTitle: 'Welcome to JTaskPilot!',
+    welcomeTitle: 'Welcome to JManus!',
     welcomeSubtitle:
       'Your Java AI intelligent assistant, helping you build and complete various tasks.',
     tagline: 'Java AI Agent',
     inputPlaceholder: 'Describe what you want to build or accomplish...',
+    directButton: 'Enter Workbench Directly',
     examples: {
       stockPrice: {
         title: 'Query Stock Price',
-        description: "Get today's latest stock price for Alibaba (Agent can use browser tools)",
+        description: "Get today's latest stock price for Alphabet (Agent can use browser tools)",
         prompt:
-          "Use browser based on Baidu to query today's Alibaba stock price and return the latest stock price",
-      },
-      novel: {
-        title: 'Generate a Novella',
-        description: 'Help me generate a novella (Agent can generate longer content)',
-        prompt:
-          'Please help me write a novel about robots replacing humans. 20,000 words. Use TEXT_FILE_AGENT, first generate an outline, then improve and enrich the entire outline content into a coherent novel, and finally smooth out the grammar globally',
+          "Use browser based on Google to query today's Alphabet stock price and return the latest stock price\n",
       },
       weather: {
         title: 'Query Weather',
-        description: "Get today's weather in Beijing (Agent can use MCP tool services)",
-        prompt: "Use browser, based on Baidu, to query today's weather in Beijing",
+        description: "Get today's weather in New York (Agent can use MCP tool services)",
+        prompt: "Use browser, based on Google, to query today's weather in New York",
+      },
+      queryplan: {
+        title: 'Query Person Info',
+        description: "Query all information about Shenxun Ali (to demonstrate infinite context capability)",
+        prompt: 'Use browser, based on Baidu, to query person info',
+        planTitle: 'Query all information about Shenxun Ali (to demonstrate infinite context capability)',
+        step1: '[BROWSER_AGENT] Search for Shenxun Ali through Baidu, get the first page HTML data, merge and aggregate to html_data directory',
+        step1Output: 'Storage directory path',
+        step2: '[BROWSER_AGENT] Find all valid web links about Shenxun Ali from html_data directory, output to link.md',
+        step2Output: 'URL address, description',
+      },
+      ainovel: {
+        title: 'AI Novel Creation',
+        description: 'AI gradually defeats humanity themed novel (to demonstrate long-form content output)',
+        prompt: 'Create a novel about artificial intelligence gradually defeating humanity, including 10 chapters',
+        planTitle: 'AI Gradually Defeats Humans Novel Creation Plan',
+        step1: '[TEXT_FILE_AGENT] Create a file with novel title and chapter titles, expecting a novel with 10 chapters, output outline to novel.md, each chapter uses secondary title, only write chapter titles in current step, novel title is "AI Gradually Defeats Humans"',
+        step1Output: 'File name',
+        step2: '[TEXT_FILE_AGENT] Get chapter title information from novel.md file, then improve each chapter content in sequence, only improve one chapter content per round, use replace to update content, each chapter requires 3000 words, do not query all document content after updating each chapter',
+        step2Output: 'File name',
+      },
+      formInputDemo: {
+        title: 'AI Intelligent Dynamic Form Demo',
+        description: 'Experience AI intelligent analysis of user needs and dynamic generation of relevant form fields',
+        prompt: 'Demonstrate how AI intelligently generates targeted form fields based on user questions',
+        planTitle: 'AI Intelligent Dynamic Form Demo Plan',
+        step1: '[INTELLIGENT_FORM_AGENT] Launch intelligent dynamic form demo, actively analyze user needs and dynamically generate relevant form fields, showcasing AI intelligent form generation capabilities',
+        step1Output: 'Demo results, user interaction data',
       },
     },
   },
@@ -726,11 +1013,19 @@ const words: I18nType = {
     toolParameters: 'Tool Parameters',
     noStepDetails: 'No detailed step information available',
     scrollToBottom: 'Scroll to Bottom',
-    // Step status
+    stepInfo: 'Step Information',
+    stepName: 'Step Name',
+    noExecutionInfo: 'No detailed execution information available for this step',
+    subPlan: 'Sub Execution Plan',
+    subStep: 'Sub Step',
+    subPlanId: 'Sub Plan ID',
+    title: 'Title',
+    stepNumber: 'Step {number}',
     status: {
+      label: 'Status',
       completed: 'Completed',
       executing: 'Executing',
-      waiting: 'Waiting',
+      pending: 'Pending'
     },
     // Tab labels
     tabs: {
@@ -767,11 +1062,66 @@ const words: I18nType = {
     defaultStepTitle: 'Step {number}',
   },
 
-  // Direct page
-  direct: {
-    configuration: 'Configuration',
-    panelResizeHint: 'Drag to resize panel, double-click to reset',
-    aboutExecutionDetails: 'About Integrated Execution Details',
+  // Cron Task
+  cronTask: {
+    title: 'Cron Task Management',
+    addTask: 'Cron Task',
+    noTasks: 'No cron tasks',
+    taskName: 'Task Name',
+    taskNamePlaceholder: 'Please enter task name',
+    cronExpression: 'Cron Expression',
+    cronExpressionPlaceholder: 'e.g: 0 0 12 * * ?',
+    cronExpressionHelp: 'Format: second minute hour day month week year',
+    taskDescription: 'Task Description',
+    taskDescriptionPlaceholder: 'Please enter task description',
+    taskStatus: 'Task Status',
+    taskDetail: 'Task Detail',
+    executeOnce: 'Execute Once',
+    edit: 'Edit',
+    operations: 'Operations',
+    enable: 'Enable',
+    disable: 'Disable',
+    delete: 'Delete',
+    deleteConfirm: 'Confirm Delete',
+    deleteConfirmMessage:
+      'Are you sure you want to delete task "{taskName}"? This action cannot be undone.',
+    nextExecution: 'Next Execution Time',
+    createTime: 'Create Time',
+    updateTime: 'Update Time',
+    active: 'Active',
+    inactive: 'Inactive',
+    template: 'Example: Help me collect today\'s AI news every day at 8 AM',
+    planTemplate: 'Plan Template',
+    linkTemplate: 'Link Template',
+    noTemplate: 'No Template',
+    selectTemplate: 'Select Template',
+    templateHelpText: 'After selection, the cron task will execute according to the defined plan',
+    createTask: 'Create Cron Task',
+    selectCreateMethod: 'Please select creation method',
+    createWithJmanus: 'Create with Jmanus',
+    createWithJmanusDesc: 'Create cron task with AI assistant guidance',
+    createManually: 'Create Manually',
+    createManuallyDesc: 'Fill in task information yourself',
+  },
+  memory: {
+    title: 'Memory Management',
+    searchPlaceholder: 'Search Memory',
+    size: 'memories',
+    newNamePlaceholder: 'Enter a new name...',
+    changeName: 'Change Name',
+    save: 'save',
+    cancel: 'cancel',
+    delete: 'delete',
+    deleteHint: 'delete hint',
+    deleteHintPrefix: 'Are you sure you want to delete the memory with ID',
+    deleteHintSuffix: '? This action cannot be undone.',
+    selectMemory: 'Select Memory',
+    clearMemory: 'Clear Memory',
+    newChat: 'new chat',
+  },
+  // Common placeholders
+  selectCommon: {
+    pleaseSelect: 'Please select...',
   },
 }
 
